@@ -20,7 +20,7 @@ export function Input({
       {label && (
         <label
           htmlFor={id}
-          className="mb-2 block text-xs font-medium text-[#b0b0b0]"
+          className="mb-2 block text-xs font-medium text-[var(--color-text-secondary)]"
         >
           {label}
         </label>
@@ -29,12 +29,12 @@ export function Input({
       <input
         id={id}
         className={cn(
-          "h-10 w-full rounded-lg border bg-[#111111] px-3 text-sm text-[#f5f5f5]",
+          "h-10 w-full rounded-lg border bg-[var(--color-surface-raised)] px-3 text-sm text-[var(--color-text)]",
           "outline-none transition-all duration-200",
-          "placeholder:text-[#555555]",
+          "placeholder:text-[var(--color-text-muted)]",
           error
-            ? "border-[#ff4d4f]/70 focus:border-[#ff4d4f]"
-            : "border-[#2a2a2a] focus:border-[#d4af37]/70 focus:ring-1 focus:ring-[#d4af37]/20",
+            ? "border-[var(--color-danger)]/70 focus:border-[var(--color-danger)]"
+            : "border-[var(--color-border-strong)] focus:border-[var(--color-brand)]/70 focus:ring-1 focus:ring-[var(--color-brand)]/20",
           "disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
@@ -42,9 +42,9 @@ export function Input({
       />
 
       {error ? (
-        <p className="mt-1.5 text-xs text-[#ff4d4f]">{error}</p>
+        <p className="mt-1.5 text-xs text-[var(--color-danger)]">{error}</p>
       ) : hint ? (
-        <p className="mt-1.5 text-xs text-[#666666]">{hint}</p>
+        <p className="mt-1.5 text-xs text-[var(--color-text-muted)]">{hint}</p>
       ) : null}
     </div>
   );

@@ -13,6 +13,7 @@ import { LoginPage } from "../pages/auth/LoginPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { EmployeesPage } from "../pages/employees/EmployeesPage";
 import SettingsPage from "../pages/settings/SettingsPage";
+import { PayrollPage } from "../pages/payroll/PayrollPage";
 
 function ProtectedRoute({
   children,
@@ -102,6 +103,17 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <EmployeesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/payroll"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <PayrollPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }
