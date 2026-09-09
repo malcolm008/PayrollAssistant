@@ -7,6 +7,7 @@ import {
   Settings,
   Users,
   Wallet,
+  WalletCards,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -36,6 +37,11 @@ const navigation = [
     label: "Payroll",
     path: "/payroll",
     icon: Wallet,
+  },
+  {
+    label: "Advances",
+    path: "/advances",
+    icon: WalletCards,
   },
   {
     label: "Reports",

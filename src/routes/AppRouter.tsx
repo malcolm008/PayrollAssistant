@@ -14,6 +14,10 @@ import { DashboardPage } from "../pages/DashboardPage";
 import { EmployeesPage } from "../pages/employees/EmployeesPage";
 import SettingsPage from "../pages/settings/SettingsPage";
 import { PayrollPage } from "../pages/payroll/PayrollPage";
+import { AttendancePage } from "../pages/attendance/AttendancePage";
+import { ReportsPage } from "../pages/reports/ReportsPage";
+import { AdvancesPage } from "../pages/advances/AdvancesPage";
+import { AdvanceTypesPage } from "../pages/advances/AdvanceTypesPage";
 
 function ProtectedRoute({
   children,
@@ -114,6 +118,50 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <PayrollPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/attendance"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <AttendancePage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/advances"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <AdvancesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings/payroll/advance-types"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <AdvanceTypesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <ReportsPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }
