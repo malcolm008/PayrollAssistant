@@ -1,6 +1,4 @@
 import {
-  ArrowDownRight,
-  ArrowUpRight,
   CheckCircle2,
   ChevronDown,
   Clock3,
@@ -10,421 +8,131 @@ import {
   Plus,
   Search,
   WalletCards,
+  XCircle,
 } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 
-import { Button } from "../../components/ui/Button";
-import { Card } from "../../components/ui/Card";
-import { Input } from "../../components/ui/Input";
+import { useAdvances } from "../../hooks/useAdvances";
+import type {
+  AdvanceRecord,
+  AdvanceStatus,
+} from "./advance";
 
-type AdvanceStatus =
-  | "Draft"
-  | "Pending Approval"
-  | "Approved"
-  | "Paid"
-  | "Partially Recovered"
-  | "Fully Recovered"
-  | "Rejected"
-  | "Cancelled";
+import AdvanceApproval from "./AdvanceApproval";
+import AdvanceDetails from "./AdvanceDetails";
+import AdvanceForm from "./AdvanceForm";
+import AdvanceRepayment from "./AdvanceRepayment";
 
-interface AdvanceRecord {
-  id: string;
-  employeeNumber: string;
-  employeeName: string;
-  department: string;
-  type: string;
-  amount: number;
-  recovered: number;
-  requestDate: string;
-  status: AdvanceStatus;
-}
+type AdvanceTab =
+  | "register"
+  | "new"
+  | "approval"
+  | "repayment";
 
-const mockAdvances: AdvanceRecord[] = [
+const currencyFormatter = new Intl.NumberFormat(
+  "en-TZ",
   {
-    id: "ADV-0001",
-    employeeNumber: "EMP-0001",
-    employeeName: "John Mwangi",
-    department: "Finance",
-    type: "Mid-Month Advance",
-    amount: 500000,
-    recovered: 250000,
-    requestDate: "08 Sep 2026",
-    status: "Partially Recovered",
-  },
-  {
-    id: "ADV-0002",
-    employeeNumber: "EMP-0002",
-    employeeName: "Sarah Johnson",
-    department: "Human Resources",
-    type: "Air Ticket Advance",
-    amount: 1200000,
-    recovered: 600000,
-    requestDate: "03 Sep 2026",
-    status: "Paid",
-  },
-  {
-    id: "ADV-0003",
-    employeeNumber: "EMP-0003",
-    employeeName: "Michael Smith",
-    department: "Information Technology",
-    type: "Leave Advance",
-    amount: 800000,
-    recovered: 800000,
-    requestDate: "28 Aug 2026",
-    status: "Fully Recovered",
-  },
-  {
-    id: "ADV-0004",
-    employeeNumber: "EMP-0004",
-    employeeName: "Amina Hassan",
-    department: "Administration",
-    type: "Emergency Advance",
-    amount: 350000,
-    recovered: 0,
-    requestDate: "07 Sep 2026",
-    status: "Pending Approval",
-  },
-  {
-    id: "ADV-0005",
-    employeeNumber: "EMP-0005",
-    employeeName: "David Mushi",
-    department: "Operations",
-    type: "Travel Advance",
-    amount: 950000,
-    recovered: 0,
-    requestDate: "05 Sep 2026",
-    status: "Approved",
-  },
-  {
-    id: "ADV-0006",
-    employeeNumber: "EMP-0006",
-    employeeName: "Grace Joseph",
-    department: "Finance",
-    type: "Salary Advance",
-    amount: 700000,
-    recovered: 350000,
-    requestDate: "01 Sep 2026",
-    status: "Partially Recovered",
-  },
-];
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en-TZ", {
     style: "currency",
     currency: "TZS",
     maximumFractionDigits: 0,
-  }).format(value);
+  },
+);
 
-const getInitials = (name: string) =>
-  name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+function formatCurrency(value: number) {
+  return currencyFormatter.format(value);
+}
 
-export function AdvancesPage() {
-  const [advances] = useState(mockAdvances);
+function formatDate(date: string) {
+  if (!date) return "—";
 
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [typeFilter, setTypeFilter] = useState("All");
-  const [showFilters, setShowFilters] = useState(false);
+  const parsed = new Date(date);
 
-  const [selectedAdvance, setSelectedAdvance] =
-    useState<AdvanceRecord | null>(null);
+  if (Number.isNaN(parsed.getTime())) {
+    return date;
+  }
 
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  return parsed.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
-  const filteredAdvances = useMemo(() => {
-    const query = search.trim().toLowerCase();
+function getStatusClass(status: AdvanceStatus) {
+  switch (status) {
+    case "Draft":
+      return {
+        background: "var(--color-surface-hover)",
+        color: "var(--color-text-secondary)",
+      };
 
-    return advances.filter((advance) => {
-      const matchesSearch =
-        !query ||
-        advance.employeeName.toLowerCase().includes(query) ||
-        advance.employeeNumber.toLowerCase().includes(query) ||
-        advance.type.toLowerCase().includes(query);
+    case "Pending Approval":
+      return {
+        background: "var(--color-brand-soft)",
+        color: "var(--color-brand)",
+      };
 
-      const matchesStatus =
-        statusFilter === "All" || advance.status === statusFilter;
+    case "Approved":
+      return {
+        background: "var(--color-info)",
+        color: "white",
+      };
 
-      const matchesType =
-        typeFilter === "All" || advance.type === typeFilter;
+    case "Paid":
+      return {
+        background: "var(--color-success)",
+        color: "white",
+      };
 
-      return matchesSearch && matchesStatus && matchesType;
-    });
-  }, [advances, search, statusFilter, typeFilter]);
+    case "Partially Recovered":
+      return {
+        background: "var(--color-brand-soft)",
+        color: "var(--color-brand)",
+      };
 
-  const outstanding = advances.reduce(
-    (total, advance) => total + (advance.amount - advance.recovered),
-    0,
-  );
+    case "Fully Recovered":
+      return {
+        background: "var(--color-success)",
+        color: "white",
+      };
 
-  const thisMonth = advances.reduce(
-    (total, advance) => total + advance.amount,
-    0,
-  );
+    case "Rejected":
+      return {
+        background: "var(--color-danger)",
+        color: "white",
+      };
 
-  const recovered = advances.reduce(
-    (total, advance) => total + advance.recovered,
-    0,
-  );
+    case "Cancelled":
+      return {
+        background: "var(--color-surface-hover)",
+        color: "var(--color-text-muted)",
+      };
 
-  const pending = advances.filter(
-    (advance) => advance.status === "Pending Approval",
-  ).length;
+    default:
+      return {
+        background: "var(--color-surface-hover)",
+        color: "var(--color-text-secondary)",
+      };
+  }
+}
 
-  const types = [...new Set(advances.map((advance) => advance.type))];
+function StatusBadge({
+  status,
+}: {
+  status: AdvanceStatus;
+}) {
+  const style = getStatusClass(status);
 
   return (
-    <div className="min-h-full bg-[var(--color-bg)] text-[var(--color-text)]">
-      <div className="mx-auto max-w-[1600px] space-y-6 p-6 lg:p-8">
-        {/* Header */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
-              <WalletCards size={16} />
-              <span>Payroll / Advances</span>
-            </div>
-
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Advances
-            </h1>
-
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-              Manage employee advances, approvals and repayments.
-            </p>
-          </div>
-
-          <Button className="flex items-center justify-center gap-2">
-            <Plus size={17} />
-            New Advance
-          </Button>
-        </div>
-
-        {/* Statistics */}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            label="Outstanding"
-            value={formatCurrency(outstanding)}
-            icon={<ArrowUpRight size={18} />}
-            detail="Amount yet to be recovered"
-          />
-
-          <StatCard
-            label="This Month"
-            value={formatCurrency(thisMonth)}
-            icon={<WalletCards size={18} />}
-            detail={`${advances.length} advances recorded`}
-          />
-
-          <StatCard
-            label="Recovered"
-            value={formatCurrency(recovered)}
-            icon={<ArrowDownRight size={18} />}
-            detail="Total recovered"
-          />
-
-          <StatCard
-            label="Pending Approval"
-            value={String(pending)}
-            icon={<Clock3 size={18} />}
-            detail="Awaiting approval"
-          />
-        </div>
-
-        {/* Toolbar */}
-        <Card className="p-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-            <div className="relative flex-1">
-              <Search
-                size={17}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-              />
-
-              <Input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search employee, number or advance type..."
-                className="pl-10"
-              />
-            </div>
-
-            <Button
-              variant="secondary"
-              onClick={() => setShowFilters((current) => !current)}
-              className="flex items-center justify-center gap-2"
-            >
-              <Filter size={16} />
-              Filters
-            </Button>
-          </div>
-
-          {showFilters && (
-            <div className="mt-4 grid gap-4 border-t border-[var(--color-border)] pt-4 md:grid-cols-2">
-              <FilterSelect
-                label="Advance Type"
-                value={typeFilter}
-                options={["All", ...types]}
-                onChange={setTypeFilter}
-              />
-
-              <FilterSelect
-                label="Status"
-                value={statusFilter}
-                options={[
-                  "All",
-                  "Draft",
-                  "Pending Approval",
-                  "Approved",
-                  "Paid",
-                  "Partially Recovered",
-                  "Fully Recovered",
-                  "Rejected",
-                  "Cancelled",
-                ]}
-                onChange={setStatusFilter}
-              />
-            </div>
-          )}
-        </Card>
-
-        {/* Register */}
-        <Card className="overflow-hidden">
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
-            <div>
-              <h2 className="font-semibold">Advance Register</h2>
-              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                {filteredAdvances.length} advance
-                {filteredAdvances.length === 1 ? "" : "s"} displayed
-              </p>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1050px] text-left">
-              <thead>
-                <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-hover)]">
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Advance Type</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Recovered</TableHead>
-                  <TableHead>Outstanding</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead />
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredAdvances.map((advance) => {
-                  const balance = advance.amount - advance.recovered;
-
-                  return (
-                    <tr
-                      key={advance.id}
-                      className="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-surface-hover)]"
-                    >
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-soft)] text-xs font-semibold text-[var(--color-brand)]">
-                            {getInitials(advance.employeeName)}
-                          </div>
-
-                          <div>
-                            <div className="font-medium">
-                              {advance.employeeName}
-                            </div>
-
-                            <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-                              {advance.employeeNumber} · {advance.department}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="px-5 py-4 text-sm">
-                        {advance.type}
-                      </td>
-
-                      <td className="px-5 py-4 text-sm font-medium">
-                        {formatCurrency(advance.amount)}
-                      </td>
-
-                      <td className="px-5 py-4 text-sm text-[var(--color-success)]">
-                        {formatCurrency(advance.recovered)}
-                      </td>
-
-                      <td className="px-5 py-4 text-sm font-semibold">
-                        {formatCurrency(balance)}
-                      </td>
-
-                      <td className="px-5 py-4 text-sm text-[var(--color-text-secondary)]">
-                        {advance.requestDate}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <StatusBadge status={advance.status} />
-                      </td>
-
-                      <td className="relative px-5 py-4">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setOpenMenu((current) =>
-                              current === advance.id ? null : advance.id,
-                            )
-                          }
-                          className="rounded-lg p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-                        >
-                          <MoreHorizontal size={18} />
-                        </button>
-
-                        {openMenu === advance.id && (
-                          <div className="absolute right-5 top-12 z-20 w-44 rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] p-1 shadow-xl">
-                            <MenuAction
-                              icon={<Eye size={15} />}
-                              label="View Details"
-                              onClick={() => {
-                                setSelectedAdvance(advance);
-                                setOpenMenu(null);
-                              }}
-                            />
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredAdvances.length === 0 && (
-            <div className="px-6 py-16 text-center">
-              <WalletCards
-                size={30}
-                className="mx-auto text-[var(--color-text-muted)]"
-              />
-
-              <h3 className="mt-3 font-medium">No advances found</h3>
-
-              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                Try changing your search or filters.
-              </p>
-            </div>
-          )}
-        </Card>
-      </div>
-
-      {selectedAdvance && (
-        <AdvanceDetails
-          advance={selectedAdvance}
-          onClose={() => setSelectedAdvance(null)}
-        />
-      )}
-    </div>
+    <span
+      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+      style={{
+        backgroundColor: style.background,
+        color: style.color,
+      }}
+    >
+      {status}
+    </span>
   );
 }
 
@@ -432,254 +140,972 @@ function StatCard({
   label,
   value,
   icon,
-  detail,
+  description,
 }: {
   label: string;
   value: string;
-  icon: ReactNode;
-  detail: string;
+  icon: React.ReactNode;
+  description: string;
 }) {
   return (
-    <Card className="p-5">
+    <div
+      className="rounded-xl border p-5"
+      style={{
+        backgroundColor: "var(--color-surface)",
+        borderColor: "var(--color-border)",
+      }}
+    >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-[var(--color-text-secondary)]">
+          <p
+            className="text-sm"
+            style={{
+              color: "var(--color-text-secondary)",
+            }}
+          >
             {label}
           </p>
 
-          <p className="mt-2 text-xl font-semibold tracking-tight">
+          <p
+            className="mt-2 text-2xl font-semibold tracking-tight"
+            style={{
+              color: "var(--color-text)",
+            }}
+          >
             {value}
-          </p>
-
-          <p className="mt-2 text-xs text-[var(--color-text-muted)]">
-            {detail}
           </p>
         </div>
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-lg"
+          style={{
+            backgroundColor:
+              "var(--color-brand-soft)",
+            color: "var(--color-brand)",
+          }}
+        >
           {icon}
         </div>
       </div>
-    </Card>
-  );
-}
-
-function TableHead({ children }: { children?: ReactNode }) {
-  return (
-    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
-      {children}
-    </th>
-  );
-}
-
-function FilterSelect({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div>
-      <label className="mb-2 block text-xs font-medium text-[var(--color-text-secondary)]">
-        {label}
-      </label>
-
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="w-full appearance-none rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 py-2.5 pr-9 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]"
-        >
-          {options.map((option) => (
-            <option key={option}>{option}</option>
-          ))}
-        </select>
-
-        <ChevronDown
-          size={16}
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-        />
-      </div>
-    </div>
-  );
-}
-
-function StatusBadge({ status }: { status: AdvanceStatus }) {
-  const styles: Record<AdvanceStatus, string> = {
-    Draft:
-      "bg-[var(--color-surface-hover)] text-[var(--color-text-secondary)]",
-    "Pending Approval":
-      "bg-[var(--color-warning)]/10 text-[var(--color-warning)]",
-    Approved: "bg-[var(--color-info)]/10 text-[var(--color-info)]",
-    Paid: "bg-[var(--color-success)]/10 text-[var(--color-success)]",
-    "Partially Recovered":
-      "bg-[var(--color-brand-soft)] text-[var(--color-brand)]",
-    "Fully Recovered":
-      "bg-[var(--color-success)]/10 text-[var(--color-success)]",
-    Rejected: "bg-[var(--color-danger)]/10 text-[var(--color-danger)]",
-    Cancelled:
-      "bg-[var(--color-surface-hover)] text-[var(--color-text-muted)]",
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${styles[status]}`}
-    >
-      {status === "Approved" || status === "Paid" ? (
-        <CheckCircle2 size={13} />
-      ) : (
-        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-      )}
-
-      {status}
-    </span>
-  );
-}
-
-function MenuAction({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: ReactNode;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}
-
-function AdvanceDetails({
-  advance,
-  onClose,
-}: {
-  advance: AdvanceRecord;
-  onClose: () => void;
-}) {
-  const balance = advance.amount - advance.recovered;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--color-border-strong)] bg-[var(--color-surface)] shadow-2xl">
-        <div className="flex items-start justify-between border-b border-[var(--color-border)] px-6 py-5">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
-              {advance.id}
-            </p>
-
-            <h2 className="mt-1 text-xl font-semibold">
-              {advance.employeeName}
-            </h2>
-
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-              {advance.employeeNumber} · {advance.department}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="space-y-6 p-6">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <DetailMetric
-              label="Original Amount"
-              value={formatCurrency(advance.amount)}
-            />
-
-            <DetailMetric
-              label="Recovered"
-              value={formatCurrency(advance.recovered)}
-            />
-
-            <DetailMetric
-              label="Outstanding"
-              value={formatCurrency(balance)}
-              highlight
-            />
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <DetailField label="Advance Type" value={advance.type} />
-            <DetailField label="Request Date" value={advance.requestDate} />
-            <DetailField label="Employee" value={advance.employeeName} />
-            <DetailField label="Status" value={advance.status} />
-          </div>
-
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-hover)] p-4">
-            <div className="flex items-center gap-2">
-              <WalletCards
-                size={17}
-                className="text-[var(--color-brand)]"
-              />
-
-              <h3 className="font-medium">Repayment</h3>
-            </div>
-
-            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-              Repayment schedule and payroll recovery details will be
-              configured here when the repayment workflow is implemented.
-            </p>
-          </div>
-
-          <div className="flex justify-end">
-            <Button variant="secondary" onClick={onClose}>
-              Close
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DetailMetric({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
-      <p className="text-xs text-[var(--color-text-muted)]">{label}</p>
 
       <p
-        className={`mt-2 text-lg font-semibold ${
-          highlight ? "text-[var(--color-brand)]" : ""
-        }`}
+        className="mt-3 text-xs"
+        style={{
+          color: "var(--color-text-muted)",
+        }}
       >
-        {value}
+        {description}
       </p>
     </div>
   );
 }
 
-function DetailField({ label, value }: { label: string; value: string }) {
+export function AdvancesPage() {
+  const { advances, updateAdvanceStatus } =
+    useAdvances();
+
+  const [activeTab, setActiveTab] =
+    useState<AdvanceTab>("register");
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] =
+    useState<AdvanceStatus | "All">("All");
+  const [typeFilter, setTypeFilter] =
+    useState<string>("All");
+
+  const [selectedAdvance, setSelectedAdvance] =
+    useState<AdvanceRecord | null>(null);
+
+  const [openMenu, setOpenMenu] =
+    useState<string | null>(null);
+
+  const advanceTypes = useMemo(() => {
+    return Array.from(
+      new Set(
+        advances.map(
+          (advance) => advance.type,
+        ),
+      ),
+    );
+  }, [advances]);
+
+  const filteredAdvances = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return advances.filter((advance) => {
+      const matchesSearch =
+        !query ||
+        advance.id
+          .toLowerCase()
+          .includes(query) ||
+        advance.employeeName
+          .toLowerCase()
+          .includes(query) ||
+        advance.employeeNumber
+          .toLowerCase()
+          .includes(query) ||
+        advance.department
+          .toLowerCase()
+          .includes(query) ||
+        advance.type
+          .toLowerCase()
+          .includes(query);
+
+      const matchesStatus =
+        statusFilter === "All" ||
+        advance.status === statusFilter;
+
+      const matchesType =
+        typeFilter === "All" ||
+        advance.type === typeFilter;
+
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesType
+      );
+    });
+  }, [
+    advances,
+    search,
+    statusFilter,
+    typeFilter,
+  ]);
+
+  const totalAdvanced = useMemo(
+    () =>
+      advances.reduce(
+        (sum, advance) =>
+          sum + advance.amount,
+        0,
+      ),
+    [advances],
+  );
+
+  const totalRecovered = useMemo(
+    () =>
+      advances.reduce(
+        (sum, advance) =>
+          sum + advance.recovered,
+        0,
+      ),
+    [advances],
+  );
+
+  const totalOutstanding =
+    totalAdvanced - totalRecovered;
+
+  const pendingApproval = advances.filter(
+    (advance) =>
+      advance.status === "Pending Approval",
+  ).length;
+
+  const handleOpenAdvance = (
+    advance: AdvanceRecord,
+  ) => {
+    setSelectedAdvance(advance);
+    setOpenMenu(null);
+  };
+
+  const handleMarkAsPaid = (
+    advance: AdvanceRecord,
+  ) => {
+    updateAdvanceStatus(
+      advance.id,
+      "Paid",
+    );
+
+    setOpenMenu(null);
+  };
+
+  const handleCancel = (
+    advance: AdvanceRecord,
+  ) => {
+    updateAdvanceStatus(
+      advance.id,
+      "Cancelled",
+    );
+
+    setOpenMenu(null);
+  };
+
+  const tabs = [
+    {
+      id: "register" as const,
+      label: "Register",
+      count: advances.length,
+    },
+    {
+      id: "new" as const,
+      label: "New Advance",
+    },
+    {
+      id: "approval" as const,
+      label: "Approval",
+      count: pendingApproval,
+    },
+    {
+      id: "repayment" as const,
+      label: "Repayment",
+    },
+  ];
+
   return (
-    <div>
-      <p className="text-xs text-[var(--color-text-muted)]">{label}</p>
-      <p className="mt-1 text-sm font-medium">{value}</p>
+    <div
+      className="min-h-full p-6 lg:p-8"
+      style={{
+        backgroundColor: "var(--color-bg)",
+      }}
+    >
+      {/* Header */}
+      <div className="mb-7">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div
+              className="mb-2 flex items-center gap-2 text-sm"
+              style={{
+                color: "var(--color-text-muted)",
+              }}
+            >
+              <span>Payroll</span>
+
+              <span>/</span>
+
+              <span
+                style={{
+                  color: "var(--color-brand)",
+                }}
+              >
+                Advances
+              </span>
+            </div>
+
+            <h1
+              className="text-3xl font-semibold tracking-tight"
+              style={{
+                color: "var(--color-text)",
+              }}
+            >
+              Advances
+            </h1>
+
+            <p
+              className="mt-2 max-w-2xl text-sm"
+              style={{
+                color:
+                  "var(--color-text-secondary)",
+              }}
+            >
+              Manage employee advances,
+              approvals, repayments and
+              outstanding balances.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() =>
+              setActiveTab("new")
+            }
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium transition-all"
+            style={{
+              backgroundColor:
+                "var(--color-brand)",
+              color: "#090909",
+            }}
+          >
+            <Plus size={18} />
+            New Advance
+          </button>
+        </div>
+      </div>
+
+      {/* Statistics */}
+      <div className="mb-7 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Total Advances"
+          value={formatCurrency(totalAdvanced)}
+          icon={<WalletCards size={19} />}
+          description={`${advances.length} advance records`}
+        />
+
+        <StatCard
+          label="Outstanding"
+          value={formatCurrency(
+            totalOutstanding,
+          )}
+          icon={<Clock3 size={19} />}
+          description="Amount still to be recovered"
+        />
+
+        <StatCard
+          label="Recovered"
+          value={formatCurrency(totalRecovered)}
+          icon={<CheckCircle2 size={19} />}
+          description="Total amount recovered"
+        />
+
+        <StatCard
+          label="Pending Approval"
+          value={String(pendingApproval)}
+          icon={<Clock3 size={19} />}
+          description="Requests waiting for review"
+        />
+      </div>
+
+      {/* Module navigation */}
+      <div
+        className="mb-6 overflow-x-auto rounded-xl border"
+        style={{
+          backgroundColor:
+            "var(--color-surface)",
+          borderColor:
+            "var(--color-border)",
+        }}
+      >
+        <div className="flex min-w-max">
+          {tabs.map((tab) => {
+            const active =
+              activeTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() =>
+                  setActiveTab(tab.id)
+                }
+                className="relative flex h-14 items-center gap-2 px-5 text-sm font-medium transition-colors"
+                style={{
+                  color: active
+                    ? "var(--color-brand)"
+                    : "var(--color-text-secondary)",
+                }}
+              >
+                {tab.label}
+
+                {typeof tab.count ===
+                  "number" && (
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[11px]"
+                    style={{
+                      backgroundColor:
+                        active
+                          ? "var(--color-brand-soft)"
+                          : "var(--color-surface-hover)",
+                      color: active
+                        ? "var(--color-brand)"
+                        : "var(--color-text-muted)",
+                    }}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+
+                {active && (
+                  <span
+                    className="absolute inset-x-4 bottom-0 h-0.5 rounded-full"
+                    style={{
+                      backgroundColor:
+                        "var(--color-brand)",
+                    }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* REGISTER */}
+      {activeTab === "register" && (
+        <div>
+          {/* Filters */}
+          <div
+            className="mb-5 rounded-xl border p-4"
+            style={{
+              backgroundColor:
+                "var(--color-surface)",
+              borderColor:
+                "var(--color-border)",
+            }}
+          >
+            <div className="flex flex-col gap-3 lg:flex-row">
+              <div className="relative flex-1">
+                <Search
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2"
+                  style={{
+                    color:
+                      "var(--color-text-muted)",
+                  }}
+                />
+
+                <input
+                  value={search}
+                  onChange={(event) =>
+                    setSearch(
+                      event.target.value,
+                    )
+                  }
+                  placeholder="Search employee, advance number, department..."
+                  className="h-11 w-full rounded-lg border pl-10 pr-4 text-sm outline-none transition"
+                  style={{
+                    backgroundColor:
+                      "var(--color-bg)",
+                    borderColor:
+                      "var(--color-border)",
+                    color:
+                      "var(--color-text)",
+                  }}
+                />
+              </div>
+
+              <div className="relative">
+                <Filter
+                  size={16}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+                  style={{
+                    color:
+                      "var(--color-text-muted)",
+                  }}
+                />
+
+                <select
+                  value={statusFilter}
+                  onChange={(event) =>
+                    setStatusFilter(
+                      event.target
+                        .value as
+                        | AdvanceStatus
+                        | "All",
+                    )
+                  }
+                  className="h-11 min-w-48 appearance-none rounded-lg border pl-9 pr-10 text-sm outline-none"
+                  style={{
+                    backgroundColor:
+                      "var(--color-bg)",
+                    borderColor:
+                      "var(--color-border)",
+                    color:
+                      "var(--color-text)",
+                  }}
+                >
+                  <option value="All">
+                    All Statuses
+                  </option>
+
+                  <option value="Draft">
+                    Draft
+                  </option>
+
+                  <option value="Pending Approval">
+                    Pending Approval
+                  </option>
+
+                  <option value="Approved">
+                    Approved
+                  </option>
+
+                  <option value="Paid">
+                    Paid
+                  </option>
+
+                  <option value="Partially Recovered">
+                    Partially Recovered
+                  </option>
+
+                  <option value="Fully Recovered">
+                    Fully Recovered
+                  </option>
+
+                  <option value="Rejected">
+                    Rejected
+                  </option>
+
+                  <option value="Cancelled">
+                    Cancelled
+                  </option>
+                </select>
+
+                <ChevronDown
+                  size={15}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+                  style={{
+                    color:
+                      "var(--color-text-muted)",
+                  }}
+                />
+              </div>
+
+              <div className="relative">
+                <select
+                  value={typeFilter}
+                  onChange={(event) =>
+                    setTypeFilter(
+                      event.target.value,
+                    )
+                  }
+                  className="h-11 min-w-48 appearance-none rounded-lg border px-4 pr-10 text-sm outline-none"
+                  style={{
+                    backgroundColor:
+                      "var(--color-bg)",
+                    borderColor:
+                      "var(--color-border)",
+                    color:
+                      "var(--color-text)",
+                  }}
+                >
+                  <option value="All">
+                    All Advance Types
+                  </option>
+
+                  {advanceTypes.map(
+                    (type) => (
+                      <option
+                        key={type}
+                        value={type}
+                      >
+                        {type}
+                      </option>
+                    ),
+                  )}
+                </select>
+
+                <ChevronDown
+                  size={15}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+                  style={{
+                    color:
+                      "var(--color-text-muted)",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Register table */}
+          <div
+            className="overflow-hidden rounded-xl border"
+            style={{
+              backgroundColor:
+                "var(--color-surface)",
+              borderColor:
+                "var(--color-border)",
+            }}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1050px]">
+                <thead>
+                  <tr
+                    style={{
+                      borderBottom:
+                        "1px solid var(--color-border)",
+                    }}
+                  >
+                    {[
+                      "Advance",
+                      "Employee",
+                      "Type",
+                      "Amount",
+                      "Recovered",
+                      "Outstanding",
+                      "Request Date",
+                      "Status",
+                      "",
+                    ].map((heading) => (
+                      <th
+                        key={heading}
+                        className="px-5 py-4 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{
+                          color:
+                            "var(--color-text-muted)",
+                        }}
+                      >
+                        {heading}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredAdvances.map(
+                    (advance) => {
+                      const outstanding =
+                        Math.max(
+                          advance.amount -
+                            advance.recovered,
+                          0,
+                        );
+
+                      return (
+                        <tr
+                          key={advance.id}
+                          className="transition-colors"
+                          style={{
+                            borderBottom:
+                              "1px solid var(--color-border)",
+                          }}
+                        >
+                          <td className="px-5 py-4">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleOpenAdvance(
+                                  advance,
+                                )
+                              }
+                              className="font-medium hover:underline"
+                              style={{
+                                color:
+                                  "var(--color-brand)",
+                              }}
+                            >
+                              {advance.id}
+                            </button>
+                          </td>
+
+                          <td className="px-5 py-4">
+                            <div>
+                              <p
+                                className="text-sm font-medium"
+                                style={{
+                                  color:
+                                    "var(--color-text)",
+                                }}
+                              >
+                                {
+                                  advance.employeeName
+                                }
+                              </p>
+
+                              <p
+                                className="mt-0.5 text-xs"
+                                style={{
+                                  color:
+                                    "var(--color-text-muted)",
+                                }}
+                              >
+                                {
+                                  advance.employeeNumber
+                                }
+                              </p>
+                            </div>
+                          </td>
+
+                          <td
+                            className="px-5 py-4 text-sm"
+                            style={{
+                              color:
+                                "var(--color-text-secondary)",
+                            }}
+                          >
+                            {advance.type}
+                          </td>
+
+                          <td
+                            className="px-5 py-4 text-sm font-medium"
+                            style={{
+                              color:
+                                "var(--color-text)",
+                            }}
+                          >
+                            {formatCurrency(
+                              advance.amount,
+                            )}
+                          </td>
+
+                          <td
+                            className="px-5 py-4 text-sm"
+                            style={{
+                              color:
+                                "var(--color-success)",
+                            }}
+                          >
+                            {formatCurrency(
+                              advance.recovered,
+                            )}
+                          </td>
+
+                          <td
+                            className="px-5 py-4 text-sm font-medium"
+                            style={{
+                              color:
+                                "var(--color-text)",
+                            }}
+                          >
+                            {formatCurrency(
+                              outstanding,
+                            )}
+                          </td>
+
+                          <td
+                            className="px-5 py-4 text-sm"
+                            style={{
+                              color:
+                                "var(--color-text-secondary)",
+                            }}
+                          >
+                            {formatDate(
+                              advance.requestDate,
+                            )}
+                          </td>
+
+                          <td className="px-5 py-4">
+                            <StatusBadge
+                              status={
+                                advance.status
+                              }
+                            />
+                          </td>
+
+                          <td className="px-5 py-4">
+                            <div className="relative flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setOpenMenu(
+                                    openMenu ===
+                                      advance.id
+                                      ? null
+                                      : advance.id,
+                                  )
+                                }
+                                className="flex h-8 w-8 items-center justify-center rounded-md transition-colors"
+                                style={{
+                                  color:
+                                    "var(--color-text-secondary)",
+                                }}
+                              >
+                                <MoreHorizontal
+                                  size={18}
+                                />
+                              </button>
+
+                              {openMenu ===
+                                advance.id && (
+                                <div
+                                  className="absolute right-0 top-10 z-20 w-48 overflow-hidden rounded-lg border p-1 shadow-xl"
+                                  style={{
+                                    backgroundColor:
+                                      "var(--color-surface-raised)",
+                                    borderColor:
+                                      "var(--color-border)",
+                                  }}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleOpenAdvance(
+                                        advance,
+                                      )
+                                    }
+                                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
+                                    style={{
+                                      color:
+                                        "var(--color-text-secondary)",
+                                    }}
+                                  >
+                                    <Eye
+                                      size={15}
+                                    />
+                                    View Details
+                                  </button>
+
+                                  {advance.status ===
+                                    "Pending Approval" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setOpenMenu(
+                                          null,
+                                        );
+                                        setActiveTab(
+                                          "approval",
+                                        );
+                                      }}
+                                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
+                                      style={{
+                                        color:
+                                          "var(--color-text-secondary)",
+                                      }}
+                                    >
+                                      <CheckCircle2
+                                        size={15}
+                                      />
+                                      Review
+                                    </button>
+                                  )}
+
+                                  {advance.status ===
+                                    "Approved" && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleMarkAsPaid(
+                                          advance,
+                                        )
+                                      }
+                                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
+                                      style={{
+                                        color:
+                                          "var(--color-text-secondary)",
+                                      }}
+                                    >
+                                      <CheckCircle2
+                                        size={15}
+                                      />
+                                      Mark as Paid
+                                    </button>
+                                  )}
+
+                                  {[
+                                    "Paid",
+                                    "Partially Recovered",
+                                  ].includes(
+                                    advance.status,
+                                  ) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setOpenMenu(
+                                          null,
+                                        );
+                                        setActiveTab(
+                                          "repayment",
+                                        );
+                                      }}
+                                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
+                                      style={{
+                                        color:
+                                          "var(--color-text-secondary)",
+                                      }}
+                                    >
+                                      <WalletCards
+                                        size={15}
+                                      />
+                                      Record Repayment
+                                    </button>
+                                  )}
+
+                                  {[
+                                    "Draft",
+                                    "Pending Approval",
+                                    "Approved",
+                                  ].includes(
+                                    advance.status,
+                                  ) && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleCancel(
+                                          advance,
+                                        )
+                                      }
+                                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm"
+                                      style={{
+                                        color:
+                                          "var(--color-danger)",
+                                      }}
+                                    >
+                                      <XCircle
+                                        size={15}
+                                      />
+                                      Cancel
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    },
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {filteredAdvances.length === 0 && (
+              <div className="px-6 py-16 text-center">
+                <WalletCards
+                  size={32}
+                  className="mx-auto mb-3"
+                  style={{
+                    color:
+                      "var(--color-text-muted)",
+                  }}
+                />
+
+                <p
+                  className="text-sm font-medium"
+                  style={{
+                    color:
+                      "var(--color-text)",
+                  }}
+                >
+                  No advances found
+                </p>
+
+                <p
+                  className="mt-1 text-sm"
+                  style={{
+                    color:
+                      "var(--color-text-muted)",
+                  }}
+                >
+                  Try changing your search or
+                  filters.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* NEW ADVANCE */}
+      {activeTab === "new" && (
+        <AdvanceForm
+          onCancel={() =>
+            setActiveTab("register")
+          }
+          onCreated={() =>
+            setActiveTab("register")
+          }
+        />
+      )}
+
+      {/* APPROVAL */}
+      {activeTab === "approval" && (
+        <AdvanceApproval
+          onViewDetails={(advance) =>
+            setSelectedAdvance(advance)
+          }
+        />
+      )}
+
+      {/* REPAYMENT */}
+      {activeTab === "repayment" && (
+        <AdvanceRepayment
+          onViewDetails={(advance) =>
+            setSelectedAdvance(advance)
+          }
+        />
+      )}
+
+      {/* DETAILS */}
+      {selectedAdvance && (
+        <AdvanceDetails
+          advance={selectedAdvance}
+          onClose={() =>
+            setSelectedAdvance(null)
+          }
+          onRecordRepayment={() => {
+            setSelectedAdvance(null);
+            setActiveTab("repayment");
+          }}
+        />
+      )}
     </div>
   );
 }

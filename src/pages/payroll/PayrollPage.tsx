@@ -5,16 +5,17 @@ import {
   Calculator,
   Check,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Clock3,
   Download,
   Eye,
   FileText,
-  Filter,
-  MoreHorizontal,
+  History,
+  ListChecks,
   Play,
+  Plus,
   Search,
+  UserCheck,
+  Users,
   WalletCards,
   X,
 } from "lucide-react";
@@ -35,15 +36,24 @@ type PayrollStatus =
   | "Processed"
   | "Paid";
 
-interface PayrollEmployee {
+type PayrollWorkspace =
+  | "overview"
+  | "allowances"
+  | "deductions"
+  | "overtime"
+  | "payslips"
+  | "history";
+
+interface Employee {
   id: string;
   employeeNumber: string;
   name: string;
   department: string;
   position: string;
-
   basicSalary: number;
+}
 
+interface PayrollEmployee extends Employee {
   allowances: {
     housing: number;
     transport: number;
@@ -57,114 +67,128 @@ interface PayrollEmployee {
     other: number;
   };
 
+  overtimeHours: number;
+  overtimeAmount: number;
   status: PayrollStatus;
 }
 
-/* =========================================================
-   MOCK PAYROLL DATA
-========================================================= */
+interface PayrollHistoryRecord {
+  id: string;
+  period: string;
+  employeeCount: number;
+  gross: number;
+  deductions: number;
+  net: number;
+  status: "Processed" | "Paid";
+  processedDate: string;
+}
 
-const initialPayroll: PayrollEmployee[] = [
+const employeeDirectory: Employee[] = [
   {
-    id: "1",
+    id: "EMP-0001",
     employeeNumber: "EMP-0001",
     name: "John Mwangi",
     department: "Finance",
     position: "Accountant",
     basicSalary: 1500000,
-
-    allowances: {
-      housing: 300000,
-      transport: 150000,
-      other: 50000,
-    },
-
-    deductions: {
-      paye: 215000,
-      pension: 150000,
-      health: 30000,
-      other: 0,
-    },
-
-    status: "Processed",
   },
-
   {
-    id: "2",
+    id: "EMP-0002",
     employeeNumber: "EMP-0002",
     name: "Sarah Johnson",
     department: "Human Resources",
     position: "HR Manager",
     basicSalary: 2200000,
-
-    allowances: {
-      housing: 400000,
-      transport: 200000,
-      other: 100000,
-    },
-
-    deductions: {
-      paye: 390000,
-      pension: 220000,
-      health: 44000,
-      other: 0,
-    },
-
-    status: "Processed",
   },
-
   {
-    id: "3",
+    id: "EMP-0003",
     employeeNumber: "EMP-0003",
     name: "Michael Smith",
     department: "Information Technology",
     position: "Software Engineer",
     basicSalary: 2800000,
-
-    allowances: {
-      housing: 500000,
-      transport: 250000,
-      other: 150000,
-    },
-
-    deductions: {
-      paye: 560000,
-      pension: 280000,
-      health: 56000,
-      other: 25000,
-    },
-
-    status: "Processed",
   },
-
   {
-    id: "4",
+    id: "EMP-0004",
     employeeNumber: "EMP-0004",
     name: "Amina Hassan",
     department: "Administration",
     position: "Administrator",
     basicSalary: 1200000,
-
-    allowances: {
-      housing: 200000,
-      transport: 100000,
-      other: 0,
-    },
-
-    deductions: {
-      paye: 120000,
-      pension: 120000,
-      health: 24000,
-      other: 0,
-    },
-
-    status: "Draft",
+  },
+  {
+    id: "EMP-0005",
+    employeeNumber: "EMP-0005",
+    name: "David Kimaro",
+    department: "Operations",
+    position: "Operations Officer",
+    basicSalary: 1800000,
+  },
+  {
+    id: "EMP-0006",
+    employeeNumber: "EMP-0006",
+    name: "Grace Mollel",
+    department: "Sales",
+    position: "Sales Executive",
+    basicSalary: 1650000,
+  },
+  {
+    id: "EMP-0007",
+    employeeNumber: "EMP-0007",
+    name: "Daniel Joseph",
+    department: "Information Technology",
+    position: "Systems Administrator",
+    basicSalary: 2400000,
+  },
+  {
+    id: "EMP-0008",
+    employeeNumber: "EMP-0008",
+    name: "Neema Peter",
+    department: "Human Resources",
+    position: "HR Officer",
+    basicSalary: 1400000,
   },
 ];
 
-/* =========================================================
-   HELPERS
-========================================================= */
+const initialRegisteredEmployees = [
+  "EMP-0001",
+  "EMP-0002",
+  "EMP-0003",
+  "EMP-0004",
+];
+
+const initialHistory: PayrollHistoryRecord[] = [
+  {
+    id: "PAY-2026-07",
+    period: "July 2026",
+    employeeCount: 4,
+    gross: 9450000,
+    deductions: 1975000,
+    net: 7475000,
+    status: "Paid",
+    processedDate: "2026-07-28",
+  },
+  {
+    id: "PAY-2026-06",
+    period: "June 2026",
+    employeeCount: 4,
+    gross: 9450000,
+    deductions: 1975000,
+    net: 7475000,
+    status: "Paid",
+    processedDate: "2026-06-28",
+  },
+  {
+    id: "PAY-2026-05",
+    period: "May 2026",
+    employeeCount: 3,
+    gross: 8050000,
+    deductions: 1531000,
+    net: 6519000,
+    status: "Paid",
+    processedDate: "2026-05-28",
+  },
+];
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-TZ", {
@@ -185,7 +209,9 @@ const getDeductions = (employee: PayrollEmployee) =>
   employee.deductions.other;
 
 const getGrossSalary = (employee: PayrollEmployee) =>
-  employee.basicSalary + getAllowances(employee);
+  employee.basicSalary +
+  getAllowances(employee) +
+  employee.overtimeAmount;
 
 const getNetSalary = (employee: PayrollEmployee) =>
   getGrossSalary(employee) - getDeductions(employee);
@@ -203,94 +229,113 @@ const getInitials = (name: string) =>
 ========================================================= */
 
 export function PayrollPage() {
-  const [payroll, setPayroll] =
-    useState<PayrollEmployee[]>(initialPayroll);
-
   const [period, setPeriod] = useState("August 2026");
 
-  const [search, setSearch] = useState("");
+  const [registeredIds, setRegisteredIds] = useState<string[]>(
+    initialRegisteredEmployees,
+  );
 
-  const [departmentFilter, setDepartmentFilter] =
-    useState("All");
+  const [payroll, setPayroll] = useState<PayrollEmployee[]>(
+    employeeDirectory
+      .filter((employee) =>
+        initialRegisteredEmployees.includes(employee.id),
+      )
+      .map((employee) => ({
+        ...employee,
 
-  const [statusFilter, setStatusFilter] =
-    useState("All");
+        allowances: {
+          housing:
+            employee.id === "EMP-0001"
+              ? 300000
+              : employee.id === "EMP-0002"
+                ? 400000
+                : employee.id === "EMP-0003"
+                  ? 500000
+                  : 200000,
+          transport:
+            employee.id === "EMP-0001"
+              ? 150000
+              : employee.id === "EMP-0002"
+                ? 200000
+                : employee.id === "EMP-0003"
+                  ? 250000
+                  : 100000,
+          other:
+            employee.id === "EMP-0001"
+              ? 50000
+              : employee.id === "EMP-0002"
+                ? 100000
+                : employee.id === "EMP-0003"
+                  ? 150000
+                  : 0,
+        },
 
-  const [showFilters, setShowFilters] =
+        deductions: {
+          paye:
+            employee.id === "EMP-0001"
+              ? 215000
+              : employee.id === "EMP-0002"
+                ? 390000
+                : employee.id === "EMP-0003"
+                  ? 560000
+                  : 120000,
+          pension: employee.basicSalary * 0.1,
+          health: employee.basicSalary * 0.02,
+          other: employee.id === "EMP-0003" ? 25000 : 0,
+        },
+
+        overtimeHours: 0,
+        overtimeAmount: 0,
+
+        status:
+          employee.id === "EMP-0004"
+            ? "Draft"
+            : "Processed",
+      })),
+  );
+
+  const [history, setHistory] =
+    useState<PayrollHistoryRecord[]>(initialHistory);
+
+  const [workspace, setWorkspace] =
+    useState<PayrollWorkspace>("overview");
+
+  const [showRegisterModal, setShowRegisterModal] =
+    useState(false);
+
+  const [showRunPayroll, setShowRunPayroll] =
     useState(false);
 
   const [selectedEmployee, setSelectedEmployee] =
     useState<PayrollEmployee | null>(null);
 
-  const [showActions, setShowActions] =
-    useState<string | null>(null);
-
-  const [showRunPayroll, setShowRunPayroll] =
+  const [showPayslip, setShowPayslip] =
     useState(false);
 
-  const departments = useMemo(
-    () => [
-      "All",
-      ...new Set(
-        payroll.map((employee) => employee.department),
-      ),
-    ],
-    [payroll],
-  );
+  const [showPeriodModal, setShowPeriodModal] =
+    useState(false);
 
-  const filteredPayroll = useMemo(() => {
-    const query = search.toLowerCase().trim();
+  const [showComponentModal, setShowComponentModal] =
+    useState<"allowance" | "deduction" | "overtime" | null>(
+      null,
+    );
 
-    return payroll.filter((employee) => {
-      const matchesSearch =
-        employee.name.toLowerCase().includes(query) ||
-        employee.employeeNumber
-          .toLowerCase()
-          .includes(query) ||
-        employee.department
-          .toLowerCase()
-          .includes(query);
-
-      const matchesDepartment =
-        departmentFilter === "All" ||
-        employee.department === departmentFilter;
-
-      const matchesStatus =
-        statusFilter === "All" ||
-        employee.status === statusFilter;
-
-      return (
-        matchesSearch &&
-        matchesDepartment &&
-        matchesStatus
-      );
-    });
-  }, [
-    payroll,
-    search,
-    departmentFilter,
-    statusFilter,
-  ]);
-
-  /* =========================================================
-     SUMMARY
-  ========================================================= */
+  /* =======================================================
+     CALCULATIONS
+  ======================================================= */
 
   const totalGross = payroll.reduce(
-    (total, employee) =>
-      total + getGrossSalary(employee),
+    (total, employee) => total + getGrossSalary(employee),
     0,
   );
 
   const totalDeductions = payroll.reduce(
-    (total, employee) =>
-      total + getDeductions(employee),
+    (total, employee) => total + getDeductions(employee),
     0,
   );
 
   const totalNet = payroll.reduce(
-    (total, employee) =>
-      total + getNetSalary(employee),
+    (total, employee) => total + getNetSalary(employee),
     0,
   );
 
@@ -304,9 +349,79 @@ export function PayrollPage() {
     (employee) => employee.status === "Draft",
   ).length;
 
-  /* =========================================================
+  const processing =
+    payroll.some(
+      (employee) => employee.status === "Processing",
+    );
+
+  /* =======================================================
+     REGISTER EMPLOYEES
+  ======================================================= */
+
+  const registerEmployees = (ids: string[]) => {
+    const uniqueIds = Array.from(
+      new Set([...registeredIds, ...ids]),
+    );
+
+    setRegisteredIds(uniqueIds);
+
+    const newEmployees = employeeDirectory
+      .filter(
+        (employee) =>
+          ids.includes(employee.id) &&
+          !payroll.some(
+            (record) => record.id === employee.id,
+          ),
+      )
+      .map((employee) => ({
+        ...employee,
+
+        allowances: {
+          housing: 0,
+          transport: 0,
+          other: 0,
+        },
+
+        deductions: {
+          paye: 0,
+          pension: employee.basicSalary * 0.1,
+          health: employee.basicSalary * 0.02,
+          other: 0,
+        },
+
+        overtimeHours: 0,
+        overtimeAmount: 0,
+
+        status: "Draft" as PayrollStatus,
+      }));
+
+    if (newEmployees.length > 0) {
+      setPayroll((current) => [
+        ...current,
+        ...newEmployees,
+      ]);
+    }
+
+    setShowRegisterModal(false);
+  };
+
+  /* =======================================================
+     UNREGISTER EMPLOYEE
+  ======================================================= */
+
+  const unregisterEmployee = (id: string) => {
+    setRegisteredIds((current) =>
+      current.filter((employeeId) => employeeId !== id),
+    );
+
+    setPayroll((current) =>
+      current.filter((employee) => employee.id !== id),
+    );
+  };
+
+  /* =======================================================
      RUN PAYROLL
-  ========================================================= */
+  ======================================================= */
 
   const handleRunPayroll = () => {
     setPayroll((current) =>
@@ -316,16 +431,36 @@ export function PayrollPage() {
       })),
     );
 
+    setHistory((current) => [
+      {
+        id: `PAY-${period.replace(" ", "-")}`,
+        period,
+        employeeCount: payroll.length,
+        gross: totalGross,
+        deductions: totalDeductions,
+        net: totalNet,
+        status: "Processed",
+        processedDate: new Date()
+          .toISOString()
+          .slice(0, 10),
+      },
+      ...current,
+    ]);
+
     setShowRunPayroll(false);
   };
+
+  /* =======================================================
+     MAIN PAGE
+  ======================================================= */
 
   return (
     <div className="space-y-6">
       {/* =====================================================
-          PAGE HEADER
+          HEADER
       ===================================================== */}
 
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-brand)]">
             <span className="h-px w-5 bg-[var(--color-brand)]" />
@@ -333,506 +468,390 @@ export function PayrollPage() {
           </div>
 
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
-            Payroll
+            Payroll Workspace
           </h1>
 
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Calculate, review and manage employee payroll.
+          <p className="mt-1 max-w-2xl text-sm text-[var(--color-text-secondary)]">
+            Manage payroll registration, processing, earnings,
+            deductions and employee payslips from one workspace.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Button variant="secondary">
-            <Download size={16} />
-            Export
+          <Button
+            variant="secondary"
+            onClick={() => setShowPeriodModal(true)}
+          >
+            <Clock3 size={16} />
+            {period}
           </Button>
 
-          <Button onClick={() => setShowRunPayroll(true)}>
-            <Play size={16} />
-            Run Payroll
+          <Button
+            onClick={() => setShowRegisterModal(true)}
+          >
+            <UserCheck size={16} />
+            Register Employees
           </Button>
         </div>
       </div>
 
       {/* =====================================================
-          PAYROLL PERIOD
-      ===================================================== */}
-
-      <Card className="p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
-              Payroll Period
-            </p>
-
-            <div className="mt-2 flex items-center gap-3">
-              <div className="relative">
-                <select
-                  value={period}
-                  onChange={(event) =>
-                    setPeriod(event.target.value)
-                  }
-                  className="h-10 min-w-[180px] appearance-none rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 pr-9 text-sm font-medium text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-brand)]"
-                >
-                  <option>August 2026</option>
-                  <option>July 2026</option>
-                  <option>June 2026</option>
-                  <option>May 2026</option>
-                </select>
-
-                <ChevronDown
-                  size={14}
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-                />
-              </div>
-
-              <span className="rounded-full bg-[var(--color-success)]/10 px-2.5 py-1 text-[10px] font-medium text-[var(--color-success)]">
-                {processedCount === payroll.length
-                  ? "Processed"
-                  : "In Progress"}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
-            <Clock3 size={14} />
-
-            <span>
-              {draftCount > 0
-                ? `${draftCount} employee${
-                    draftCount > 1 ? "s" : ""
-                  } awaiting processing`
-                : "All employees processed"}
-            </span>
-          </div>
-        </div>
-      </Card>
-
-      {/* =====================================================
-          SUMMARY CARDS
-      ===================================================== */}
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {/* Gross */}
-        <Card className="p-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                Gross Payroll
-              </p>
-
-              <p className="mt-2 text-xl font-semibold text-[var(--color-text)]">
-                {formatCurrency(totalGross)}
-              </p>
-
-              <div className="mt-2 flex items-center gap-1 text-[10px] text-[var(--color-text-muted)]">
-                <ArrowUpRight
-                  size={12}
-                  className="text-[var(--color-success)]"
-                />
-                Before deductions
-              </div>
-            </div>
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-              <WalletCards size={17} />
-            </div>
-          </div>
-        </Card>
-
-        {/* Deductions */}
-        <Card className="p-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                Total Deductions
-              </p>
-
-              <p className="mt-2 text-xl font-semibold text-[var(--color-text)]">
-                {formatCurrency(totalDeductions)}
-              </p>
-
-              <div className="mt-2 flex items-center gap-1 text-[10px] text-[var(--color-text-muted)]">
-                <ArrowDownRight
-                  size={12}
-                  className="text-[var(--color-danger)]"
-                />
-                PAYE & statutory
-              </div>
-            </div>
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-danger)]/10 text-[var(--color-danger)]">
-              <Calculator size={17} />
-            </div>
-          </div>
-        </Card>
-
-        {/* Net */}
-        <Card className="p-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                Net Payroll
-              </p>
-
-              <p className="mt-2 text-xl font-semibold text-[var(--color-text)]">
-                {formatCurrency(totalNet)}
-              </p>
-
-              <div className="mt-2 text-[10px] text-[var(--color-text-muted)]">
-                Employee take-home
-              </div>
-            </div>
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-success)]/10 text-[var(--color-success)]">
-              <Check size={17} />
-            </div>
-          </div>
-        </Card>
-
-        {/* Employees */}
-        <Card className="p-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                Employees
-              </p>
-
-              <p className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                {payroll.length}
-              </p>
-
-              <div className="mt-2 text-[10px] text-[var(--color-text-muted)]">
-                {processedCount} processed
-              </div>
-            </div>
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-              <FileText size={17} />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* =====================================================
-          PAYROLL REGISTER
+          CURRENT PERIOD BANNER
       ===================================================== */}
 
       <Card className="overflow-hidden">
-        {/* Toolbar */}
-        <div className="flex flex-col gap-3 border-b border-[var(--color-border)] p-5 xl:flex-row xl:items-center xl:justify-between">
-          <div className="relative w-full xl:max-w-sm">
-            <Search
-              size={16}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-            />
+        <div className="relative p-6">
+          <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-[var(--color-brand)]/5 blur-3xl" />
 
-            <Input
-              placeholder="Search payroll..."
-              value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
-              className="pl-10"
-            />
-          </div>
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-[var(--color-brand)]" />
 
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="secondary"
-              onClick={() =>
-                setShowFilters((current) => !current)
-              }
-            >
-              <Filter size={16} />
-              Filters
-            </Button>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
+                  Current Payroll Period
+                </span>
+              </div>
 
-            {(statusFilter !== "All" ||
-              departmentFilter !== "All") && (
-              <button
-                onClick={() => {
-                  setStatusFilter("All");
-                  setDepartmentFilter("All");
-                }}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--color-brand)] transition-colors hover:bg-[var(--color-brand-soft)]"
-              >
-                <X size={14} />
-                Clear filters
-              </button>
-            )}
-          </div>
-        </div>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <h2 className="text-xl font-semibold text-[var(--color-text)]">
+                  {period}
+                </h2>
 
-        {/* Filters */}
-        {showFilters && (
-          <div className="grid gap-4 border-b border-[var(--color-border)] bg-[var(--color-bg)] p-5 md:grid-cols-2">
-            <PayrollFilter
-              label="Department"
-              value={departmentFilter}
-              options={departments}
-              onChange={setDepartmentFilter}
-            />
+                <PayrollStatusBadge
+                  status={
+                    processing
+                      ? "Processing"
+                      : draftCount > 0
+                        ? "Draft"
+                        : "Processed"
+                  }
+                />
+              </div>
 
-            <PayrollFilter
-              label="Payroll Status"
-              value={statusFilter}
-              options={[
-                "All",
-                "Draft",
-                "Processing",
-                "Processed",
-                "Paid",
-              ]}
-              onChange={setStatusFilter}
-            />
-          </div>
-        )}
-
-        {/* Result count */}
-        <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-3">
-          <p className="text-xs text-[var(--color-text-muted)]">
-            Showing{" "}
-            <span className="font-medium text-[var(--color-text-secondary)]">
-              {filteredPayroll.length}
-            </span>{" "}
-            of{" "}
-            <span className="font-medium text-[var(--color-text-secondary)]">
-              {payroll.length}
-            </span>{" "}
-            employees
-          </p>
-
-          <p className="hidden text-xs text-[var(--color-text-muted)] sm:block">
-            {period}
-          </p>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1100px] text-left">
-            <thead>
-              <tr className="border-b border-[var(--color-border)] text-[10px] uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
-                <th className="px-5 py-4 font-medium">
-                  Employee
-                </th>
-
-                <th className="px-5 py-4 font-medium">
-                  Basic Salary
-                </th>
-
-                <th className="px-5 py-4 font-medium">
-                  Allowances
-                </th>
-
-                <th className="px-5 py-4 font-medium">
-                  Gross
-                </th>
-
-                <th className="px-5 py-4 font-medium">
-                  Deductions
-                </th>
-
-                <th className="px-5 py-4 font-medium">
-                  Net Pay
-                </th>
-
-                <th className="px-5 py-4 font-medium">
-                  Status
-                </th>
-
-                <th className="w-12 px-5 py-4" />
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-[var(--color-border)]">
-              {filteredPayroll.map((employee) => {
-                const allowances =
-                  getAllowances(employee);
-
-                const gross =
-                  getGrossSalary(employee);
-
-                const deductions =
-                  getDeductions(employee);
-
-                const net =
-                  getNetSalary(employee);
-
-                return (
-                  <tr
-                    key={employee.id}
-                    className="group transition-colors hover:bg-[var(--color-surface-hover)]"
-                  >
-                    {/* Employee */}
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-xs font-bold text-[var(--color-brand)]">
-                          {getInitials(employee.name)}
-                        </div>
-
-                        <div>
-                          <p className="text-sm font-medium text-[var(--color-text)]">
-                            {employee.name}
-                          </p>
-
-                          <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-                            {employee.employeeNumber}
-                            {" · "}
-                            {employee.department}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Basic */}
-                    <td className="px-5 py-4 text-sm text-[var(--color-text-secondary)]">
-                      {formatCurrency(
-                        employee.basicSalary,
-                      )}
-                    </td>
-
-                    {/* Allowances */}
-                    <td className="px-5 py-4 text-sm text-[var(--color-text-secondary)]">
-                      {formatCurrency(allowances)}
-                    </td>
-
-                    {/* Gross */}
-                    <td className="px-5 py-4 text-sm font-medium text-[var(--color-text)]">
-                      {formatCurrency(gross)}
-                    </td>
-
-                    {/* Deductions */}
-                    <td className="px-5 py-4 text-sm text-[var(--color-text-secondary)]">
-                      {formatCurrency(deductions)}
-                    </td>
-
-                    {/* Net */}
-                    <td className="px-5 py-4 text-sm font-semibold text-[var(--color-text)]">
-                      {formatCurrency(net)}
-                    </td>
-
-                    {/* Status */}
-                    <td className="px-5 py-4">
-                      <PayrollStatusBadge
-                        status={employee.status}
-                      />
-                    </td>
-
-                    {/* Actions */}
-                    <td className="relative px-5 py-4">
-                      <button
-                        onClick={() =>
-                          setShowActions(
-                            showActions === employee.id
-                              ? null
-                              : employee.id,
-                          )
-                        }
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] opacity-0 transition-all hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] group-hover:opacity-100"
-                        aria-label={`Actions for ${employee.name}`}
-                      >
-                        <MoreHorizontal size={17} />
-                      </button>
-
-                      {showActions === employee.id && (
-                        <div className="absolute right-5 top-12 z-30 w-48 overflow-hidden rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] p-1 shadow-xl">
-                          <button
-                            onClick={() => {
-                              setSelectedEmployee(employee);
-                              setShowActions(null);
-                            }}
-                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-                          >
-                            <Eye size={14} />
-                            View payroll
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              setSelectedEmployee(employee);
-                              setShowActions(null);
-                            }}
-                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-                          >
-                            <FileText size={14} />
-                            View payslip
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Empty state */}
-        {filteredPayroll.length === 0 && (
-          <div className="p-14 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-muted)]">
-              <WalletCards size={22} />
+              <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
+                {registeredIds.length} employees are currently
+                registered for this payroll period.
+              </p>
             </div>
 
-            <p className="mt-4 text-sm font-medium text-[var(--color-text)]">
-              No payroll records found
-            </p>
-
-            <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-              Try changing your search or filter criteria.
-            </p>
-
-            <button
-              onClick={() => {
-                setSearch("");
-                setStatusFilter("All");
-                setDepartmentFilter("All");
-              }}
-              className="mt-4 text-xs font-medium text-[var(--color-brand)] hover:underline"
-            >
-              Clear all filters
-            </button>
-          </div>
-        )}
-
-        {/* Footer */}
-        {filteredPayroll.length > 0 && (
-          <div className="flex items-center justify-between border-t border-[var(--color-border)] px-5 py-4">
-            <p className="text-xs text-[var(--color-text-muted)]">
-              Page 1 of 1
-            </p>
-
-            <div className="flex items-center gap-2">
-              <button
-                disabled
-                className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-raised)] px-3 py-1.5 text-xs text-[var(--color-text-muted)] disabled:cursor-not-allowed disabled:opacity-50"
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setShowRegisterModal(true)}
               >
-                <ChevronLeft size={13} />
-                Previous
-              </button>
+                <Users size={15} />
+                Manage Employees
+              </Button>
 
-              <button
-                disabled
-                className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-raised)] px-3 py-1.5 text-xs text-[var(--color-text-muted)] disabled:cursor-not-allowed disabled:opacity-50"
+              <Button
+                onClick={() => setShowRunPayroll(true)}
+                disabled={registeredIds.length === 0}
               >
-                Next
-                <ChevronRight size={13} />
-              </button>
+                <Play size={15} />
+                Process Payroll
+              </Button>
             </div>
           </div>
-        )}
+        </div>
       </Card>
 
       {/* =====================================================
-          PAYROLL DETAILS
+          SUMMARY
       ===================================================== */}
 
-      {selectedEmployee && (
-        <PayrollDetailsModal
-          employee={selectedEmployee}
-          period={period}
-          onClose={() => setSelectedEmployee(null)}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard
+          label="Registered Employees"
+          value={registeredIds.length.toString()}
+          description={`${processedCount} processed`}
+          icon={<Users size={17} />}
+        />
+
+        <SummaryCard
+          label="Gross Payroll"
+          value={formatCurrency(totalGross)}
+          description="Before deductions"
+          icon={<ArrowUpRight size={17} />}
+          iconClass="text-[var(--color-success)] bg-[var(--color-success)]/10"
+        />
+
+        <SummaryCard
+          label="Total Deductions"
+          value={formatCurrency(totalDeductions)}
+          description="PAYE & statutory"
+          icon={<ArrowDownRight size={17} />}
+          iconClass="text-[var(--color-danger)] bg-[var(--color-danger)]/10"
+        />
+
+        <SummaryCard
+          label="Net Payroll"
+          value={formatCurrency(totalNet)}
+          description="Employee take-home"
+          icon={<Check size={17} />}
+          iconClass="text-[var(--color-success)] bg-[var(--color-success)]/10"
+        />
+      </div>
+
+      {/* =====================================================
+          QUICK ACTIONS
+      ===================================================== */}
+
+      <section>
+        <SectionHeading
+          eyebrow="Payroll Operations"
+          description="Choose a payroll function to continue."
+        />
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <ActionCard
+            icon={<UserCheck size={19} />}
+            title="Register Employees"
+            description="Choose which employees participate in payroll."
+            onClick={() => setShowRegisterModal(true)}
+            featured
+          />
+
+          <ActionCard
+            icon={<Play size={19} />}
+            title="Process Payroll"
+            description="Calculate the current payroll period."
+            onClick={() => setShowRunPayroll(true)}
+          />
+
+          <ActionCard
+            icon={<ListChecks size={19} />}
+            title="Payroll Register"
+            description="Open the detailed employee payroll register."
+            onClick={() => setWorkspace("overview")}
+            secondaryAction={() => setSelectedEmployee(null)}
+          />
+
+          <ActionCard
+            icon={<FileText size={19} />}
+            title="Payslips"
+            description="View and prepare employee payslips."
+            onClick={() => setWorkspace("payslips")}
+          />
+        </div>
+      </section>
+
+      {/* =====================================================
+          COMPONENT MANAGEMENT
+      ===================================================== */}
+
+      <section>
+        <SectionHeading
+          eyebrow="Payroll Components"
+          description="Manage the components that affect employee pay."
+        />
+
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <ComponentCard
+            icon={<WalletCards size={18} />}
+            title="Allowances"
+            description="Housing, transport and other earnings."
+            count={payroll.length}
+            onClick={() => setShowComponentModal("allowance")}
+          />
+
+          <ComponentCard
+            icon={<Calculator size={18} />}
+            title="Deductions"
+            description="PAYE, pension, health and other deductions."
+            count={payroll.length}
+            onClick={() => setShowComponentModal("deduction")}
+          />
+
+          <ComponentCard
+            icon={<Clock3 size={18} />}
+            title="Overtime"
+            description="Manage overtime hours and additional pay."
+            count={
+              payroll.filter(
+                (employee) => employee.overtimeHours > 0,
+              ).length
+            }
+            onClick={() => setShowComponentModal("overtime")}
+          />
+        </div>
+      </section>
+
+      {/* =====================================================
+          PAYROLL WORKSPACE NAVIGATION
+      ===================================================== */}
+
+      <Card className="overflow-hidden">
+        <div className="flex flex-wrap border-b border-[var(--color-border)]">
+          <WorkspaceTab
+            active={workspace === "overview"}
+            icon={<ListChecks size={15} />}
+            label="Register"
+            onClick={() => setWorkspace("overview")}
+          />
+
+          <WorkspaceTab
+            active={workspace === "allowances"}
+            icon={<WalletCards size={15} />}
+            label="Allowances"
+            onClick={() => setWorkspace("allowances")}
+          />
+
+          <WorkspaceTab
+            active={workspace === "deductions"}
+            icon={<Calculator size={15} />}
+            label="Deductions"
+            onClick={() => setWorkspace("deductions")}
+          />
+
+          <WorkspaceTab
+            active={workspace === "overtime"}
+            icon={<Clock3 size={15} />}
+            label="Overtime"
+            onClick={() => setWorkspace("overtime")}
+          />
+
+          <WorkspaceTab
+            active={workspace === "payslips"}
+            icon={<FileText size={15} />}
+            label="Payslips"
+            onClick={() => setWorkspace("payslips")}
+          />
+
+          <WorkspaceTab
+            active={workspace === "history"}
+            icon={<History size={15} />}
+            label="Payroll History"
+            onClick={() => setWorkspace("history")}
+          />
+        </div>
+
+        <div className="p-6">
+          {workspace === "overview" && (
+            <PayrollRegisterLauncher
+              employeeCount={payroll.length}
+              totalNet={totalNet}
+              onOpen={() => setShowRegisterModal(true)}
+            />
+          )}
+
+          {workspace === "allowances" && (
+            <ComponentWorkspace
+              title="Allowances"
+              description="Review the earnings components included in the current payroll."
+              icon={<WalletCards size={21} />}
+              onAdd={() =>
+                setShowComponentModal("allowance")
+              }
+            >
+              <ComponentSummary
+                title="Total Allowances"
+                value={formatCurrency(
+                  payroll.reduce(
+                    (total, employee) =>
+                      total + getAllowances(employee),
+                    0,
+                  ),
+                )}
+              />
+
+              <ComponentSummary
+                title="Employees with Allowances"
+                value={
+                  payroll
+                    .filter(
+                      (employee) =>
+                        getAllowances(employee) > 0,
+                    )
+                    .length.toString()
+                }
+              />
+            </ComponentWorkspace>
+          )}
+
+          {workspace === "deductions" && (
+            <ComponentWorkspace
+              title="Deductions"
+              description="Review statutory and other deductions for this payroll."
+              icon={<Calculator size={21} />}
+              onAdd={() =>
+                setShowComponentModal("deduction")
+              }
+            >
+              <ComponentSummary
+                title="Total Deductions"
+                value={formatCurrency(totalDeductions)}
+              />
+
+              <ComponentSummary
+                title="Employees Affected"
+                value={payroll.length.toString()}
+              />
+            </ComponentWorkspace>
+          )}
+
+          {workspace === "overtime" && (
+            <ComponentWorkspace
+              title="Overtime"
+              description="Review overtime hours and additional earnings."
+              icon={<Clock3 size={21} />}
+              onAdd={() =>
+                setShowComponentModal("overtime")
+              }
+            >
+              <ComponentSummary
+                title="Overtime Hours"
+                value={payroll
+                  .reduce(
+                    (total, employee) =>
+                      total + employee.overtimeHours,
+                    0,
+                  )
+                  .toString()}
+              />
+
+              <ComponentSummary
+                title="Overtime Pay"
+                value={formatCurrency(
+                  payroll.reduce(
+                    (total, employee) =>
+                      total + employee.overtimeAmount,
+                    0,
+                  ),
+                )}
+              />
+            </ComponentWorkspace>
+          )}
+
+          {workspace === "payslips" && (
+            <PayslipWorkspace
+              payroll={payroll}
+              onView={(employee) => {
+                setSelectedEmployee(employee);
+                setShowPayslip(true);
+              }}
+            />
+          )}
+
+          {workspace === "history" && (
+            <PayrollHistory
+              history={history}
+            />
+          )}
+        </div>
+      </Card>
+
+      {/* =====================================================
+          REGISTER EMPLOYEES MODAL
+      ===================================================== */}
+
+      {showRegisterModal && (
+        <RegisterEmployeesModal
+          employees={employeeDirectory}
+          registeredIds={registeredIds}
+          onClose={() => setShowRegisterModal(false)}
+          onRegister={registerEmployees}
+          onUnregister={unregisterEmployee}
         />
       )}
 
@@ -844,8 +863,52 @@ export function PayrollPage() {
         <RunPayrollModal
           period={period}
           employeeCount={payroll.length}
+          gross={totalGross}
+          deductions={totalDeductions}
+          net={totalNet}
           onClose={() => setShowRunPayroll(false)}
           onRun={handleRunPayroll}
+        />
+      )}
+
+      {/* =====================================================
+          PERIOD MODAL
+      ===================================================== */}
+
+      {showPeriodModal && (
+        <PeriodModal
+          period={period}
+          onClose={() => setShowPeriodModal(false)}
+          onChange={(value) => {
+            setPeriod(value);
+            setShowPeriodModal(false);
+          }}
+        />
+      )}
+
+      {/* =====================================================
+          COMPONENT MODAL
+      ===================================================== */}
+
+      {showComponentModal && (
+        <ComponentModal
+          type={showComponentModal}
+          onClose={() => setShowComponentModal(null)}
+        />
+      )}
+
+      {/* =====================================================
+          PAYSLIP MODAL
+      ===================================================== */}
+
+      {showPayslip && selectedEmployee && (
+        <PayslipModal
+          employee={selectedEmployee}
+          period={period}
+          onClose={() => {
+            setShowPayslip(false);
+            setSelectedEmployee(null);
+          }}
         />
       )}
     </div>
@@ -853,122 +916,1167 @@ export function PayrollPage() {
 }
 
 /* =========================================================
-   FILTER
+   SUMMARY CARD
 ========================================================= */
 
-interface PayrollFilterProps {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-}
-
-function PayrollFilter({
+function SummaryCard({
   label,
   value,
-  options,
-  onChange,
-}: PayrollFilterProps) {
+  description,
+  icon,
+  iconClass = "text-[var(--color-brand)] bg-[var(--color-brand-soft)]",
+}: {
+  label: string;
+  value: string;
+  description: string;
+  icon: ReactNode;
+  iconClass?: string;
+}) {
   return (
-    <label className="space-y-2">
-      <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
-        {label}
-      </span>
+    <Card className="p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium text-[var(--color-text-muted)]">
+            {label}
+          </p>
 
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(event) =>
-            onChange(event.target.value)
-          }
-          className="h-10 w-full appearance-none rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 pr-9 text-xs text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-brand)]"
+          <p className="mt-2 text-xl font-semibold text-[var(--color-text)]">
+            {value}
+          </p>
+
+          <p className="mt-2 text-[10px] text-[var(--color-text-muted)]">
+            {description}
+          </p>
+        </div>
+
+        <div
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
         >
-          {options.map((option) => (
-            <option key={option}>{option}</option>
-          ))}
-        </select>
-
-        <ChevronDown
-          size={14}
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-        />
+          {icon}
+        </div>
       </div>
-    </label>
+    </Card>
   );
 }
 
 /* =========================================================
-   STATUS BADGE
+   ACTION CARD
 ========================================================= */
 
-function PayrollStatusBadge({
-  status,
+function ActionCard({
+  icon,
+  title,
+  description,
+  onClick,
+  featured = false,
 }: {
-  status: PayrollStatus;
+  icon: ReactNode;
+  title: string;
+  description: string;
+  onClick: () => void;
+  secondaryAction?: () => void;
+  featured?: boolean;
 }) {
-  const styles: Record<PayrollStatus, string> = {
-    Draft:
-      "border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)]",
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group rounded-xl border p-5 text-left transition-all ${
+        featured
+          ? "border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] hover:border-[var(--color-brand)]/60"
+          : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)]"
+      }`}
+    >
+      <div className="flex items-start justify-between">
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+            featured
+              ? "bg-[var(--color-brand)] text-[var(--color-bg)]"
+              : "bg-[var(--color-brand-soft)] text-[var(--color-brand)]"
+          }`}
+        >
+          {icon}
+        </div>
 
-    Processing:
-      "bg-[var(--color-warning)]/10 text-[var(--color-warning)]",
+        <ArrowUpRight
+          size={15}
+          className="text-[var(--color-text-muted)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        />
+      </div>
 
-    Processed:
-      "bg-[var(--color-success)]/10 text-[var(--color-success)]",
+      <h3 className="mt-5 text-sm font-semibold text-[var(--color-text)]">
+        {title}
+      </h3>
 
-    Paid:
-      "bg-[var(--color-brand-soft)] text-[var(--color-brand)]",
+      <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
+        {description}
+      </p>
+    </button>
+  );
+}
+
+/* =========================================================
+   COMPONENT CARD
+========================================================= */
+
+function ComponentCard({
+  icon,
+  title,
+  description,
+  count,
+  onClick,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  count: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-left transition-colors hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)]"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
+          {icon}
+        </div>
+
+        <span className="text-xs text-[var(--color-text-muted)]">
+          {count} records
+        </span>
+      </div>
+
+      <h3 className="mt-4 text-sm font-semibold text-[var(--color-text)]">
+        {title}
+      </h3>
+
+      <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
+        {description}
+      </p>
+
+      <div className="mt-4 flex items-center gap-1 text-[10px] font-medium text-[var(--color-brand)]">
+        Manage
+        <ArrowUpRight size={12} />
+      </div>
+    </button>
+  );
+}
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+function SectionHeading({
+  eyebrow,
+  description,
+}: {
+  eyebrow: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-brand)]">
+        {eyebrow}
+      </p>
+      <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+/* =========================================================
+   WORKSPACE TAB
+========================================================= */
+
+function WorkspaceTab({
+  active,
+  icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-medium transition-colors ${
+        active
+          ? "border-[var(--color-brand)] text-[var(--color-brand)]"
+          : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+/* =========================================================
+   REGISTER LAUNCHER
+
+   Notice there is NO payroll table here.
+========================================================= */
+
+function PayrollRegisterLauncher({
+  employeeCount,
+  totalNet,
+  onOpen,
+}: {
+  employeeCount: number;
+  totalNet: number;
+  onOpen: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
+          <ListChecks size={21} />
+        </div>
+
+        <h3 className="mt-4 text-base font-semibold text-[var(--color-text)]">
+          Payroll Register
+        </h3>
+
+        <p className="mt-1 max-w-xl text-xs leading-5 text-[var(--color-text-secondary)]">
+          The detailed payroll register is kept out of the main
+          workspace to keep the payroll dashboard focused. Open it
+          when you need to review individual employee payroll.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-5">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+            Employees
+          </p>
+
+          <p className="mt-1 text-lg font-semibold text-[var(--color-text)]">
+            {employeeCount}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+            Net Payroll
+          </p>
+
+          <p className="mt-1 text-lg font-semibold text-[var(--color-text)]">
+            {formatCurrency(totalNet)}
+          </p>
+        </div>
+
+        <Button onClick={onOpen}>
+          <Eye size={15} />
+          Open Register
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   COMPONENT WORKSPACE
+========================================================= */
+
+function ComponentWorkspace({
+  title,
+  description,
+  icon,
+  onAdd,
+  children,
+}: {
+  title: string;
+  description: string;
+  icon: ReactNode;
+  onAdd: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
+            {icon}
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--color-text)]">
+              {title}
+            </h3>
+
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+              {description}
+            </p>
+          </div>
+        </div>
+
+        <Button
+          variant="secondary"
+          onClick={onAdd}
+        >
+          <Plus size={15} />
+          Add
+        </Button>
+      </div>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   COMPONENT SUMMARY
+========================================================= */
+
+function ComponentSummary({
+  title,
+  value,
+}: {
+  title: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
+      <p className="text-[10px] uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+        {title}
+      </p>
+
+      <p className="mt-2 text-lg font-semibold text-[var(--color-text)]">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+/* =========================================================
+   PAYSLIP WORKSPACE
+========================================================= */
+
+function PayslipWorkspace({
+  payroll,
+  onView,
+}: {
+  payroll: PayrollEmployee[];
+  onView: (employee: PayrollEmployee) => void;
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-[var(--color-text)]">
+            Employee Payslips
+          </h3>
+
+          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+            Select an employee to preview their payslip.
+          </p>
+        </div>
+
+        <Button variant="secondary">
+          <Download size={15} />
+          Export All
+        </Button>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {payroll.map((employee) => (
+          <button
+            key={employee.id}
+            type="button"
+            onClick={() => onView(employee)}
+            className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] p-4 text-left transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-xs font-bold text-[var(--color-brand)]">
+              {getInitials(employee.name)}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-[var(--color-text)]">
+                {employee.name}
+              </p>
+
+              <p className="mt-1 text-[10px] text-[var(--color-text-muted)]">
+                {employee.employeeNumber}
+              </p>
+            </div>
+
+            <Eye
+              size={15}
+              className="text-[var(--color-text-muted)]"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   PAYROLL HISTORY
+========================================================= */
+
+function PayrollHistory({
+  history,
+}: {
+  history: PayrollHistoryRecord[];
+}) {
+  return (
+    <div>
+      <div>
+        <h3 className="text-sm font-semibold text-[var(--color-text)]">
+          Payroll History
+        </h3>
+
+        <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+          Previous payroll periods and their final totals.
+        </p>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {history.map((record) => (
+          <div
+            key={record.id}
+            className="flex flex-col gap-4 rounded-xl border border-[var(--color-border)] p-4 lg:flex-row lg:items-center lg:justify-between"
+          >
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-[var(--color-text)]">
+                  {record.period}
+                </p>
+
+                <PayrollStatusBadge status={record.status} />
+              </div>
+
+              <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                {record.employeeCount} employees · Processed{" "}
+                {record.processedDate}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-6">
+              <HistoryValue
+                label="Gross"
+                value={formatCurrency(record.gross)}
+              />
+
+              <HistoryValue
+                label="Deductions"
+                value={formatCurrency(record.deductions)}
+              />
+
+              <HistoryValue
+                label="Net"
+                value={formatCurrency(record.net)}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HistoryValue({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div>
+      <p className="text-[9px] uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+        {label}
+      </p>
+
+      <p className="mt-1 text-xs font-semibold text-[var(--color-text)]">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+/* =========================================================
+   REGISTER EMPLOYEES MODAL
+
+   Individual + bulk selection
+   Search
+   Department filter
+   Select all
+========================================================= */
+
+function RegisterEmployeesModal({
+  employees,
+  registeredIds,
+  onClose,
+  onRegister,
+  onUnregister,
+}: {
+  employees: Employee[];
+  registeredIds: string[];
+  onClose: () => void;
+  onRegister: (ids: string[]) => void;
+  onUnregister: (id: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [department, setDepartment] = useState("All");
+  const [selected, setSelected] = useState<string[]>(
+    registeredIds,
+  );
+
+  const departments = useMemo(
+    () => [
+      "All",
+      ...Array.from(
+        new Set(employees.map((employee) => employee.department)),
+      ),
+    ],
+    [employees],
+  );
+
+  const filtered = useMemo(() => {
+    const query = search.toLowerCase().trim();
+
+    return employees.filter((employee) => {
+      const matchesSearch =
+        !query ||
+        employee.name.toLowerCase().includes(query) ||
+        employee.employeeNumber
+          .toLowerCase()
+          .includes(query) ||
+        employee.position.toLowerCase().includes(query);
+
+      const matchesDepartment =
+        department === "All" ||
+        employee.department === department;
+
+      return matchesSearch && matchesDepartment;
+    });
+  }, [employees, search, department]);
+
+  const toggleEmployee = (id: string) => {
+    setSelected((current) =>
+      current.includes(id)
+        ? current.filter((employeeId) => employeeId !== id)
+        : [...current, id],
+    );
+  };
+
+  const toggleAllVisible = () => {
+    const visibleIds = filtered.map(
+      (employee) => employee.id,
+    );
+
+    const allSelected = visibleIds.every((id) =>
+      selected.includes(id),
+    );
+
+    if (allSelected) {
+      setSelected((current) =>
+        current.filter((id) => !visibleIds.includes(id)),
+      );
+    } else {
+      setSelected((current) =>
+        Array.from(new Set([...current, ...visibleIds])),
+      );
+    }
   };
 
   return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-medium ${styles[status]}`}
+    <ModalShell
+      title="Register Employees for Payroll"
+      onClose={onClose}
+      maxWidth="max-w-4xl"
     >
-      {status}
-    </span>
+      <div className="space-y-5">
+        <div className="rounded-xl border border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] p-4">
+          <div className="flex gap-3">
+            <UserCheck
+              size={19}
+              className="mt-0.5 shrink-0 text-[var(--color-brand)]"
+            />
+
+            <div>
+              <p className="text-sm font-medium text-[var(--color-text)]">
+                Choose who undergoes payroll
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
+                Being registered as an employee does not
+                automatically place someone into payroll. Select
+                the employees who should be included in this
+                payroll period.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Search + Filter */}
+        <div className="flex flex-col gap-3 md:flex-row">
+          <div className="relative flex-1">
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+            />
+
+            <Input
+              value={search}
+              onChange={(event) =>
+                setSearch(event.target.value)
+              }
+              placeholder="Search employee, number or position..."
+              className="pl-10"
+            />
+          </div>
+
+          <div className="relative md:w-56">
+            <select
+              value={department}
+              onChange={(event) =>
+                setDepartment(event.target.value)
+              }
+              className="h-10 w-full appearance-none rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 pr-9 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]"
+            >
+              {departments.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+
+            <ChevronDown
+              size={14}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+            />
+          </div>
+        </div>
+
+        {/* Selection bar */}
+        <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleAllVisible}
+              className={`flex h-5 w-5 items-center justify-center rounded border ${
+                filtered.length > 0 &&
+                filtered.every((employee) =>
+                  selected.includes(employee.id),
+                )
+                  ? "border-[var(--color-brand)] bg-[var(--color-brand)] text-[var(--color-bg)]"
+                  : "border-[var(--color-border-strong)]"
+              }`}
+            >
+              {filtered.length > 0 &&
+                filtered.every((employee) =>
+                  selected.includes(employee.id),
+                ) && <Check size={13} />}
+            </button>
+
+            <span className="text-xs text-[var(--color-text-secondary)]">
+              Select all visible
+            </span>
+          </div>
+
+          <span className="text-xs font-medium text-[var(--color-brand)]">
+            {selected.length} selected
+          </span>
+        </div>
+
+        {/* Employee selection */}
+        <div className="max-h-[430px] overflow-y-auto rounded-xl border border-[var(--color-border)]">
+          {filtered.map((employee) => {
+            const isSelected = selected.includes(employee.id);
+            const isRegistered =
+              registeredIds.includes(employee.id);
+
+            return (
+              <div
+                key={employee.id}
+                className="flex items-center gap-4 border-b border-[var(--color-border)] px-4 py-4 last:border-b-0 hover:bg-[var(--color-surface-hover)]"
+              >
+                <button
+                  type="button"
+                  onClick={() =>
+                    toggleEmployee(employee.id)
+                  }
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+                    isSelected
+                      ? "border-[var(--color-brand)] bg-[var(--color-brand)] text-[var(--color-bg)]"
+                      : "border-[var(--color-border-strong)]"
+                  }`}
+                >
+                  {isSelected && <Check size={13} />}
+                </button>
+
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[10px] font-bold text-[var(--color-brand)]">
+                  {getInitials(employee.name)}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-[var(--color-text)]">
+                    {employee.name}
+                  </p>
+
+                  <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+                    {employee.employeeNumber} ·{" "}
+                    {employee.department} ·{" "}
+                    {employee.position}
+                  </p>
+                </div>
+
+                <div className="hidden text-right sm:block">
+                  <p className="text-xs font-medium text-[var(--color-text-secondary)]">
+                    {formatCurrency(employee.basicSalary)}
+                  </p>
+
+                  <p className="mt-0.5 text-[9px] uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+                    Basic Salary
+                  </p>
+                </div>
+
+                {isRegistered && (
+                  <span className="rounded-full bg-[var(--color-success)]/10 px-2 py-1 text-[9px] font-medium text-[var(--color-success)]">
+                    Registered
+                  </span>
+                )}
+
+                {isRegistered && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUnregister(employee.id)
+                    }
+                    className="rounded-md p-1.5 text-[var(--color-text-muted)] hover:bg-[var(--color-danger)]/10 hover:text-[var(--color-danger)]"
+                    title="Remove from payroll"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            );
+          })}
+
+          {filtered.length === 0 && (
+            <div className="p-12 text-center">
+              <Search
+                size={20}
+                className="mx-auto text-[var(--color-text-muted)]"
+              />
+
+              <p className="mt-3 text-sm text-[var(--color-text)]">
+                No employees found
+              </p>
+
+              <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                Try another search or department.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between border-t border-[var(--color-border)] pt-5">
+          <p className="text-xs text-[var(--color-text-muted)]">
+            {selected.length} employees will be included.
+          </p>
+
+          <div className="flex gap-3">
+            <Button
+              variant="secondary"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              onClick={() => onRegister(selected)}
+            >
+              <UserCheck size={15} />
+              Register Selected
+            </Button>
+          </div>
+        </div>
+      </div>
+    </ModalShell>
   );
 }
 
 /* =========================================================
-   PAYROLL DETAILS MODAL
+   RUN PAYROLL MODAL
 ========================================================= */
 
-interface PayrollDetailsModalProps {
-  employee: PayrollEmployee;
+function RunPayrollModal({
+  period,
+  employeeCount,
+  gross,
+  deductions,
+  net,
+  onClose,
+  onRun,
+}: {
   period: string;
+  employeeCount: number;
+  gross: number;
+  deductions: number;
+  net: number;
   onClose: () => void;
+  onRun: () => void;
+}) {
+  return (
+    <ModalShell
+      title="Process Payroll"
+      onClose={onClose}
+    >
+      <div className="space-y-6">
+        <div className="rounded-xl border border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] p-4">
+          <div className="flex gap-3">
+            <AlertCircle
+              size={18}
+              className="mt-0.5 shrink-0 text-[var(--color-brand)]"
+            />
+
+            <div>
+              <p className="text-sm font-medium text-[var(--color-text)]">
+                Process {period}
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
+                Payroll calculations will be performed for the{" "}
+                <strong className="text-[var(--color-text)]">
+                  {employeeCount}
+                </strong>{" "}
+                employees currently registered for payroll.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <ProcessValue
+            label="Gross"
+            value={formatCurrency(gross)}
+          />
+
+          <ProcessValue
+            label="Deductions"
+            value={formatCurrency(deductions)}
+          />
+
+          <ProcessValue
+            label="Net Pay"
+            value={formatCurrency(net)}
+            highlighted
+          />
+        </div>
+
+        <div className="space-y-2">
+          <PayrollCheck label="Employee payroll registration" />
+          <PayrollCheck label="Basic salaries" />
+          <PayrollCheck label="Allowances" />
+          <PayrollCheck label="Deductions" />
+          <PayrollCheck label="Overtime" />
+          <PayrollCheck label="Payroll calculations" />
+        </div>
+
+        <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
+          <Button
+            variant="secondary"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+
+          <Button onClick={onRun}>
+            <Play size={15} />
+            Process Payroll
+          </Button>
+        </div>
+      </div>
+    </ModalShell>
+  );
 }
 
-function PayrollDetailsModal({
+function ProcessValue({
+  label,
+  value,
+  highlighted = false,
+}: {
+  label: string;
+  value: string;
+  highlighted?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-lg border p-4 ${
+        highlighted
+          ? "border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)]"
+          : "border-[var(--color-border)] bg-[var(--color-bg)]"
+      }`}
+    >
+      <p className="text-[9px] uppercase tracking-[0.13em] text-[var(--color-text-muted)]">
+        {label}
+      </p>
+
+      <p className="mt-2 text-sm font-semibold text-[var(--color-text)]">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+/* =========================================================
+   PERIOD MODAL
+========================================================= */
+
+function PeriodModal({
+  period,
+  onClose,
+  onChange,
+}: {
+  period: string;
+  onClose: () => void;
+  onChange: (value: string) => void;
+}) {
+  const periods = [
+    "September 2026",
+    "August 2026",
+    "July 2026",
+    "June 2026",
+    "May 2026",
+  ];
+
+  return (
+    <ModalShell
+      title="Payroll Period"
+      onClose={onClose}
+    >
+      <div className="space-y-5">
+        <div>
+          <p className="text-sm font-medium text-[var(--color-text)]">
+            Select payroll period
+          </p>
+
+          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+            Payroll calculations and registrations are managed
+            against a specific payroll period.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          {periods.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => onChange(item)}
+              className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-colors ${
+                item === period
+                  ? "border-[var(--color-brand)]/40 bg-[var(--color-brand-soft)]"
+                  : "border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]"
+              }`}
+            >
+              <span className="text-sm text-[var(--color-text)]">
+                {item}
+              </span>
+
+              {item === period && (
+                <Check
+                  size={16}
+                  className="text-[var(--color-brand)]"
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </ModalShell>
+  );
+}
+
+/* =========================================================
+   COMPONENT MODAL
+========================================================= */
+
+function ComponentModal({
+  type,
+  onClose,
+}: {
+  type: "allowance" | "deduction" | "overtime";
+  onClose: () => void;
+}) {
+  const titles = {
+    allowance: "Manage Allowance",
+    deduction: "Manage Deduction",
+    overtime: "Manage Overtime",
+  };
+
+  const descriptions = {
+    allowance:
+      "Add an allowance to an employee's current payroll.",
+    deduction:
+      "Add a deduction to an employee's current payroll.",
+    overtime:
+      "Record overtime hours for an employee.",
+  };
+
+  return (
+    <ModalShell
+      title={titles[type]}
+      onClose={onClose}
+    >
+      <div className="space-y-5">
+        <div>
+          <p className="text-xs leading-5 text-[var(--color-text-secondary)]">
+            {descriptions[type]}
+          </p>
+        </div>
+
+        <label className="space-y-2">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+            Employee
+          </span>
+
+          <select className="h-10 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]">
+            {employeeDirectory
+              .filter((employee) =>
+                initialRegisteredEmployees.includes(employee.id),
+              )
+              .map((employee) => (
+                <option key={employee.id}>
+                  {employee.employeeNumber} ·{" "}
+                  {employee.name}
+                </option>
+              ))}
+          </select>
+        </label>
+
+        {type === "overtime" ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="space-y-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+                Hours
+              </span>
+
+              <input
+                type="number"
+                min="0"
+                className="h-10 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]"
+                placeholder="0"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+                Amount
+              </span>
+
+              <input
+                type="number"
+                min="0"
+                className="h-10 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]"
+                placeholder="0"
+              />
+            </label>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="space-y-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+                Type
+              </span>
+
+              <select className="h-10 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]">
+                <option>
+                  {type === "allowance"
+                    ? "Housing Allowance"
+                    : "PAYE"}
+                </option>
+                <option>
+                  {type === "allowance"
+                    ? "Transport Allowance"
+                    : "Pension"}
+                </option>
+                <option>
+                  {type === "allowance"
+                    ? "Other Allowance"
+                    : "Other Deduction"}
+                </option>
+              </select>
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+                Amount
+              </span>
+
+              <input
+                type="number"
+                min="0"
+                className="h-10 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]"
+                placeholder="0"
+              />
+            </label>
+          </div>
+        )}
+
+        <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
+          <Button
+            variant="secondary"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+
+          <Button onClick={onClose}>
+            <Check size={15} />
+            Save
+          </Button>
+        </div>
+      </div>
+    </ModalShell>
+  );
+}
+
+/* =========================================================
+   PAYSLIP MODAL
+========================================================= */
+
+function PayslipModal({
   employee,
   period,
   onClose,
-}: PayrollDetailsModalProps) {
+}: {
+  employee: PayrollEmployee;
+  period: string;
+  onClose: () => void;
+}) {
   const gross = getGrossSalary(employee);
   const deductions = getDeductions(employee);
   const net = getNetSalary(employee);
 
   return (
     <ModalShell
-      title="Payroll Details"
+      title="Employee Payslip"
       onClose={onClose}
     >
       <div className="space-y-6">
-        {/* Employee heading */}
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-lg font-bold text-[var(--color-brand)]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-sm font-bold text-[var(--color-brand)]">
             {getInitials(employee.name)}
           </div>
 
           <div>
-            <h3 className="text-base font-semibold text-[var(--color-text)]">
+            <h3 className="text-sm font-semibold text-[var(--color-text)]">
               {employee.name}
             </h3>
 
             <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-              {employee.employeeNumber}
-              {" · "}
-              {period}
+              {employee.employeeNumber} · {period}
             </p>
           </div>
 
@@ -979,7 +2087,6 @@ function PayrollDetailsModal({
           </div>
         </div>
 
-        {/* Earnings */}
         <PayrollSection title="Earnings">
           <PayrollLine
             label="Basic Salary"
@@ -1007,6 +2114,11 @@ function PayrollDetailsModal({
             )}
           />
 
+          <PayrollLine
+            label="Overtime"
+            value={formatCurrency(employee.overtimeAmount)}
+          />
+
           <div className="mt-3 border-t border-[var(--color-border)] pt-3">
             <PayrollLine
               label="Gross Salary"
@@ -1016,13 +2128,10 @@ function PayrollDetailsModal({
           </div>
         </PayrollSection>
 
-        {/* Deductions */}
         <PayrollSection title="Deductions">
           <PayrollLine
             label="PAYE"
-            value={formatCurrency(
-              employee.deductions.paye,
-            )}
+            value={formatCurrency(employee.deductions.paye)}
           />
 
           <PayrollLine
@@ -1055,7 +2164,6 @@ function PayrollDetailsModal({
           </div>
         </PayrollSection>
 
-        {/* Net pay */}
         <div className="rounded-xl border border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -1074,12 +2182,17 @@ function PayrollDetailsModal({
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
           <Button
             variant="secondary"
             onClick={onClose}
           >
             Close
+          </Button>
+
+          <Button>
+            <Download size={15} />
+            Export Payslip
           </Button>
         </div>
       </div>
@@ -1150,75 +2263,36 @@ function PayrollLine({
 }
 
 /* =========================================================
-   RUN PAYROLL MODAL
+   PAYROLL STATUS
 ========================================================= */
 
-interface RunPayrollModalProps {
-  period: string;
-  employeeCount: number;
-  onClose: () => void;
-  onRun: () => void;
-}
+function PayrollStatusBadge({
+  status,
+}: {
+  status:
+    | PayrollStatus
+    | PayrollHistoryRecord["status"];
+}) {
+  const styles: Record<string, string> = {
+    Draft:
+      "border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)]",
 
-function RunPayrollModal({
-  period,
-  employeeCount,
-  onClose,
-  onRun,
-}: RunPayrollModalProps) {
+    Processing:
+      "bg-[var(--color-warning)]/10 text-[var(--color-warning)]",
+
+    Processed:
+      "bg-[var(--color-success)]/10 text-[var(--color-success)]",
+
+    Paid:
+      "bg-[var(--color-brand-soft)] text-[var(--color-brand)]",
+  };
+
   return (
-    <ModalShell
-      title="Run Payroll"
-      onClose={onClose}
+    <span
+      className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-medium ${styles[status]}`}
     >
-      <div className="space-y-6">
-        <div className="rounded-xl border border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] p-4">
-          <div className="flex gap-3">
-            <div className="mt-0.5 text-[var(--color-brand)]">
-              <AlertCircle size={18} />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-[var(--color-text)]">
-                Process payroll for {period}
-              </p>
-
-              <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
-                The payroll calculation will be applied to{" "}
-                <strong className="text-[var(--color-text)]">
-                  {employeeCount}
-                </strong>{" "}
-                employees using the current payroll
-                configuration.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <PayrollCheck label="Employee records" />
-          <PayrollCheck label="Basic salaries" />
-          <PayrollCheck label="Allowances" />
-          <PayrollCheck label="Deductions" />
-          <PayrollCheck label="Payroll calculations" />
-        </div>
-
-        <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-
-          <Button onClick={onRun}>
-            <Play size={16} />
-            Run Payroll
-          </Button>
-        </div>
-      </div>
-    </ModalShell>
+      {status}
+    </span>
   );
 }
 
@@ -1248,26 +2322,29 @@ function PayrollCheck({
    MODAL SHELL
 ========================================================= */
 
-interface ModalShellProps {
-  title: string;
-  children: ReactNode;
-  onClose: () => void;
-}
-
 function ModalShell({
   title,
   children,
   onClose,
-}: ModalShellProps) {
+  maxWidth = "max-w-2xl",
+}: {
+  title: string;
+  children: ReactNode;
+  onClose: () => void;
+  maxWidth?: string;
+}) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] shadow-2xl">
-        <div className="sticky top-0 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-raised)] px-6 py-4">
+      <div
+        className={`max-h-[92vh] w-full ${maxWidth} overflow-y-auto rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] shadow-2xl`}
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-raised)] px-6 py-4">
           <h2 className="text-sm font-semibold text-[var(--color-text)]">
             {title}
           </h2>
 
           <button
+            type="button"
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
             aria-label="Close"
@@ -1283,3 +2360,4 @@ function ModalShell({
     </div>
   );
 }
+
