@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { AuthContext } from "./authContext"; // Import context from the other file
-import type { User, Company } from "./authTypes";
+import type { User, Company } from "../types/authTypes";
 
 // This file ONLY exports the AuthProvider component.
 // It does NOT create or export the context.

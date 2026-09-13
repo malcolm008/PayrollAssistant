@@ -1,7 +1,7 @@
-export interface JobTItle {
+export interface JobTitle {
     id: string;
     code: string;
     name: string;
     description: string;
-    active: string;
+    active: boolean;
 }
