@@ -1,13 +1,16 @@
 import {
   ChevronRight,
+  CircleDollarSign,
   Moon,
   Settings2,
+  ShieldCheck,
   Sun,
   WalletCards,
   Check,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
+import type { ReactNode } from "react";
 
 type ThemeOption = {
   id: "dark" | "light";
@@ -20,13 +23,15 @@ const themeOptions: ThemeOption[] = [
   {
     id: "dark",
     name: "Dark",
-    description: "The default Payroll Assistant dark interface.",
+    description:
+      "The default Payroll Assistant dark interface.",
     icon: Moon,
   },
   {
     id: "light",
     name: "Light",
-    description: "A clean light interface with the Payroll Assistant Core gold Accent.",
+    description:
+      "A clean light interface with the Payroll Assistant Core gold Accent.",
     icon: Sun,
   },
 ];
@@ -35,11 +40,9 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
-  return(
+  return (
     <div className="space-y-6">
-      {/* =====================================================
-          PAGE HEADER
-          ===================================================== */}
+      {/* PAGE HEADER */}
       <div>
         <h1 className="text-2xl font-semibold text-[var(--color-text)]">
           Settings
@@ -51,9 +54,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* =====================================================
-          APPEARANCE
-          ===================================================== */}
+      {/* APPEARANCE */}
       <section className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
         <div className="border-b border-[var(--color-border)] px-6 py-5">
           <div className="flex items-center gap-3">
@@ -130,9 +131,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* =====================================================
-          PAYROLL CONFIGURATION
-          ===================================================== */}
+      {/* PAYROLL CONFIGURATION */}
       <section className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
         <div className="border-b border-[var(--color-border)] px-6 py-5">
           <div className="flex items-center gap-3">
@@ -154,27 +153,31 @@ export default function SettingsPage() {
         </div>
 
         <div className="divide-y divide-[var(--color-border)]">
-          {/* Advance Types */}
           <SettingsItem
             icon={<WalletCards size={19} />}
             title="Advance Types"
-            description="Configure the types of employee advances, repayment methods, approval requirements and advance limits."
-            onClick={() => navigate("/settings/payroll/advance-types")}
+            description="Configure employee advance types, repayment methods, approval requirements and advance limits."
+            onClick={() =>
+              navigate("/settings/payroll/advance-types")
+            }
           />
 
-          {/* Future configuration */}
           <SettingsItem
-            icon={<Settings2 size={19} />}
+            icon={<CircleDollarSign size={19} />}
             title="Allowance Types"
-            description="Configure the allowances that can be included in employee payroll."
-            disabled
+            description="Configure the allowances that can be assigned to employees and included during payroll processing."
+            onClick={() =>
+              navigate("/settings/payroll/allowance-types")
+            }
           />
 
           <SettingsItem
-            icon={<Settings2 size={19} />}
+            icon={<ShieldCheck size={19} />}
             title="Deduction Types"
-            description="Configure deductions that can be applied during payroll processing."
-            disabled
+            description="Configure statutory and non-statutory deductions that can be applied during payroll processing."
+            onClick={() =>
+              navigate("/settings/payroll/deduction-types")
+            }
           />
 
           <SettingsItem
@@ -203,7 +206,7 @@ function SettingsItem({
   onClick,
   disabled = false,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   description: string;
   onClick?: () => void;

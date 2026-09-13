@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 
 import { useAdvances } from "../../hooks/useAdvances";
-import type { AdvanceRecord } from "./advance";
+import type { AdvanceRecord } from "../../types/advance";
 
 interface AdvanceApprovalProps {
     onViewDetails: (

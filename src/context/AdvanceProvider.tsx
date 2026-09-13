@@ -15,7 +15,7 @@ import type {
   AdvanceRecord,
   AdvanceRepayment,
   AdvanceStatus,
-} from "../pages/advances/advance";
+} from "../types/advance";
 
 const STORAGE_KEY = "payroll-advances";
 

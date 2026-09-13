@@ -18,6 +18,8 @@ import { AttendancePage } from "../pages/attendance/AttendancePage";
 import { ReportsPage } from "../pages/reports/ReportsPage";
 import { AdvancesPage } from "../pages/advances/AdvancesPage";
 import { AdvanceTypesPage } from "../pages/advances/AdvanceTypesPage";
+import { DeductionTypesPage } from "../pages/settings/payroll/deduction-types/DeductionTypesPage";
+import { AllowanceTypesPage } from "../pages/settings/payroll/allowance-types/AllowanceTypesPage";
 
 function ProtectedRoute({
   children,
@@ -144,6 +146,28 @@ export function AppRouter() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/settings/payroll/allowance-types"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <AllowanceTypesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings/payroll/deduction-types"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <DeductionTypesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />   
 
       <Route
         path="/settings/payroll/advance-types"

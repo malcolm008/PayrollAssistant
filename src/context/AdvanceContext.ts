@@ -4,7 +4,7 @@ import type {
     AdvanceRepayment,
     AdvanceStatus,
     RepaymentMethod,
-} from "../pages/advances/advance";
+} from "../types/advance";
 
 export interface CreateAdvanceInput {
     employeeNumber: string;

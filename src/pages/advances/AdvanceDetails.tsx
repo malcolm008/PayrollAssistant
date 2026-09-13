@@ -4,7 +4,7 @@ import {
   X,
 } from "lucide-react";
 
-import type { AdvanceRecord } from "./advance";
+import type { AdvanceRecord } from "../../types/advance";
 
 interface AdvanceDetailsProps {
   advance: AdvanceRecord;

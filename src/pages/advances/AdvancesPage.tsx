@@ -16,7 +16,7 @@ import { useAdvances } from "../../hooks/useAdvances";
 import type {
   AdvanceRecord,
   AdvanceStatus,
-} from "./advance";
+} from "../../types/advance";
 
 import AdvanceApproval from "./AdvanceApproval";
 import AdvanceDetails from "./AdvanceDetails";
