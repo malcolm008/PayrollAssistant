@@ -20,6 +20,9 @@ import { AdvancesPage } from "../pages/advances/AdvancesPage";
 import { AdvanceTypesPage } from "../pages/advances/AdvanceTypesPage";
 import { DeductionTypesPage } from "../pages/settings/payroll/deduction-types/DeductionTypesPage";
 import { AllowanceTypesPage } from "../pages/settings/payroll/allowance-types/AllowanceTypesPage";
+import { CompanyInformationPage } from "../pages/settings/company/CompanyInformation";
+import { JobTitlesDepartmentsPage } from "../pages/settings/company/JobTitlesDepartmentsPage";
+import { EmploymentTypesPage } from "../pages/settings/company/EmploymentTypesPage";
 
 function ProtectedRoute({
   children,
@@ -175,6 +178,39 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <AdvanceTypesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings/company"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <CompanyInformationPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings/company/job-titles-departments"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <JobTitlesDepartmentsPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings/company/employment-types"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <EmploymentTypesPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }

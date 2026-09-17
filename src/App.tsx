@@ -4,7 +4,11 @@ import { AppRouter } from "./routes/AppRouter";
 import { ThemeProvider } from "./context/ThemeProvider";
 import { AdvanceProvider } from "./context/AdvanceProvider";
 import { AllowanceTypeProvider } from "./context/AllowanceTypeProvider";
-import { DeductionTypeProvider } from "./context/DedectionTypeProvider";
+import { DeductionTypeProvider } from "./context/DeductionTypeProvider";
+import { CompanyProvider } from "./context/CompanyProvider";
+import { JobTitleProvider } from "./context/JobTitleProvider";
+import { DepartmentProvider } from "./context/DepartmentProvider";
+import { EmploymentTypeProvider } from "./context/EmploymentTypeProvider";
 
 function App() {
   return (
@@ -14,7 +18,15 @@ function App() {
           <AllowanceTypeProvider>
             <DeductionTypeProvider>
               <AdvanceProvider>
-                <AppRouter />
+                <CompanyProvider>
+                  <JobTitleProvider>
+                    <DepartmentProvider>
+                      <EmploymentTypeProvider>
+                        <AppRouter />
+                      </EmploymentTypeProvider>
+                    </DepartmentProvider>
+                  </JobTitleProvider>
+                </CompanyProvider>
               </AdvanceProvider>
             </DeductionTypeProvider>
           </AllowanceTypeProvider>
