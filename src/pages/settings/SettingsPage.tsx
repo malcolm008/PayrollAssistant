@@ -12,6 +12,8 @@ import {
   Sun,
   WalletCards,
   Check,
+  Banknote,
+  CalendarDays,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
@@ -300,17 +302,21 @@ export default function SettingsPage() {
             />
 
             <SettingsItem
-              icon={<Settings2 size={19} />}
+              icon={<CalendarDays size={19} />}
               title="Leave Types"
-              description="Configure employee leave categories and related payroll rules."
-              disabled
+              description="Configure employee leave categories, payment rules and leave balance settings."
+              onClick={() =>
+                navigate("/settings/payroll/leave-types")
+              }
             />
 
             <SettingsItem
-              icon={<Settings2 size={19} />}
+              icon={<Banknote size={19} />}
               title="Loan Types"
-              description="Configure employee loan categories and repayment rules."
-              disabled
+              description="Configure employee loan categories, repayment methods, limits and approval requirements."
+              onClick={() =>
+                navigate("/settings/payroll/loan-types")
+              }
             />
           </div>
         )}

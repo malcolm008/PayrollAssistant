@@ -23,6 +23,8 @@ import { AllowanceTypesPage } from "../pages/settings/payroll/allowance-types/Al
 import { CompanyInformationPage } from "../pages/settings/company/CompanyInformation";
 import { JobTitlesDepartmentsPage } from "../pages/settings/company/JobTitlesDepartmentsPage";
 import { EmploymentTypesPage } from "../pages/settings/company/EmploymentTypesPage";
+import { LeaveTypesPage } from "../pages/settings/leave-types/LeaveTypesPage";
+import { LoanTypesPage } from "../pages/settings/loan-types/LoanTypesPage";
 
 function ProtectedRoute({
   children,
@@ -211,6 +213,28 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <EmploymentTypesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings/payroll/leave-types"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <LeaveTypesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings/payroll/loan-types"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <LoanTypesPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }

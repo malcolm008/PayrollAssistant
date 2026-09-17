@@ -9,6 +9,8 @@ import { CompanyProvider } from "./context/CompanyProvider";
 import { JobTitleProvider } from "./context/JobTitleProvider";
 import { DepartmentProvider } from "./context/DepartmentProvider";
 import { EmploymentTypeProvider } from "./context/EmploymentTypeProvider";
+import { LeaveTypeProvider } from "./context/LeaveTypeProvider";
+import { LoanTypeProvider } from "./context/LoanTypeProvider";
 
 function App() {
   return (
@@ -22,7 +24,11 @@ function App() {
                   <JobTitleProvider>
                     <DepartmentProvider>
                       <EmploymentTypeProvider>
-                        <AppRouter />
+                        <LeaveTypeProvider>
+                          <LoanTypeProvider>
+                            <AppRouter />
+                          </LoanTypeProvider>
+                        </LeaveTypeProvider>
                       </EmploymentTypeProvider>
                     </DepartmentProvider>
                   </JobTitleProvider>
