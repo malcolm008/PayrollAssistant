@@ -221,7 +221,7 @@ export default function SettingsPage() {
               title="Job Titles & Departments"
               description="Configure the organizational job titles and departments used throughout the payroll system."
               onClick={() =>
-                navigate("/settings/company/job-titles-departments")
+                navigate("/departments")
               }
             />
 

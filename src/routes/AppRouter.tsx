@@ -21,10 +21,10 @@ import { AdvanceTypesPage } from "../pages/advances/AdvanceTypesPage";
 import { DeductionTypesPage } from "../pages/settings/payroll/deduction-types/DeductionTypesPage";
 import { AllowanceTypesPage } from "../pages/settings/payroll/allowance-types/AllowanceTypesPage";
 import { CompanyInformationPage } from "../pages/settings/company/CompanyInformation";
-import { JobTitlesDepartmentsPage } from "../pages/settings/company/JobTitlesDepartmentsPage";
 import { EmploymentTypesPage } from "../pages/settings/company/EmploymentTypesPage";
 import { LeaveTypesPage } from "../pages/settings/leave-types/LeaveTypesPage";
 import { LoanTypesPage } from "../pages/settings/loan-types/LoanTypesPage";
+import { DepartmentsPage } from "../pages/settings/departments/DepartmentsPage";
 
 function ProtectedRoute({
   children,
@@ -197,17 +197,6 @@ export function AppRouter() {
       />
 
       <Route
-        path="/settings/company/job-titles-departments"
-        element={
-          <ProtectedRoute>
-            <AuthenticatedLayout>
-              <JobTitlesDepartmentsPage />
-            </AuthenticatedLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/settings/company/employment-types"
         element={
           <ProtectedRoute>
@@ -235,6 +224,17 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <LoanTypesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/departments"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <DepartmentsPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }

@@ -1,16 +1,21 @@
 import { createContext } from "react";
+
 import type { Department } from "../types/department";
 
 export interface DepartmentContextValue {
   departments: Department[];
+
   createDepartment: (
-    department: Omit<Department, "id">,
+    data: Omit<Department, "id">
   ) => void;
+
   updateDepartment: (
     id: string,
-    updates: Partial<Department>,
+    data: Omit<Department, "id">,
   ) => void;
+
   deleteDepartment: (id: string) => void;
+
   toggleDepartment: (id: string) => void;
 }
 

@@ -1,62 +1,71 @@
 import {
-    useCallback,
-    useEffect,
     useState,
+    useEffect,
     type ReactNode,
-} from "react";
+} from  "react";
+
 import type { Department } from "../types/department";
 import { DepartmentContext } from "./DepartmentContext";
 
 const STORAGE_KEY = "payroll_departments";
 
-const DEFAULT_DEPARTMENTS: Department[] = [
+const defaultDepartments: Department[] = [
     {
-        id: "dept-1",
-        code: "ADMIN",
-        name: "Administration",
-        description: "Administrative operations.",
-        active: true,
-    },
-    {
-        id: "dept-2",
-        code: "FIN",
-        name: "Finance",
-        description: "Financial and accounting operations.",
-        active: true,
-    },
-    {
-        id: "dept-3",
+        id: "dept-hr",
         code: "HR",
         name: "Human Resources",
-        description: "Human resources and employee management.",
+        function: "People Management",
+        numberOfSections: 2,
+        headOfDepartment: "",
+        reportsTo: "",
+        budgetedStaff: 0,
+        budgetedSalary: 0,
         active: true,
     },
     {
-        id: "dept-4",
-        code: "IT",
-        name: "Information Technology",
-        description: "Technology and systems operations.",
+        id: "dept-fin",
+        code: "FIN",
+        name: "Finance",
+        function: "Financial Management",
+        numberOfSections: 2,
+        headOfDepartment: "",
+        reportsTo: "",
+        budgetedStaff: 0,
+        budgetedSalary: 0,
         active: true,
     },
     {
-        id: "dept-5",
+        id: "dept-ops",
         code: "OPS",
         name: "Operations",
-        description: "General operational activities.",
+        function: "Operations Management",
+        numberOfSections: 1,
+        headOfDepartment: "",
+        reportsTo: "",
+        budgetedStaff: 0,
+        budgetedSalary: 0,
+        active: true,
+    },
+    {
+        id: "dept-it",
+        code: "IT",
+        name: "Information Technology",
+        function: "Technology and Systems",
+        numberOfSections: 1,
+        headOfDepartment: "",
+        reportsTo: "",
+        budgetedStaff: 0,
+        budgetedSalary: 0,
         active: true,
     },
 ];
 
+function generateId() {
+    if ( typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+    }
 
-function createId(prefix: string) {
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
-    return `${prefix}-${crypto.randomUUID()}`;
-  }
-
-  return `${prefix}-${Date.now()}`;
+    return `department-${Date.now()}`;
 }
 
 export function DepartmentProvider({
@@ -64,73 +73,65 @@ export function DepartmentProvider({
 }: {
     children: ReactNode;
 }) {
-    const [departments, setDepartments] =
-        useState<Department[]>(() => {
-        try {
-            const stored =
-            localStorage.getItem(STORAGE_KEY);
+    const [departments, setDepartments] = useState<Department[]>(() => {
+        const stored = localStorage.getItem(STORAGE_KEY);
 
-            if (stored) {
-            return JSON.parse(stored);
-            }
-        } catch {
-            // Ignore invalid localStorage data.
+        if (!stored) {
+            return defaultDepartments;
         }
 
-        return DEFAULT_DEPARTMENTS;
-        });
+        try {
+            return JSON.parse(stored) as Department[];
+        } catch {
+            return defaultDepartments;
+        }
+    });
 
     useEffect(() => {
         localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(departments),
+            STORAGE_KEY,
+            JSON.stringify(departments),
         );
     }, [departments]);
 
-    const createDepartment = useCallback(
-        (department: Omit<Department, "id">) => {
+    const createDepartment = (
+        data: Omit<Department, "id">,
+    ) => {
         setDepartments((current) => [
             ...current,
             {
-            ...department,
-            id: createId("dept"),
+                ...data,
+                id: generateId(),
             },
         ]);
-        },
-        [],
-    );
+    };
 
-    const updateDepartment = useCallback(
-        (
+    const updateDepartment = (
         id: string,
-        updates: Partial<Department>,
-        ) => {
-        setDepartments((current) =>
-            current.map((item) =>
-            item.id === id
-                ? { ...item, ...updates }
-                : item,
-            ),
-        );
-        },
-        [],
-    );
+        data: Omit<Department, "id">,
+    ) => {
+        setDepartments((current) => current.map((department) => department.id === id ? {
+            ...data,
+            id,
+        }: department));
+    };
 
-    const deleteDepartment = useCallback((id: string) => {
-        setDepartments((current) =>
-        current.filter((item) => item.id !== id),
-        );
-    }, []);
+    const deleteDepartment = (id: string) => {
+        setDepartments((current) => current.filter((department) => department.id !== id));
+    };
 
-    const toggleDepartment = useCallback((id: string) => {
+    const toggleDepartment = (id: string) => {
         setDepartments((current) =>
-        current.map((item) =>
-            item.id === id
-            ? { ...item, active: !item.active }
-            : item,
+        current.map((department) =>
+            department.id === id
+            ? {
+                ...department,
+                active: !department.active,
+                }
+            : department,
         ),
         );
-    }, []);
+    };
 
     return (
         <DepartmentContext.Provider
@@ -144,5 +145,5 @@ export function DepartmentProvider({
         >
         {children}
         </DepartmentContext.Provider>
-    );
+    )
 }
