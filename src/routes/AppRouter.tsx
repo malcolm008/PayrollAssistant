@@ -25,6 +25,7 @@ import { EmploymentTypesPage } from "../pages/settings/company/EmploymentTypesPa
 import { LeaveTypesPage } from "../pages/settings/leave-types/LeaveTypesPage";
 import { LoanTypesPage } from "../pages/settings/loan-types/LoanTypesPage";
 import { DepartmentsPage } from "../pages/settings/departments/DepartmentsPage";
+import { BanksPage } from "../pages/settings/banking/BanksPage";
 
 function ProtectedRoute({
   children,
@@ -224,6 +225,17 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <LoanTypesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings/banking/banks"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <BanksPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }

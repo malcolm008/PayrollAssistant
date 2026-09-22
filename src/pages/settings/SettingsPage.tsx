@@ -43,7 +43,7 @@ const themeOptions: ThemeOption[] = [
   },
 ];
 
-type SectionKey = "appearance" | "company" | "payroll";
+type SectionKey = "appearance" | "company" | "payroll" | "banking" ;
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -55,6 +55,7 @@ export default function SettingsPage() {
     appearance: true,
     company: true,
     payroll: true,
+    banking: true,
   });
 
   const toggleSection = (key: SectionKey) => {
@@ -316,6 +317,54 @@ export default function SettingsPage() {
               description="Configure employee loan categories, repayment methods, limits and approval requirements."
               onClick={() =>
                 navigate("/settings/payroll/loan-types")
+              }
+            />
+          </div>
+        )}
+      </section>
+
+      {/* BANKING CONFIGURATION */}
+      <section className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+        <button
+          type="button"
+          onClick={() => toggleSection("banking")}
+          className="flex w-full items-center justify-between gap-3 border-b border-[var(--color-border)] bg-[var(--color-surface-raised)] px-6 py-5 text-left transition-colors hover:bg-[var(--color-surface-hover)]"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
+              <Building2 size={20} />
+            </div>
+
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Section
+              </span>
+              <h2 className="text-base font-semibold text-[var(--color-text)]">
+                Banking
+              </h2>
+
+              <p className="text-sm text-[var(--color-text-secondary)]">
+                Configure banks and branches used for employee payroll payments.
+              </p>
+            </div>
+          </div>
+
+          <ChevronDown
+            size={19}
+            className={`shrink-0 text-[var(--color-text-muted)] transition-transform ${
+              expandedSections.banking ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {expandedSections.banking && (
+          <div className="divide-y divide-[var(--color-border)]">
+            <SettingsItem
+              icon={<Building2 size={18} />}
+              title="Banks"
+              description="Manage banks, SWIFT codes and their branches"
+              onClick={() =>
+                navigate("/settings/banking/banks")
               }
             />
           </div>
