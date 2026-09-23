@@ -277,53 +277,6 @@ export function DashboardPage() {
                   accent="purple"
                 />
               </div>
-
-              {/* Account allocation detail strip */}
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => navigate("/account-allocation/debit")}
-                  className="group flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-left transition-colors hover:border-[var(--color-brand)]/40 hover:bg-[var(--color-surface-hover)]"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-danger)]/10">
-                      <ArrowUpRight
-                        size={16}
-                        className="text-[var(--color-danger)]"
-                      />
-                    </div>
-                    <p className="text-xs font-semibold text-[var(--color-text)]">
-                      Debit Allocation
-                    </p>
-                  </div>
-                  <ChevronRight
-                    size={15}
-                    className="text-[var(--color-text-muted)] transition-transform group-hover:translate-x-1"
-                  />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => navigate("/account-allocation/credit")}
-                  className="group flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-left transition-colors hover:border-[var(--color-brand)]/40 hover:bg-[var(--color-surface-hover)]"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-success)]/10">
-                      <ArrowDownToLine
-                        size={16}
-                        className="text-[var(--color-success)]"
-                      />
-                    </div>
-                    <p className="text-xs font-semibold text-[var(--color-text)]">
-                      Credit Allocation
-                    </p>
-                  </div>
-                  <ChevronRight
-                    size={15}
-                    className="text-[var(--color-text-muted)] transition-transform group-hover:translate-x-1"
-                  />
-                </button>
-              </div>
             </section>
 
             {/* System Administration */}

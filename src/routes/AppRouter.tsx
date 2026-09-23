@@ -27,6 +27,8 @@ import { LoanTypesPage } from "../pages/settings/loan-types/LoanTypesPage";
 import { DepartmentsPage } from "../pages/settings/departments/DepartmentsPage";
 import { BanksPage } from "../pages/settings/banking/BanksPage";
 import { GLAccountsPage } from "../pages/analysis/gl-accounts/GLAccountsPage";
+import { CostCentersPage } from "../pages/analysis/cost-centers/CostCentersPage";
+import { AccountAllocationPage } from "../pages/analysis/account-allocation/AccountAllocationPage";
 
 function ProtectedRoute({
   children,
@@ -160,6 +162,28 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <GLAccountsPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/cost-centers"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <CostCentersPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/account-allocation"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <AccountAllocationPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }
