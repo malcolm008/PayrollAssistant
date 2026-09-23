@@ -470,11 +470,6 @@ export function PayrollPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
             Payroll Workspace
           </h1>
-
-          <p className="mt-1 max-w-2xl text-sm text-[var(--color-text-secondary)]">
-            Manage payroll registration, processing, earnings,
-            deductions and employee payslips from one workspace.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -509,7 +504,7 @@ export function PayrollPage() {
                 <span className="flex h-2 w-2 rounded-full bg-[var(--color-brand)]" />
 
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
-                  Current Payroll Period
+                  Current Period
                 </span>
               </div>
 
@@ -530,28 +525,17 @@ export function PayrollPage() {
               </div>
 
               <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
-                {registeredIds.length} employees are currently
-                registered for this payroll period.
+                {registeredIds.length} employees registered
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setShowRegisterModal(true)}
-              >
-                <Users size={15} />
-                Manage Employees
-              </Button>
-
-              <Button
-                onClick={() => setShowRunPayroll(true)}
-                disabled={registeredIds.length === 0}
-              >
-                <Play size={15} />
-                Process Payroll
-              </Button>
-            </div>
+            <Button
+              onClick={() => setShowRunPayroll(true)}
+              disabled={registeredIds.length === 0}
+            >
+              <Play size={15} />
+              Process Payroll
+            </Button>
           </div>
         </div>
       </Card>
@@ -562,7 +546,7 @@ export function PayrollPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
-          label="Registered Employees"
+          label="Registered"
           value={registeredIds.length.toString()}
           description={`${processedCount} processed`}
           icon={<Users size={17} />}
@@ -577,7 +561,7 @@ export function PayrollPage() {
         />
 
         <SummaryCard
-          label="Total Deductions"
+          label="Deductions"
           value={formatCurrency(totalDeductions)}
           description="PAYE & statutory"
           icon={<ArrowDownRight size={17} />}
@@ -587,98 +571,17 @@ export function PayrollPage() {
         <SummaryCard
           label="Net Payroll"
           value={formatCurrency(totalNet)}
-          description="Employee take-home"
+          description="Take-home"
           icon={<Check size={17} />}
           iconClass="text-[var(--color-success)] bg-[var(--color-success)]/10"
         />
       </div>
 
       {/* =====================================================
-          QUICK ACTIONS
-      ===================================================== */}
-
-      <section>
-        <SectionHeading
-          eyebrow="Payroll Operations"
-          description="Choose a payroll function to continue."
-        />
-
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <ActionCard
-            icon={<UserCheck size={19} />}
-            title="Register Employees"
-            description="Choose which employees participate in payroll."
-            onClick={() => setShowRegisterModal(true)}
-            featured
-          />
-
-          <ActionCard
-            icon={<Play size={19} />}
-            title="Process Payroll"
-            description="Calculate the current payroll period."
-            onClick={() => setShowRunPayroll(true)}
-          />
-
-          <ActionCard
-            icon={<ListChecks size={19} />}
-            title="Payroll Register"
-            description="Open the detailed employee payroll register."
-            onClick={() => setWorkspace("overview")}
-            secondaryAction={() => setSelectedEmployee(null)}
-          />
-
-          <ActionCard
-            icon={<FileText size={19} />}
-            title="Payslips"
-            description="View and prepare employee payslips."
-            onClick={() => setWorkspace("payslips")}
-          />
-        </div>
-      </section>
-
-      {/* =====================================================
-          COMPONENT MANAGEMENT
-      ===================================================== */}
-
-      <section>
-        <SectionHeading
-          eyebrow="Payroll Components"
-          description="Manage the components that affect employee pay."
-        />
-
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <ComponentCard
-            icon={<WalletCards size={18} />}
-            title="Allowances"
-            description="Housing, transport and other earnings."
-            count={payroll.length}
-            onClick={() => setShowComponentModal("allowance")}
-          />
-
-          <ComponentCard
-            icon={<Calculator size={18} />}
-            title="Deductions"
-            description="PAYE, pension, health and other deductions."
-            count={payroll.length}
-            onClick={() => setShowComponentModal("deduction")}
-          />
-
-          <ComponentCard
-            icon={<Clock3 size={18} />}
-            title="Overtime"
-            description="Manage overtime hours and additional pay."
-            count={
-              payroll.filter(
-                (employee) => employee.overtimeHours > 0,
-              ).length
-            }
-            onClick={() => setShowComponentModal("overtime")}
-          />
-        </div>
-      </section>
-
-      {/* =====================================================
-          PAYROLL WORKSPACE NAVIGATION
+          PAYROLL WORKSPACE
+          Single navigation surface — register, components,
+          payslips and history all live here instead of being
+          duplicated as separate action/component card grids.
       ===================================================== */}
 
       <Card className="overflow-hidden">
@@ -721,7 +624,7 @@ export function PayrollPage() {
           <WorkspaceTab
             active={workspace === "history"}
             icon={<History size={15} />}
-            label="Payroll History"
+            label="History"
             onClick={() => setWorkspace("history")}
           />
         </div>
@@ -738,7 +641,7 @@ export function PayrollPage() {
           {workspace === "allowances" && (
             <ComponentWorkspace
               title="Allowances"
-              description="Review the earnings components included in the current payroll."
+              description="Earnings components for this payroll."
               icon={<WalletCards size={21} />}
               onAdd={() =>
                 setShowComponentModal("allowance")
@@ -772,7 +675,7 @@ export function PayrollPage() {
           {workspace === "deductions" && (
             <ComponentWorkspace
               title="Deductions"
-              description="Review statutory and other deductions for this payroll."
+              description="Statutory and other deductions."
               icon={<Calculator size={21} />}
               onAdd={() =>
                 setShowComponentModal("deduction")
@@ -793,7 +696,7 @@ export function PayrollPage() {
           {workspace === "overtime" && (
             <ComponentWorkspace
               title="Overtime"
-              description="Review overtime hours and additional earnings."
+              description="Overtime hours and additional pay."
               icon={<Clock3 size={21} />}
               onAdd={() =>
                 setShowComponentModal("overtime")
@@ -960,134 +863,6 @@ function SummaryCard({
 }
 
 /* =========================================================
-   ACTION CARD
-========================================================= */
-
-function ActionCard({
-  icon,
-  title,
-  description,
-  onClick,
-  featured = false,
-}: {
-  icon: ReactNode;
-  title: string;
-  description: string;
-  onClick: () => void;
-  secondaryAction?: () => void;
-  featured?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`group rounded-xl border p-5 text-left transition-all ${
-        featured
-          ? "border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] hover:border-[var(--color-brand)]/60"
-          : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)]"
-      }`}
-    >
-      <div className="flex items-start justify-between">
-        <div
-          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-            featured
-              ? "bg-[var(--color-brand)] text-[var(--color-bg)]"
-              : "bg-[var(--color-brand-soft)] text-[var(--color-brand)]"
-          }`}
-        >
-          {icon}
-        </div>
-
-        <ArrowUpRight
-          size={15}
-          className="text-[var(--color-text-muted)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-        />
-      </div>
-
-      <h3 className="mt-5 text-sm font-semibold text-[var(--color-text)]">
-        {title}
-      </h3>
-
-      <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
-        {description}
-      </p>
-    </button>
-  );
-}
-
-/* =========================================================
-   COMPONENT CARD
-========================================================= */
-
-function ComponentCard({
-  icon,
-  title,
-  description,
-  count,
-  onClick,
-}: {
-  icon: ReactNode;
-  title: string;
-  description: string;
-  count: number;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-left transition-colors hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)]"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-          {icon}
-        </div>
-
-        <span className="text-xs text-[var(--color-text-muted)]">
-          {count} records
-        </span>
-      </div>
-
-      <h3 className="mt-4 text-sm font-semibold text-[var(--color-text)]">
-        {title}
-      </h3>
-
-      <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
-        {description}
-      </p>
-
-      <div className="mt-4 flex items-center gap-1 text-[10px] font-medium text-[var(--color-brand)]">
-        Manage
-        <ArrowUpRight size={12} />
-      </div>
-    </button>
-  );
-}
-
-/* =========================================================
-   SECTION HEADING
-========================================================= */
-
-function SectionHeading({
-  eyebrow,
-  description,
-}: {
-  eyebrow: string;
-  description: string;
-}) {
-  return (
-    <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-brand)]">
-        {eyebrow}
-      </p>
-      <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-/* =========================================================
    WORKSPACE TAB
 ========================================================= */
 
@@ -1145,9 +920,7 @@ function PayrollRegisterLauncher({
         </h3>
 
         <p className="mt-1 max-w-xl text-xs leading-5 text-[var(--color-text-secondary)]">
-          The detailed payroll register is kept out of the main
-          workspace to keep the payroll dashboard focused. Open it
-          when you need to review individual employee payroll.
+          Review and manage employees included in this payroll run.
         </p>
       </div>
 
@@ -1277,7 +1050,7 @@ function PayslipWorkspace({
           </h3>
 
           <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-            Select an employee to preview their payslip.
+            Select an employee to preview.
           </p>
         </div>
 
@@ -1337,7 +1110,7 @@ function PayrollHistory({
         </h3>
 
         <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-          Previous payroll periods and their final totals.
+          Previous periods and their totals.
         </p>
       </div>
 
@@ -1511,10 +1284,8 @@ function RegisterEmployeesModal({
               </p>
 
               <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
-                Being registered as an employee does not
-                automatically place someone into payroll. Select
-                the employees who should be included in this
-                payroll period.
+                Registration alone doesn't add someone to payroll.
+                Select employees for this period below.
               </p>
             </div>
           </div>
@@ -1747,11 +1518,11 @@ function RunPayrollModal({
               </p>
 
               <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
-                Payroll calculations will be performed for the{" "}
+                Calculations run for{" "}
                 <strong className="text-[var(--color-text)]">
                   {employeeCount}
                 </strong>{" "}
-                employees currently registered for payroll.
+                registered employees.
               </p>
             </div>
           </div>
@@ -1857,16 +1628,9 @@ function PeriodModal({
       onClose={onClose}
     >
       <div className="space-y-5">
-        <div>
-          <p className="text-sm font-medium text-[var(--color-text)]">
-            Select payroll period
-          </p>
-
-          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-            Payroll calculations and registrations are managed
-            against a specific payroll period.
-          </p>
-        </div>
+        <p className="text-xs text-[var(--color-text-secondary)]">
+          Select the period to view or process.
+        </p>
 
         <div className="space-y-2">
           {periods.map((item) => (
@@ -1916,12 +1680,9 @@ function ComponentModal({
   };
 
   const descriptions = {
-    allowance:
-      "Add an allowance to an employee's current payroll.",
-    deduction:
-      "Add a deduction to an employee's current payroll.",
-    overtime:
-      "Record overtime hours for an employee.",
+    allowance: "Add an allowance to an employee's payroll.",
+    deduction: "Add a deduction to an employee's payroll.",
+    overtime: "Record overtime hours for an employee.",
   };
 
   return (
@@ -2360,4 +2121,3 @@ function ModalShell({
     </div>
   );
 }
-

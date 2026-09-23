@@ -12,6 +12,7 @@ import { EmploymentTypeProvider } from "./context/EmploymentTypeProvider";
 import { LeaveTypeProvider } from "./context/LeaveTypeProvider";
 import { LoanTypeProvider } from "./context/LoanTypeProvider";
 import { BankProvider } from "./context/BankProvider";
+import { GLAccountProvider } from "./context/GLAccountProvider";
 
 function App() {
   return (
@@ -28,7 +29,9 @@ function App() {
                         <LeaveTypeProvider>
                           <LoanTypeProvider>
                             <BankProvider>
-                              <AppRouter />
+                              <GLAccountProvider>
+                                <AppRouter />
+                              </GLAccountProvider>                  
                             </BankProvider>
                           </LoanTypeProvider>
                         </LeaveTypeProvider>

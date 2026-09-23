@@ -26,6 +26,7 @@ import { LeaveTypesPage } from "../pages/settings/leave-types/LeaveTypesPage";
 import { LoanTypesPage } from "../pages/settings/loan-types/LoanTypesPage";
 import { DepartmentsPage } from "../pages/settings/departments/DepartmentsPage";
 import { BanksPage } from "../pages/settings/banking/BanksPage";
+import { GLAccountsPage } from "../pages/analysis/gl-accounts/GLAccountsPage";
 
 function ProtectedRoute({
   children,
@@ -148,6 +149,17 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <AdvancesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/gl-accounts"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <GLAccountsPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }
