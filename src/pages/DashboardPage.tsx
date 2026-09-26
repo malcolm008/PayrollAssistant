@@ -1,6 +1,4 @@
 import {
-  ArrowDownToLine,
-  ArrowUpRight,
   Building2,
   ChevronRight,
   Clock3,
@@ -16,6 +14,16 @@ import {
   WalletCards,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { GlobalIncrementModal, type IncrementEmployee } from "../features/modals/GlobalincrementModal";
+import { IndividualIncrementModal } from "../features/modals/IndividualincrementModal";
+
+const incrementEmployees: IncrementEmployee[] = [
+  { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
+  { id: "EMP-0002", name: "Sarah Johnson", department: "Human Resources", status: "Active", basicSalary: 2200000 },
+  { id: "EMP-0003", name: "Michael Smith", department: "Information Technology", status: "Active", basicSalary: 2800000 },
+  { id: "EMP-0004", name: "Amina Hassan", department: "Administration", status: "Active", basicSalary: 1200000 },
+];
 
 interface OperationTileProps {
   title: string;
@@ -176,6 +184,8 @@ function SectionHeader({ title, count, action }: SectionHeaderProps) {
 
 export function DashboardPage() {
   const navigate = useNavigate();
+  const [showGlobalIncrement, setShowGlobalIncrement] = useState(false);
+  const [showIndividualIncrement, setShowIndividualIncrement] = useState(false);
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -306,17 +316,39 @@ export function DashboardPage() {
                 title="Global Increment"
                 tag="Payroll · Bulk"
                 icon={Percent}
-                onClick={() => navigate("/global-increment")}
+                onClick={() => setShowGlobalIncrement(true)}
                 accent="gold"
               />
               <OperationTile
                 title="Individual Increment"
                 tag="Payroll · Single"
                 icon={Plus}
-                onClick={() => navigate("/individual-increment")}
+                onClick={() => setShowIndividualIncrement(true)}
                 accent="green"
               />
             </div>
+
+            {showGlobalIncrement && (
+              <GlobalIncrementModal
+                employees={incrementEmployees}
+                onClose={() => setShowGlobalIncrement(false)}
+                onApply={(payload) => {
+                  console.log("Apply global increment", payload);
+                  setShowGlobalIncrement(false);
+                }}
+              />
+            )}
+
+            {showIndividualIncrement && (
+              <IndividualIncrementModal
+                employees={incrementEmployees}
+                onClose={() => setShowIndividualIncrement(false)}
+                onApply={(payload) => {
+                  console.log("Apply individual increment", payload);
+                  setShowIndividualIncrement(false);
+                }}
+              />
+            )}
           </aside>
         </div>
 
