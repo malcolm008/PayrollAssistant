@@ -6,33 +6,7 @@ import {
 import type { Bank } from "../types/bank";
 import type { BankBranch } from "../types/bankBranch";
 import { BankContext } from "./BankContext";
-
-
-const defaultBanks: Bank[] = [
-  {
-    id: "bank-001",
-    code: "NMB",
-    name: "NMB Bank",
-    swiftCode: "",
-    active: true,
-  },
-  {
-    id: "bank-002",
-    code: "CRDB",
-    name: "CRDB Bank",
-    swiftCode: "",
-    active: true,
-  },
-  {
-    id: "bank-003",
-    code: "NBC",
-    name: "NBC Bank",
-    swiftCode: "",
-    active: true,
-  },
-];
-
-const defaultBankBranches: BankBranch[] = [];
+import { defaultBanks, defaultBankBranches } from "../data/banks";
 
 const BANKS_STORAGE_KEY = "payroll_banks";
 const BRANCHES_STORAGE_KEY = "payroll_bank_branches";

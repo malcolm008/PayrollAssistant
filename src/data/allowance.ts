@@ -1,0 +1,47 @@
+import type { AllowanceType } from "../types/allowance";
+
+export const defaultAllowanceTypes: AllowanceType[] = [
+    {
+        id: "ALT-001",
+        code: "TRANSPORT",
+        name: "Transport Allowance",
+        description: "Allowance provided to support employee transportation costs.",
+        calculationMethod: "Fixed Amount",
+        defaultValue: 0,
+        taxable: true,
+        recurring: true,
+        active: true,
+    },
+    {
+        id: "ALT-002",
+        code: "HOUSING",
+        name: "Housing Allowance",
+        description: "Allowance provided toward employee accommodation expenses.",
+        calculationMethod: "Percentage of Basic Salary",
+        defaultValue: 0,
+        taxable: true,
+        recurring: true,
+        active: true,
+    },
+    {
+        id: "ALT-003",
+        code: "MEAL",
+        name: "Meal Allowance",
+        description: "Allowance provided for employee meal expenses.",
+        calculationMethod: "Fixed Amount",
+        defaultValue: 0,
+        taxable: false,
+        recurring: true,
+        active: true,
+    },
+    {
+        id: "ALT-004",
+        code: "OVERTIME",
+        name: "Overtime Allowance",
+        description: "Allowance generated from approved overtime work.",
+        calculationMethod: "Manual Entry",
+        taxable: true,
+        recurring: false,
+        active: true,
+    },
+];

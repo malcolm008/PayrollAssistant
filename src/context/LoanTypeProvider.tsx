@@ -4,49 +4,11 @@ import {
     useEffect,
     type ReactNode,
 } from "react";
-import type { LoanType } from "../types/loan";
+import type{ LoanType } from "../types/loan";
 import { LoanTypeContext } from "./LoanTypeContext";
+import { DEFAULT_LOAN_TYPES } from "../data/loan";
 
 const STORAGE_KEY = "payroll_loan_types";
-
-const DEFAULT_LOAN_TYPES: LoanType[] = [
-    {
-        id: "loan-1",
-        code: "STAFF",
-        name: "Staff Loan",
-        description: "General employee loan.",
-        repaymentMethod: "Payroll Deduction",
-        maxAmount: undefined,
-        maxInstallments: 24,
-        interestRate: 0,
-        requiresApproval: true,
-        active: true,
-    },
-    {
-        id: "loan-2",
-        code: "EMERGENCY",
-        name: "Emergency Loan",
-        description: "Loan provided for qualifying emergency situations.",
-        repaymentMethod: "Payroll Deduction",
-        maxAmount: undefined,
-        maxInstallments: 12,
-        interestRate: 0,
-        requiresApproval: true,
-        active: true,
-    },
-    {
-        id: "loan-3",
-        code: "PERSONAL",
-        name: "Personal Loan",
-        description: "General-purpose personal employee loan.",
-        repaymentMethod: "Payroll Deduction",
-        maxAmount: undefined,
-        maxInstallments: 24,
-        interestRate: 0,
-        requiresApproval: true,
-        active: true,
-    },
-];
 
 function createId() {
     if (

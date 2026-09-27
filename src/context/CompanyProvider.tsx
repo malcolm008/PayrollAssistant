@@ -6,21 +6,10 @@ import {
 } from "react";
 import type { CompanyInformation } from "../types/company";
 import { CompanyContext } from "./CompanyContext";
+import { DEFAULT_COMPANY } from "../data/company";
 
 const STORAGE_KEY = "payroll_company_information";
 
-const DEFAULT_COMPANY: CompanyInformation = {
-    id: "company-1",
-    companyName: "",
-    address: "",
-    natureOfBusiness: "",
-    incorporatedAs: "",
-    phone: "",
-    physicalAddress: "",
-    fax: "",
-    emailAddress: "",
-    website: "",   
-};
 
 export function CompanyProvider({
     children,

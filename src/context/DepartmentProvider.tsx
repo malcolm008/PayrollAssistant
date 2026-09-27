@@ -6,59 +6,9 @@ import {
 
 import type { Department } from "../types/department";
 import { DepartmentContext } from "./DepartmentContext";
+import { defaultDepartments } from "../data/department";
 
 const STORAGE_KEY = "payroll_departments";
-
-const defaultDepartments: Department[] = [
-    {
-        id: "dept-hr",
-        code: "HR",
-        name: "Human Resources",
-        function: "People Management",
-        numberOfSections: 2,
-        headOfDepartment: "",
-        reportsTo: "",
-        budgetedStaff: 0,
-        budgetedSalary: 0,
-        active: true,
-    },
-    {
-        id: "dept-fin",
-        code: "FIN",
-        name: "Finance",
-        function: "Financial Management",
-        numberOfSections: 2,
-        headOfDepartment: "",
-        reportsTo: "",
-        budgetedStaff: 0,
-        budgetedSalary: 0,
-        active: true,
-    },
-    {
-        id: "dept-ops",
-        code: "OPS",
-        name: "Operations",
-        function: "Operations Management",
-        numberOfSections: 1,
-        headOfDepartment: "",
-        reportsTo: "",
-        budgetedStaff: 0,
-        budgetedSalary: 0,
-        active: true,
-    },
-    {
-        id: "dept-it",
-        code: "IT",
-        name: "Information Technology",
-        function: "Technology and Systems",
-        numberOfSections: 1,
-        headOfDepartment: "",
-        reportsTo: "",
-        budgetedStaff: 0,
-        budgetedSalary: 0,
-        active: true,
-    },
-];
 
 function generateId() {
     if ( typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {

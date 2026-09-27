@@ -6,72 +6,9 @@ import {
 } from "react";
 import type { LeaveType } from "../types/leave";
 import { LeaveTypeContext } from "./LeaveTypeContext";
+import { DEFAULT_LEAVE_TYPES } from "../data/leave";
 
 const STORAGE_KEY = "payroll_leave_types";
-
-const DEFAULT_LEAVE_TYPES: LeaveType[] = [
-    {
-        id: "leave-1",
-        code: "ANNUAL",
-        name: "Annual Leave",
-        description: "Regular annual employee leave.",
-        calculation: "Paid",
-        defaultEntitlement: 28,
-        maxConsecutiveDays: 28,
-        deductFromBalance: true,
-        active: true,
-    },
-    {
-        id: "leave-2",
-        code: "SICK",
-        name: "Sick Leave",
-        description: "Leave taken due to illness or medical reasons.",
-        calculation: "Paid",
-        defaultEntitlement: 0,
-        deductFromBalance: true,
-        active: true,
-    },
-    {
-        id: "leave-3",
-        code: "MAT",
-        name: "Maternity Leave",
-        description: "Leave associated with childbirth and maternity.",
-        calculation: "Paid",
-        defaultEntitlement: 0,
-        deductFromBalance: false,
-        active: true,
-    },
-    {
-        id: "leave-4",
-        code: "PAT",
-        name: "Paternity Leave",
-        description: "Leave associated with the birth or adoption of a child.",
-        calculation: "Paid",
-        defaultEntitlement: 0,
-        deductFromBalance: false,
-        active: true,
-    },
-    {
-        id: "leave-5",
-        code: "UNPAID",
-        name: "Unpaid Leave",
-        description: "Approved leave without normal salary payment.",
-        calculation: "Unpaid",
-        defaultEntitlement: 0,
-        deductFromBalance: false,
-        active: true,
-    },
-    {
-        id: "leave-6",
-        code: "COMP",
-        name: "Compassionate Leave",
-        description: "Leave granted for qualifying personal or family circumstances.",
-        calculation: "Paid",
-        defaultEntitlement: 0,
-        deductFromBalance: false,
-        active: true,
-    },
-];
 
 function createId() {
   if (
