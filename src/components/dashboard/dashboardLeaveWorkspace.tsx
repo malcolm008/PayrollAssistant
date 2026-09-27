@@ -250,10 +250,6 @@ export function DashboardLeaveWorkspace() {
                 4
               </span>
             </div>
-
-            <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-              Manage leave applications, working calendars and approvals.
-            </p>
           </div>
         </div>
 
@@ -267,14 +263,14 @@ export function DashboardLeaveWorkspace() {
 
           <LeaveOperationButton
             title="Approving Managers"
-            description="Configure employees who approve leave"
+            description="Configure who approves leave"
             icon={Users}
             onClick={() => setOpenOperation("approvers")}
           />
 
           <LeaveOperationButton
             title="Apply for Leave"
-            description="Submit a new employee leave application"
+            description="Submit new leave application"
             icon={FileText}
             onClick={() => setOpenOperation("application")}
           />
