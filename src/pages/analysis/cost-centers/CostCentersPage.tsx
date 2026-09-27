@@ -181,11 +181,6 @@ export function CostCentersPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)] sm:text-3xl">
               Cost Centers
             </h1>
-
-            <p className="mt-2 max-w-2xl text-sm text-[var(--color-text-secondary)]">
-              Create and maintain the organizational cost centers
-              used for payroll and accounting allocation.
-            </p>
           </div>
 
           <button

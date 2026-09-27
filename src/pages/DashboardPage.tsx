@@ -1,5 +1,6 @@
 import {
   Building2,
+  CalendarDays,
   ChevronRight,
   Clock3,
   CreditCard,
@@ -17,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { GlobalIncrementModal, type IncrementEmployee } from "../features/modals/GlobalincrementModal";
 import { IndividualIncrementModal } from "../features/modals/IndividualincrementModal";
+import { DashboardLeaveWorkspace } from "../components/dashboard/dashboardLeaveWorkspace";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -186,6 +188,7 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const [showGlobalIncrement, setShowGlobalIncrement] = useState(false);
   const [showIndividualIncrement, setShowIndividualIncrement] = useState(false);
+  const [showLeaveWorkspace, setShowLeaveWorkspace] = useState(false);
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -262,9 +265,9 @@ export function DashboardPage() {
           <div>
             {/* Input Operations */}
             <section className="mb-10">
-              <SectionHeader title="Input Operations" count={3} />
+              <SectionHeader title="Input Operations" count={4} />
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <OperationTile
                   title="Cost Centers"
                   tag="Setup"
@@ -286,8 +289,20 @@ export function DashboardPage() {
                   onClick={() => navigate("/account-allocation")}
                   accent="purple"
                 />
+                <OperationTile
+                  title="Leave"
+                  tag="HR · Operations"
+                  icon={CalendarDays}
+                  onClick={() =>
+                    setShowLeaveWorkspace((current) => !current)
+                  }
+                  accent="green"
+                />
               </div>
             </section>
+            {showLeaveWorkspace && (
+              <DashboardLeaveWorkspace />
+            )}
 
             {/* System Administration */}
             <section>

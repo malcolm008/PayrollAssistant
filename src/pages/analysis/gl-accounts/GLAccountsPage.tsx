@@ -192,9 +192,9 @@ export function GLAccountsPage() {
           <div>
             <div className="mb-3 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
               <WalletCards size={14} />
-              <span>Settings</span>
+              <span>Dashboard </span>
               <span>/</span>
-              <span>Payroll</span>
+              <span>Input Operations </span>
               <span>/</span>
               <span className="text-[var(--color-text-secondary)]">
                 GL Accounts
@@ -204,11 +204,6 @@ export function GLAccountsPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)] sm:text-3xl">
               General Ledger Accounts
             </h1>
-
-            <p className="mt-2 max-w-2xl text-sm text-[var(--color-text-secondary)]">
-              Maintain the general ledger accounts used for payroll
-              accounting and nominal analysis.
-            </p>
           </div>
 
           <button

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import {
+  ArrowDownLeft,
   ArrowDownToLine,
   ArrowUpRight,
   Check,
@@ -312,12 +313,6 @@ export function AccountAllocationPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)] sm:text-3xl">
               Account Allocation
             </h1>
-
-            <p className="mt-2 max-w-3xl text-sm text-[var(--color-text-secondary)]">
-              Configure nominal analysis rules that connect
-              payroll transactions to cost centers and
-              general ledger accounts.
-            </p>
           </div>
 
           <button
@@ -361,11 +356,6 @@ export function AccountAllocationPage() {
             <h2 className="mt-1 text-sm font-semibold text-[var(--color-text)]">
             Allocation Flow
             </h2>
-
-            <p className="mt-1 max-w-2xl text-xs leading-5 text-[var(--color-text-secondary)]">
-            Payroll transactions are routed through the cost center and
-            corresponding debit and credit GL accounts.
-            </p>
         </div>
 
         {/* Desktop: horizontal / Tablet & Mobile: vertical */}
@@ -404,7 +394,7 @@ export function AccountAllocationPage() {
 
             <FlowAccount
                 type="Credit"
-                icon={ArrowDownToLine}
+                icon={ArrowDownLeft}
             />
             </div>
         </div>
