@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  X,
   Building2,
   BriefcaseBusiness,
   Users,
@@ -49,7 +50,7 @@ type SectionKey = "appearance" | "company" | "payroll" | "banking" ;
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
-  const [showPaymentMethodWorkSpace, setShowPaymentMethodWorkSpace] = useState(false);
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
  
   const [expandedSections, setExpandedSections] = useState<
     Record<SectionKey, boolean>
@@ -374,14 +375,48 @@ export default function SettingsPage() {
               title="Payment Methods"
               description="Manage payment methods"
               onClick={() =>
-                setShowPaymentMethodWorkSpace((current) => !current)
+                setShowPaymentMethods(true)
               }
             />
           </div>
         )}
       </section>
-      {showPaymentMethodWorkSpace && (
-        <PaymentMethodsPanel />
+      {showPaymentMethods && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setShowPaymentMethods(false);
+            }
+          }}
+        >
+          <div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-2xl border border-[var(--color-border-strong)] bg-[var(--color-surface)] shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] px-6 py-5">
+              <div>
+                <h2 className="text-lg font-semibold text-[var(--color-text)]">
+                  Payment Methods
+                </h2>
+
+                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                  Manage the payment methods available for payroll transactions.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowPaymentMethods(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
+                aria-label="Close payment methods"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="max-h-[calc(90vh-100px)] overflow-y-auto p-6">
+              <PaymentMethodsPanel />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -20,70 +20,9 @@ import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
-
-interface Employee {
-  id: string;
-  employeeNumber: string;
-  name: string;
-  department: string;
-  position: string;
-  employmentType: string;
-  salary: number;
-  status: "Active" | "Inactive";
-  email: string;
-  phone: string;
-}
-
-const initialEmployees: Employee[] = [
-  {
-    id: "1",
-    employeeNumber: "EMP-0001",
-    name: "John Mwangi",
-    department: "Finance",
-    position: "Accountant",
-    employmentType: "Full Time",
-    salary: 1500000,
-    status: "Active",
-    email: "john.mwangi@example.com",
-    phone: "+255 712 345 001",
-  },
-  {
-    id: "2",
-    employeeNumber: "EMP-0002",
-    name: "Sarah Johnson",
-    department: "Human Resources",
-    position: "HR Manager",
-    employmentType: "Full Time",
-    salary: 2200000,
-    status: "Active",
-    email: "sarah.johnson@example.com",
-    phone: "+255 712 345 002",
-  },
-  {
-    id: "3",
-    employeeNumber: "EMP-0003",
-    name: "Michael Smith",
-    department: "Information Technology",
-    position: "Software Engineer",
-    employmentType: "Full Time",
-    salary: 2800000,
-    status: "Active",
-    email: "michael.smith@example.com",
-    phone: "+255 712 345 003",
-  },
-  {
-    id: "4",
-    employeeNumber: "EMP-0004",
-    name: "Amina Hassan",
-    department: "Administration",
-    position: "Administrator",
-    employmentType: "Full Time",
-    salary: 1200000,
-    status: "Inactive",
-    email: "amina.hassan@example.com",
-    phone: "+255 712 345 004",
-  },
-];
+import type { Employee, EmploymentType } from "../../types/employees";
+import { initialEmployees } from "../../data/employees";
+import { TrainingCoursesSection } from "../../components/employees/TrainingCoursesSection";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-TZ", {
@@ -602,6 +541,7 @@ export function EmployeesPage() {
           ).padStart(4, "0")}`}
         />
       )}
+      <TrainingCoursesSection employees={employees} />
     </div>
   );
 }
@@ -761,7 +701,7 @@ function AddEmployeeModal({
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("");
   const [position, setPosition] = useState("");
-  const [employmentType, setEmploymentType] = useState("Full Time");
+  const [employmentType, setEmploymentType] = useState<EmploymentType | "Full Time">("Full Time");
   const [salary, setSalary] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -849,7 +789,7 @@ function AddEmployeeModal({
 
           <select
             value={employmentType}
-            onChange={(event) => setEmploymentType(event.target.value)}
+            onChange={(event) => setEmploymentType(event.target.value as EmploymentType | "Full Time")}
             className="h-10 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 text-sm text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-brand)]"
           >
             <option>Full Time</option>
