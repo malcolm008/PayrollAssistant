@@ -18,6 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
 import type { ReactNode } from "react";
+import PaymentMethodsPanel from "../../components/settings/PaymentMethodsPanel";
 
 type ThemeOption = {
   id: "dark" | "light";
@@ -48,7 +49,8 @@ type SectionKey = "appearance" | "company" | "payroll" | "banking" ;
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
-
+  const [showPaymentMethodWorkSpace, setShowPaymentMethodWorkSpace] = useState(false);
+ 
   const [expandedSections, setExpandedSections] = useState<
     Record<SectionKey, boolean>
   >({
@@ -367,9 +369,20 @@ export default function SettingsPage() {
                 navigate("/settings/banking/banks")
               }
             />
+            <SettingsItem
+              icon={<Building2 size={18} />}
+              title="Payment Methods"
+              description="Manage payment methods"
+              onClick={() =>
+                setShowPaymentMethodWorkSpace((current) => !current)
+              }
+            />
           </div>
         )}
       </section>
+      {showPaymentMethodWorkSpace && (
+        <PaymentMethodsPanel />
+      )}
     </div>
   );
 }

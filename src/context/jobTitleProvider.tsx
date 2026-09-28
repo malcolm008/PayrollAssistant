@@ -7,7 +7,51 @@ import {
 
 import type { JobTitle } from "../types/jobTItle";
 import { JobTitleContext } from "./jobTItleContext";
-import { DEFAULT_JOB_TITLES } from "../data/jobTitle";
+
+const DEFAULT_JOB_TITLES: JobTitle[] = [
+    {
+        id: "job-1",
+        code: "MD",
+        name: "Managing Director",
+        description: "Head of the organization.",
+        active: true,
+    },
+    {
+        id: "job-2",
+        code: "FIN-MGR",
+        name: "Finance Manager",
+        description: "Responsible for financial management.",
+        active: true,
+    },
+    {
+        id: "job-3",
+        code: "HR-MGR",
+        name: "HR Manager",
+        description: "Responsible for human resources management.",
+        active: true,
+    },
+    {
+        id: "job-4",
+        code: "ACC",
+        name: "Accountant",
+        description: "Responsible for accounting activities.",
+        active: true,
+    },
+    {
+        id: "job-5",
+        code: "HR-OFF",
+        name: "HR Officer",
+        description: "Supports human resources operations.",
+        active: true,
+    },
+    {
+        id: "job-6",
+        code: "DEV",
+        name: "Software Developer",
+        description: "Develops and maintains software systems.",
+        active: true,
+    },
+];
 
 const STORAGE_KEY = "payroll_job_titles";
 

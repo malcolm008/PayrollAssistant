@@ -15,6 +15,7 @@ import { BankProvider } from "./context/BankProvider";
 import { GLAccountProvider } from "./context/GLAccountProvider";
 import { CostCenterProvider } from "./context/CostCenterProvider";
 import { AccountAllocationProvider } from "./context/AccountAllocationProvider";
+import { PaymentMethodProvider } from "./context/PaymentMethodProvider";
 
 function App() {
   return (
@@ -30,15 +31,19 @@ function App() {
                       <EmploymentTypeProvider>
                         <LeaveTypeProvider>
                           <LoanTypeProvider>
-                            <BankProvider>
-                              <GLAccountProvider>
-                                <CostCenterProvider>
-                                  <AccountAllocationProvider>
-                                    <AppRouter />
-                                  </AccountAllocationProvider>
-                                </CostCenterProvider>                                
-                              </GLAccountProvider>                  
-                            </BankProvider>
+                            <PaymentMethodProvider>
+                              <BankProvider>
+                                <GLAccountProvider>
+                                  <CostCenterProvider>
+                                    <AccountAllocationProvider>
+                                      <BankProvider>
+                                        <AppRouter />
+                                      </BankProvider>
+                                    </AccountAllocationProvider>
+                                  </CostCenterProvider>                                
+                                </GLAccountProvider>                  
+                              </BankProvider>
+                            </PaymentMethodProvider>
                           </LoanTypeProvider>
                         </LeaveTypeProvider>
                       </EmploymentTypeProvider>
