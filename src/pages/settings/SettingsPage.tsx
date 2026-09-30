@@ -40,7 +40,7 @@ const themeOptions: ThemeOption[] = [
     id: "light",
     name: "Light",
     description:
-      "A clean light interface with the Payroll Assistant Core gold Accent.",
+      "A clean light interface with gold Accent.",
     icon: Sun,
   },
 ];
@@ -75,11 +75,6 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-semibold text-[var(--color-text)]">
           Settings
         </h1>
-
-        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-          Manage your application preferences and payroll system
-          configuration.
-        </p>
       </div>
 
       {/* APPEARANCE */}
@@ -101,10 +96,6 @@ export default function SettingsPage() {
               <h2 className="text-base font-semibold text-[var(--color-text)]">
                 Appearance
               </h2>
-
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                Customize how Payroll Core looks on your device.
-              </p>
             </div>
           </div>
 
@@ -194,10 +185,6 @@ export default function SettingsPage() {
               <h2 className="text-base font-semibold text-[var(--color-text)]">
                 Company Information
               </h2>
-
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                Configure your organization's identity, structure and employment settings.
-              </p>
             </div>
           </div>
 
@@ -214,7 +201,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<Building2 size={19} />}
               title="General Information"
-              description="Configure company name, business details, addresses and contact information."
               onClick={() =>
                 navigate("/settings/company")
               }
@@ -223,7 +209,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<Users size={19} />}
               title="Job Titles & Departments"
-              description="Configure the organizational job titles and departments used throughout the payroll system."
               onClick={() =>
                 navigate("/departments")
               }
@@ -232,7 +217,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<BriefcaseBusiness size={19} />}
               title="Employment Types"
-              description="Configure the employment categories available for employee records."
               onClick={() =>
                 navigate("/settings/company/employment-types")
               }
@@ -260,11 +244,6 @@ export default function SettingsPage() {
               <h2 className="text-base font-semibold text-[var(--color-text)]">
                 Payroll Configuration
               </h2>
-
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                Configure the rules and options used throughout payroll
-                processing.
-              </p>
             </div>
           </div>
 
@@ -281,7 +260,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<WalletCards size={19} />}
               title="Advance Types"
-              description="Configure employee advance types, repayment methods, approval requirements and advance limits."
               onClick={() =>
                 navigate("/settings/payroll/advance-types")
               }
@@ -290,7 +268,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<CircleDollarSign size={19} />}
               title="Allowance Types"
-              description="Configure the allowances that can be assigned to employees and included during payroll processing."
               onClick={() =>
                 navigate("/settings/payroll/allowance-types")
               }
@@ -299,7 +276,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<ShieldCheck size={19} />}
               title="Deduction Types"
-              description="Configure statutory and non-statutory deductions that can be applied during payroll processing."
               onClick={() =>
                 navigate("/settings/payroll/deduction-types")
               }
@@ -308,7 +284,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<CalendarDays size={19} />}
               title="Leave Types"
-              description="Configure employee leave categories, payment rules and leave balance settings."
               onClick={() =>
                 navigate("/settings/payroll/leave-types")
               }
@@ -317,7 +292,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<Banknote size={19} />}
               title="Loan Types"
-              description="Configure employee loan categories, repayment methods, limits and approval requirements."
               onClick={() =>
                 navigate("/settings/payroll/loan-types")
               }
@@ -345,10 +319,6 @@ export default function SettingsPage() {
               <h2 className="text-base font-semibold text-[var(--color-text)]">
                 Banking
               </h2>
-
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                Configure banks and branches used for employee payroll payments.
-              </p>
             </div>
           </div>
 
@@ -365,7 +335,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<Building2 size={18} />}
               title="Banks"
-              description="Manage banks, SWIFT codes and their branches"
               onClick={() =>
                 navigate("/settings/banking/banks")
               }
@@ -373,7 +342,6 @@ export default function SettingsPage() {
             <SettingsItem
               icon={<Building2 size={18} />}
               title="Payment Methods"
-              description="Manage payment methods"
               onClick={() =>
                 setShowPaymentMethods(true)
               }
@@ -396,10 +364,6 @@ export default function SettingsPage() {
                 <h2 className="text-lg font-semibold text-[var(--color-text)]">
                   Payment Methods
                 </h2>
-
-                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                  Manage the payment methods available for payroll transactions.
-                </p>
               </div>
 
               <button
@@ -425,13 +389,11 @@ export default function SettingsPage() {
 function SettingsItem({
   icon,
   title,
-  description,
   onClick,
   disabled = false,
 }: {
   icon: ReactNode;
   title: string;
-  description: string;
   onClick?: () => void;
   disabled?: boolean;
 }) {
@@ -460,10 +422,6 @@ function SettingsItem({
         <h3 className="text-sm font-medium text-[var(--color-text)]">
           {title}
         </h3>
-
-        <p className="mt-0.5 max-w-3xl text-xs leading-5 text-[var(--color-text-secondary)]">
-          {description}
-        </p>
       </div>
 
       {!disabled && (

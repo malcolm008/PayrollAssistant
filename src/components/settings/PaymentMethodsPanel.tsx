@@ -553,8 +553,8 @@ export default function PaymentMethodsPanel() {
           title={editingMethod ? "Edit Payment Method" : "Add Payment Method"}
           description={
             editingMethod
-              ? "Update the payment method configuration."
-              : "Create a payment method that can be used throughout the payroll system."
+              ? "Update the payment method."
+              : "Create a payment method."
           }
           onClose={closeForm}
         >
