@@ -69,27 +69,27 @@ export function LoginPage({
     <div className="w-full max-w-md">
       <button
         onClick={onBack}
-        className="mb-6 flex items-center gap-2 text-xs text-[#666666] transition-colors hover:text-[#f5f5f5]"
+        className="mb-6 flex items-center gap-2 text-xs text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
       >
         <ArrowLeft size={14} />
         Change company
       </button>
 
       <Card className="overflow-hidden">
-        <div className="border-b border-[#202020] px-6 py-7">
-          <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[#d4af37]/10 text-[#d4af37]">
+        <div className="border-b border-[var(--color-border)] px-6 py-7">
+          <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
             <LockKeyhole size={21} />
           </div>
 
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d4af37]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--color-brand)]">
             {company?.name}
           </p>
 
-          <h1 className="mt-2 text-xl font-semibold">
+          <h1 className="mt-2 text-xl font-semibold text-[var(--color-text)]">
             Sign in to Payroll Core
           </h1>
 
-          <p className="mt-2 text-xs leading-5 text-[#666666]">
+          <p className="mt-2 text-xs leading-5 text-[var(--color-text-muted)]">
             Enter your credentials to access your payroll
             workspace.
           </p>
@@ -100,13 +100,13 @@ export function LoginPage({
           onSubmit={handleSubmit}
         >
           {error && (
-            <div className="flex gap-3 rounded-lg border border-[#ff4d4f]/20 bg-[#ff4d4f]/[0.05] p-3">
+            <div className="flex gap-3 rounded-lg border border-[var(--color-danger)]/20 bg-[var(--color-danger)]/[0.05] p-3">
               <ShieldAlert
                 size={17}
-                className="mt-0.5 shrink-0 text-[#ff4d4f]"
+                className="mt-0.5 shrink-0 text-[var(--color-danger)]"
               />
 
-              <p className="text-xs leading-5 text-[#ff7777]">
+              <p className="text-xs leading-5 text-[var(--color-danger)]">
                 {error}
               </p>
             </div>
@@ -142,7 +142,7 @@ export function LoginPage({
               onClick={() =>
                 setShowPassword((value) => !value)
               }
-              className="absolute right-3 top-[30px] flex h-8 w-8 items-center justify-center rounded-md text-[#555555] hover:text-[#f5f5f5]"
+              className="absolute right-3 top-[30px] flex h-8 w-8 items-center justify-center rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
             >
               {showPassword ? (
                 <EyeOff size={16} />
@@ -155,7 +155,7 @@ export function LoginPage({
           <div className="flex justify-end">
             <button
               type="button"
-              className="text-xs text-[#d4af37] hover:text-[#f0c75e]"
+              className="text-xs text-[var(--color-brand)] hover:text-[var(--color-brand-hover)]"
             >
               Forgot password?
             </button>
@@ -172,7 +172,7 @@ export function LoginPage({
           </Button>
         </form>
 
-        <div className="border-t border-[#202020] px-6 py-4 text-[10px] text-[#555555]">
+        <div className="border-t border-[var(--color-border)] px-6 py-4 text-[10px] text-[var(--color-text-disabled)]">
           Access is restricted to authorized personnel.
         </div>
       </Card>

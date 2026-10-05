@@ -38,29 +38,29 @@ export function CompanySelectPage({
   return (
     <div className="w-full max-w-2xl">
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d4af37]/20 bg-[#d4af37]/[0.06] text-[#d4af37]">
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--color-brand)]/20 bg-[var(--color-brand)]/[0.06] text-[var(--color-brand)]">
           <Building2 size={25} />
         </div>
 
-        <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#d4af37]">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[var(--color-brand)]">
           Welcome
         </p>
 
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--color-text)] sm:text-3xl">
           Select your company
         </h1>
 
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#666666]">
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--color-text-muted)]">
           Select the organization you are authorized to access.
         </p>
       </div>
 
       <Card className="overflow-hidden">
-        <div className="border-b border-[#202020] p-5">
+        <div className="border-b border-[var(--color-border)] p-5">
           <div className="relative">
             <Search
               size={16}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#555555]"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
             />
 
             <Input
@@ -74,7 +74,7 @@ export function CompanySelectPage({
           </div>
         </div>
 
-        <div className="divide-y divide-[#202020]">
+        <div className="divide-y divide-[var(--color-border)]">
           {filteredCompanies.map((company) => {
             const selected =
               selectedCompany?.id === company.id;
@@ -87,26 +87,26 @@ export function CompanySelectPage({
                 }
                 className={`flex w-full items-center gap-4 p-5 text-left transition-colors ${
                   selected
-                    ? "bg-[#d4af37]/[0.04]"
-                    : "hover:bg-[#151515]"
+                    ? "bg-[var(--color-brand)]/[0.04]"
+                    : "hover:bg-[var(--color-surface-hover)]"
                 }`}
               >
                 <div
                   className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
                     selected
-                      ? "bg-[#d4af37] text-[#090909]"
-                      : "bg-[#222222] text-[#d4af37]"
+                      ? "bg-[var(--color-brand)] text-[var(--color-bg)]"
+                      : "bg-[var(--color-border-strong)] text-[var(--color-brand)]"
                   }`}
                 >
                   {company.code.slice(0, 2)}
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold text-[#f5f5f5]">
+                  <div className="truncate text-sm font-semibold text-[var(--color-text)]">
                     {company.name}
                   </div>
 
-                  <div className="mt-1 text-xs text-[#666666]">
+                  <div className="mt-1 text-xs text-[var(--color-text-muted)]">
                     {company.code} · {company.employees} employees
                   </div>
                 </div>
@@ -115,8 +115,8 @@ export function CompanySelectPage({
                   size={16}
                   className={
                     selected
-                      ? "text-[#d4af37]"
-                      : "text-[#555555]"
+                      ? "text-[var(--color-brand)]"
+                      : "text-[var(--color-text-muted)]"
                   }
                 />
               </button>
@@ -125,12 +125,12 @@ export function CompanySelectPage({
         </div>
 
         {filteredCompanies.length === 0 && (
-          <div className="p-12 text-center text-sm text-[#666666]">
+          <div className="p-12 text-center text-sm text-[var(--color-text-muted)]">
             No authorized companies found.
           </div>
         )}
 
-        <div className="flex justify-end border-t border-[#202020] p-5">
+        <div className="flex justify-end border-t border-[var(--color-border)] p-5">
           <Button
             disabled={!selectedCompany}
             onClick={handleContinue}
@@ -141,7 +141,7 @@ export function CompanySelectPage({
         </div>
       </Card>
 
-      <p className="mt-5 text-center text-[11px] text-[#444444]">
+      <p className="mt-5 text-center text-[11px] text-[var(--color-text-disabled)]">
         Only organizations associated with your account are
         displayed.
       </p>

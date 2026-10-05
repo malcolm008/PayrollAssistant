@@ -13,12 +13,16 @@ import {
   TrendingUp,
   Users,
   WalletCards,
+  FileText,
+  MessageSquareText,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { GlobalIncrementModal, type IncrementEmployee } from "../features/modals/GlobalincrementModal";
 import { IndividualIncrementModal } from "../features/modals/IndividualincrementModal";
 import { DashboardLeaveWorkspace } from "../components/dashboard/dashboardLeaveWorkspace";
+import { PensionReceiptsModal } from "../features/modals/PensionReceiptsModal";
+import { PayslipBroadcastModal } from "../features/modals/PayslipBroadcastModal";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -189,6 +193,8 @@ export function DashboardPage() {
   const [showGlobalIncrement, setShowGlobalIncrement] = useState(false);
   const [showIndividualIncrement, setShowIndividualIncrement] = useState(false);
   const [showLeaveWorkspace, setShowLeaveWorkspace] = useState(false);
+  const [showPensionReceipts, setShowPensionReceipts] = useState(false);
+  const [showPayslipBroadcast, setShowPayslipBroadcast] = useState(false);
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -324,23 +330,40 @@ export function DashboardPage() {
 
           {/* Right rail: Global Operations */}
           <aside>
-            <SectionHeader title="Increments" count={2} />
+            <SectionHeader title="Payroll Operations" count={2} />
 
             <div className="flex flex-col gap-3">
-              <OperationTile
-                title="Global Increment"
-                tag="Payroll · Bulk"
-                icon={Percent}
-                onClick={() => setShowGlobalIncrement(true)}
-                accent="gold"
-              />
-              <OperationTile
-                title="Individual Increment"
-                tag="Payroll · Single"
-                icon={Plus}
-                onClick={() => setShowIndividualIncrement(true)}
-                accent="green"
-              />
+            <OperationTile
+              title="Global Increment"
+              tag="Payroll · Bulk"
+              icon={Percent}
+              onClick={() => setShowGlobalIncrement(true)}
+              accent="gold"
+            />
+
+            <OperationTile
+              title="Individual Increment"
+              tag="Payroll · Single"
+              icon={Plus}
+              onClick={() => setShowIndividualIncrement(true)}
+              accent="green"
+            />
+
+            <OperationTile
+              title="Pension Receipts"
+              tag="Payroll · Statutory"
+              icon={FileText}
+              onClick={() => setShowPensionReceipts(true)}
+              accent="blue"
+            />
+
+            <OperationTile
+              title="Payslip Broadcast"
+              tag="Payroll · Employee Communication"
+              icon={MessageSquareText}
+              onClick={() => setShowPayslipBroadcast(true)}
+              accent="purple"
+            />
             </div>
 
             {showGlobalIncrement && (
@@ -362,6 +385,20 @@ export function DashboardPage() {
                   console.log("Apply individual increment", payload);
                   setShowIndividualIncrement(false);
                 }}
+              />
+            )}
+            
+            {showPensionReceipts && (
+              <PensionReceiptsModal
+                payrollPeriod="September 2026"
+                onClose={() => setShowPensionReceipts(false)}
+              />
+            )}
+
+            {showPayslipBroadcast && (
+              <PayslipBroadcastModal
+                employees={incrementEmployees}
+                onClose={() => setShowPayslipBroadcast(false)}
               />
             )}
           </aside>
