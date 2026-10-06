@@ -9,7 +9,7 @@ export interface TerminationSettlement {
 
     outstandingLeaveDays: number;
     leavePay: number;
-    leaveAAllowance: number;
+    leaveAllowance: number;
 
     basicPay: number;
     houseAllowance: number;
