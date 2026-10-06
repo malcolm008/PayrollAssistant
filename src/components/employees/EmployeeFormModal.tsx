@@ -397,7 +397,7 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<User size={16} />}
                 title="Personal Information"
-                description="Basic employee identity information."
+                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field
@@ -420,7 +420,7 @@ export default function EmployeeFormModal({
                         onChange={(e) =>
                         update("surname", e.target.value)
                         }
-                        placeholder="e.g. Mwangi"
+                        placeholder=""
                         className={inputClass}
                     />
                     </Field>
@@ -431,7 +431,7 @@ export default function EmployeeFormModal({
                         onChange={(e) =>
                         update("name", e.target.value)
                         }
-                        placeholder="e.g. John"
+                        placeholder=""
                         className={inputClass}
                     />
                     </Field>
@@ -470,7 +470,7 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<BriefcaseBusiness size={16} />}
                 title="Employment"
-                description="Organizational and employment classification."
+                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Field label="Employment Type" required>
@@ -497,7 +497,7 @@ export default function EmployeeFormModal({
                         onChange={(e) =>
                         update("department", e.target.value)
                         }
-                        placeholder="e.g. Finance"
+                        placeholder=""
                         className={inputClass}
                     />
                     </Field>
@@ -508,7 +508,7 @@ export default function EmployeeFormModal({
                         onChange={(e) =>
                         update("costCode", e.target.value)
                         }
-                        placeholder="e.g. FIN-001"
+                        placeholder=""
                         className={inputClass}
                     />
                     </Field>
@@ -519,7 +519,7 @@ export default function EmployeeFormModal({
                         onChange={(e) =>
                         update("jobTitle", e.target.value)
                         }
-                        placeholder="e.g. Accountant"
+                        placeholder=""
                         className={inputClass}
                     />
                     </Field>
@@ -530,7 +530,7 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<CircleDollarSign size={16} />}
                 title="Payroll"
-                description="Basic salary, currency, overtime and configured allowances."
+                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field label="Currency" required>
@@ -632,7 +632,7 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<Mail size={16} />}
                 title="Contact Information"
-                description="Employee contact details."
+                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-2">
                     <Field label="Email Address">
@@ -664,7 +664,7 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<IdCard size={16} />}
                 title="Statutory Information"
-                description="Government and statutory payroll identifiers."
+                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Field label="WCF Number">
@@ -726,7 +726,7 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<Home size={16} />}
                 title="Residence & Housing"
-                description="Employee residence and company housing information."
+                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field label="Residence">
@@ -735,7 +735,7 @@ export default function EmployeeFormModal({
                         onChange={(e) =>
                         update("residence", e.target.value)
                         }
-                        placeholder="e.g. Arusha"
+                        placeholder=""
                         className={inputClass}
                     />
                     </Field>
@@ -784,7 +784,7 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<CalendarDays size={16} />}
                 title="Leave"
-                description="Employee annual leave entitlement."
+                description=""
                 >
                 <div className="max-w-xs">
                     <Field label="Leave Days Entitled">
@@ -808,7 +808,7 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<Check size={16} />}
                 title="Employee Status"
-                description="Controls whether the employee is currently active."
+                description=""
                 >
                 <div className="max-w-xs">
                     <Field label="Status">

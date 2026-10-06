@@ -17,11 +17,12 @@ import {
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { Input } from "../ui/Input";
-import type { TrainingEmployee, TrainingCourse } from "../../types/trainingCourse";
+import type { Employee } from "../../types/employees";
+import type { TrainingCourse } from "../../types/trainingCourse";
 import { formatCurrency, TRAINING_TYPES, emptyForm } from "../../types/trainingCourse";
 
 interface TrainingCoursesSectionProps {
-    employees: TrainingEmployee[];
+    employees: Employee[];
 }
 
 const STORAGE_KEY = "payroll_training_courses";
@@ -382,7 +383,7 @@ function AddTrainingCourseModal({
     onClose,
     onAdd,
 }: {
-    employees: TrainingEmployee[];
+    employees: Employee[];
     onClose: () => void;
     onAdd: (course: TrainingCourse) => void; 
 }) {
@@ -483,7 +484,7 @@ function AddTrainingCourseModal({
                 onChange={(value) =>
                     updateField("courseName", value)
                 }
-                placeholder="e.g. Advanced Payroll Management"
+                placeholder=""
                 required
                 />
 
@@ -555,7 +556,7 @@ function AddTrainingCourseModal({
                 onChange={(value) =>
                     updateField("organizer", value)
                 }
-                placeholder="e.g. HR Department"
+                placeholder=""
                 />
 
                 <FormField
@@ -564,7 +565,7 @@ function AddTrainingCourseModal({
                 onChange={(value) =>
                     updateField("chiefLecturer", value)
                 }
-                placeholder="e.g. Jane Doe"
+                placeholder=""
                 />
 
                 <FormField
@@ -573,7 +574,7 @@ function AddTrainingCourseModal({
                 onChange={(value) =>
                     updateField("location", value)
                 }
-                placeholder="e.g. Training Room A"
+                placeholder=""
                 />
 
                 <FormField
@@ -582,7 +583,7 @@ function AddTrainingCourseModal({
                 onChange={(value) =>
                     updateField("expertiseNeeded", value)
                 }
-                placeholder="e.g. Payroll, HR, Finance"
+                placeholder=""
                 />
 
                 <FormField
@@ -592,7 +593,7 @@ function AddTrainingCourseModal({
                 onChange={(value) =>
                     updateField("costs", value)
                 }
-                placeholder="e.g. 500000"
+                placeholder=""
                 />
             </div>
 
@@ -703,7 +704,7 @@ function AddTrainingCourseModal({
                         </div>
 
                         <span className="hidden text-xs text-[var(--color-text-muted)] md:block">
-                        {employee.position}
+                        {employee.jobTitle}
                         </span>
                     </button>
                     );
@@ -745,7 +746,7 @@ function TrainingCourseDetailsModal({
     onClose,
 }: {
     course: TrainingCourse;
-    employees: TrainingEmployee[];
+    employees: Employee[];
     onClose: () => void;
 }) {
     const participants = employees.filter((employee) => course.participantIds.includes(employee.id));
@@ -884,7 +885,7 @@ function TrainingCourseDetailsModal({
                     </div>
 
                     <span className="hidden text-xs text-[var(--color-text-secondary)] sm:block">
-                    {employee.position}
+                    {employee.jobTitle}
                     </span>
                 </div>
                 ))}
