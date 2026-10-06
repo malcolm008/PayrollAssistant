@@ -19,7 +19,7 @@ import type {
 
 interface EmployeeFormModalProps {
     employee?: Employee | null;
-    nextEmployeeNumber: string;
+    nextEmployeeNumber?: string;
     onClose: () => void;
     onSubmit: (employee: Employee) => void;
 }

@@ -20,8 +20,9 @@ import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
-import type { Employee, EmploymentType } from "../../types/employees";
-import { initialEmployees } from "../../data/employees";
+import type { Employee } from "../../types/employees";
+import { useEmployees } from "../../hooks/useEmployees";
+import EmployeeFormModal from "../../components/employees/EmployeeFormModal";
 import { TrainingCoursesSection } from "../../components/employees/TrainingCoursesSection";
 
 const formatCurrency = (value: number) =>
@@ -32,7 +33,7 @@ const formatCurrency = (value: number) =>
   }).format(value);
 
 export function EmployeesPage() {
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+  const { employees, addEmployee, updateEmployee, deleteEmployee } = useEmployees();
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -41,8 +42,8 @@ export function EmployeesPage() {
 
   const [showFilters, setShowFilters] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] =
-    useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
   const [showActions, setShowActions] = useState<string | null>(null);
 
@@ -70,7 +71,7 @@ export function EmployeesPage() {
         employee.name.toLowerCase().includes(query) ||
         employee.employeeNumber.toLowerCase().includes(query) ||
         employee.department.toLowerCase().includes(query) ||
-        employee.position.toLowerCase().includes(query);
+        employee.jobTitle.toLowerCase().includes(query);
 
       const matchesStatus =
         statusFilter === "All" || employee.status === statusFilter;
@@ -337,7 +338,7 @@ export function EmployeesPage() {
               <tr className="border-b border-[var(--color-border)] text-[10px] uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
                 <th className="px-5 py-4 font-medium">Employee</th>
                 <th className="px-5 py-4 font-medium">Department</th>
-                <th className="px-5 py-4 font-medium">Position</th>
+                <th className="px-5 py-4 font-medium">Job Title</th>
                 <th className="px-5 py-4 font-medium">Employment</th>
                 <th className="px-5 py-4 font-medium">Salary</th>
                 <th className="px-5 py-4 font-medium">Status</th>
@@ -355,7 +356,7 @@ export function EmployeesPage() {
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-xs font-bold text-[var(--color-brand)]">
-                        {employee.name
+                        {`{employee.name} {employee.surname}`
                           .split(" ")
                           .map((name) => name[0])
                           .join("")
@@ -364,7 +365,7 @@ export function EmployeesPage() {
 
                       <div>
                         <p className="text-sm font-medium text-[var(--color-text)]">
-                          {employee.name}
+                          {employee.name} {employee.surname}
                         </p>
 
                         <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
@@ -381,7 +382,7 @@ export function EmployeesPage() {
 
                   {/* Position */}
                   <td className="px-5 py-4 text-sm text-[var(--color-text-secondary)]">
-                    {employee.position}
+                    {employee.jobTitle}
                   </td>
 
                   {/* Employment */}
