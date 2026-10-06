@@ -202,7 +202,7 @@ export default function EmployeeFormModal({
     const [form, setForm] = useState<FormState>(() =>
         employee
         ? employeeToForm(employee)
-        : createEmptyForm(nextEmployeeNumber),
+        : createEmptyForm(nextEmployeeNumber ?? ""),
     );
 
         const allowanceTypes = loadAllowanceTypes();
