@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "author": "Malcolm Mwakitwange",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-mfrc522", "id": "rfid1", "top": 100, "left": 200, "attrs": {} },
+    { "type": "wokwi-led", "id": "led1", "top": -50, "left": 300, "attrs": { "color": "green" } },
+    { "type": "wokwi-led", "id": "led2", "top": -50, "left": 350, "attrs": { "color": "red" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 10, "left": 300, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": 10, "left": 350, "attrs": { "value": "220" } },
+    { "type": "wokwi-buzzer", "id": "bz1", "top": -100, "left": 300, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:3V3", "rfid1:3.3V", "red", [] ],
+    [ "esp:GND.1", "rfid1:GND", "black", [] ],
+    [ "esp:5", "rfid1:SDA", "green", [] ],
+    [ "esp:18", "rfid1:SCK", "green", [] ],
+    [ "esp:23", "rfid1:MOSI", "green", [] ],
+    [ "esp:19", "rfid1:MISO", "green", [] ],
+    [ "esp:21", "rfid1:RST", "orange", [] ],
+
+    [ "esp:13", "r1:1", "green", [] ],
+    [ "r1:2", "led1:A", "green", [] ],
+    [ "led1:C", "esp:GND.2", "black", [] ],
+
+    [ "esp:26", "r2:1", "red", [] ],
+    [ "r2:2", "led2:A", "red", [] ],
+    [ "led2:C", "esp:GND.2", "black", [] ],
+
+    [ "esp:14", "bz1:1", "purple", [] ],
+    [ "bz1:2", "esp:GND.2", "black", [] ]
+  ],
+  "dependencies": {}
+}
