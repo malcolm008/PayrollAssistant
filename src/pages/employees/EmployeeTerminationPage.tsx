@@ -983,11 +983,6 @@ export default function EmployeeTerminationPage() {
                   Terminal Settlement
                 </span>
               </div>
-
-              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                Process employee termination and calculate
-                the final settlement.
-              </p>
             </div>
           </div>
 
@@ -1052,7 +1047,7 @@ export default function EmployeeTerminationPage() {
           <SectionHeader
             icon={<Search size={18} />}
             title="Find Employee"
-            description="Select an active employee to begin the termination process."
+            description=""
           />
 
           <div className="relative p-5">

@@ -8,6 +8,7 @@ import {
   Users,
   Wallet,
   WalletCards,
+  UserMinus
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -48,6 +49,11 @@ const navigation = [
     path: "/reports",
     icon: BarChart3,
   },
+  {
+    label: "Terminations",
+    path: "/terminations",
+    icon: UserMinus,
+  }
 ];
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
@@ -237,16 +243,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                           : "text-[var(--color-text-muted)]"
                       }
                     />
-
-                    <span
-                      className={`text-[10px] font-medium leading-none ${
-                        isActive
-                          ? "text-[var(--color-brand)]"
-                          : "text-[var(--color-text-muted)]"
-                      }`}
-                    >
-                      {item.label}
-                    </span>
                   </>
                 )}
               </NavLink>

@@ -29,6 +29,7 @@ import { BanksPage } from "../pages/settings/banking/BanksPage";
 import { GLAccountsPage } from "../pages/analysis/gl-accounts/GLAccountsPage";
 import { CostCentersPage } from "../pages/analysis/cost-centers/CostCentersPage";
 import { AccountAllocationPage } from "../pages/analysis/account-allocation/AccountAllocationPage";
+import EmployeeTerminationPage from "../pages/employees/EmployeeTerminationPage";
 
 function ProtectedRoute({
   children,
@@ -118,6 +119,17 @@ export function AppRouter() {
           <ProtectedRoute>
             <AuthenticatedLayout>
               <EmployeesPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+ 
+      <Route
+        path="/terminations"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <EmployeeTerminationPage />
             </AuthenticatedLayout>
           </ProtectedRoute>
         }
