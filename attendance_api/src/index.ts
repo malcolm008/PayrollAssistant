@@ -251,7 +251,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Error handler (bad JSON etc.)
-app.use((err: unknown, _req: Request, res: Response) => {
+app.use((err: unknown, _req: Request, res: Response, /*_next: NextFunction*/) => {
   if (err instanceof SyntaxError) {
     res.status(400).json({ ok: false, error: "Invalid JSON body" });
     return;
