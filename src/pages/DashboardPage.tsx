@@ -4,7 +4,6 @@ import {
   ChevronRight,
   Clock3,
   CreditCard,
-  FileSpreadsheet,
   GitBranch,
   Landmark,
   LayoutDashboard,
@@ -15,6 +14,7 @@ import {
   WalletCards,
   FileText,
   MessageSquareText,
+  Calculator
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -23,6 +23,7 @@ import { IndividualIncrementModal } from "../features/modals/Individualincrement
 import { DashboardLeaveWorkspace } from "../components/dashboard/dashboardLeaveWorkspace";
 import { PensionReceiptsModal } from "../features/modals/PensionReceiptsModal";
 import { PayslipBroadcastModal } from "../features/modals/PayslipBroadcastModal";
+import { IncomeTaxParametersModal } from "../components/dashboard/incomeTaxParametersModal";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -195,6 +196,7 @@ export function DashboardPage() {
   const [showLeaveWorkspace, setShowLeaveWorkspace] = useState(false);
   const [showPensionReceipts, setShowPensionReceipts] = useState(false);
   const [showPayslipBroadcast, setShowPayslipBroadcast] = useState(false);
+  const [showIncomeTax, setShowIncomeTax] = useState(false);
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -313,18 +315,15 @@ export function DashboardPage() {
             {/* System Administration */}
             <section>
               <SectionHeader title="System Administration" />
-
-              <div className="rounded-2xl border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface)] p-6 text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-soft)]">
-                  <FileSpreadsheet
-                    size={18}
-                    className="text-[var(--color-brand)]"
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <OperationTile
+                    title="Income Tax Parameters"
+                    tag="Setup · Statutory"
+                    icon={Calculator}
+                    onClick={() => setShowIncomeTax(true)}
+                    accent="gold"
                   />
                 </div>
-                <p className="mt-3 text-xs text-[var(--color-text-secondary)]">
-                  More controls coming soon
-                </p>
-              </div>
             </section>
           </div>
 
@@ -399,6 +398,17 @@ export function DashboardPage() {
               <PayslipBroadcastModal
                 employees={incrementEmployees}
                 onClose={() => setShowPayslipBroadcast(false)}
+              />
+            )}
+
+            {showIncomeTax && (
+              <IncomeTaxParametersModal
+                payrollPeriod="September 2026"
+                onClose={() => setShowIncomeTax(false)}
+                onSave={(bands) => {
+                  console.log("Save tax bands", bands);
+                  setShowIncomeTax(false);
+                }}
               />
             )}
           </aside>
