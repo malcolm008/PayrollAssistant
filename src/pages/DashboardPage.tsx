@@ -24,6 +24,7 @@ import { DashboardLeaveWorkspace } from "../components/dashboard/dashboardLeaveW
 import { PensionReceiptsModal } from "../features/modals/PensionReceiptsModal";
 import { PayslipBroadcastModal } from "../features/modals/PayslipBroadcastModal";
 import { IncomeTaxParametersModal } from "../components/dashboard/incomeTaxParametersModal";
+import { SystemUsersModal } from "../components/dashboard/systemUsersModal";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -197,6 +198,7 @@ export function DashboardPage() {
   const [showPensionReceipts, setShowPensionReceipts] = useState(false);
   const [showPayslipBroadcast, setShowPayslipBroadcast] = useState(false);
   const [showIncomeTax, setShowIncomeTax] = useState(false);
+  const [showSystemUsers, setShowSystemUsers] = useState(false);
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -323,6 +325,13 @@ export function DashboardPage() {
                     onClick={() => setShowIncomeTax(true)}
                     accent="gold"
                   />
+                  <OperationTile
+                    title="System Users"
+                    tag="Access · Roles"
+                    icon={Users}
+                    onClick={() => setShowSystemUsers(true)}
+                    accent="blue"
+                  />
                 </div>
             </section>
           </div>
@@ -409,6 +418,14 @@ export function DashboardPage() {
                   console.log("Save tax bands", bands);
                   setShowIncomeTax(false);
                 }}
+              />
+            )}
+            {showSystemUsers && (
+              <SystemUsersModal
+                currentUserId="USR-0001"  // the signed-in user's id
+                onClose={() => setShowSystemUsers(false)}
+                onSaveUser={(user, password) => console.log("Save user", user, password)}
+                onStatusChange={(user) => console.log("Status", user)}
               />
             )}
           </aside>
