@@ -5,6 +5,7 @@ import type {
     AdvanceStatus,
     RepaymentMethod,
 } from "../types/advance";
+import type { AdvanceType } from "../types/advanceTypes";
 
 export interface CreateAdvanceInput {
     employeeNumber: string;
@@ -24,12 +25,17 @@ export interface CreateAdvanceInput {
 }
 
 export interface AdvanceContextValue {
-    advances: AdvanceRecord[];
+    advanceTypes: AdvanceRecord[];
 
-    createAdvance: (
+    createAdvanceType: (
         data: CreateAdvanceInput,
         submitForApproval?: boolean,
     ) => AdvanceRecord;
+
+    updateAdvanceType: (
+        id: string,
+        updates: Partial<AdvanceType>
+    ) => void;
 
     updateAdvanceStatus: (
         id: string,
@@ -47,7 +53,9 @@ export interface AdvanceContextValue {
 
     getAdvance: (id: string) => AdvanceRecord | undefined;
 
-    deleteAdvance: (id: string) => void;
+    deleteAdvanceType: (id: string) => void;
+
+    toggleAdvanceType: (id: string) => void;
 
     refreshAdvances: () => void;
 }

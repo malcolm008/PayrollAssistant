@@ -19,7 +19,7 @@ import {
   defaultAdvanceTypes,
   type AdvanceType,
   type RepaymentMethod,
-} from "./advanceTypes";
+} from "../../types/advanceTypes";
 
 const formatLimit = (value?: number) => {
   if (value === undefined) return "No limit";
