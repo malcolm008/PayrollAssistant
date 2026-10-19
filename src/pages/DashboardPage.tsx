@@ -14,7 +14,8 @@ import {
   WalletCards,
   FileText,
   MessageSquareText,
-  Calculator
+  Calculator,
+  Settings2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -25,6 +26,7 @@ import { PensionReceiptsModal } from "../features/modals/PensionReceiptsModal";
 import { PayslipBroadcastModal } from "../features/modals/PayslipBroadcastModal";
 import { IncomeTaxParametersModal } from "../components/dashboard/incomeTaxParametersModal";
 import { SystemUsersModal } from "../components/dashboard/systemUsersModal";
+import { PayrollConfigPanel } from "../components/dashboard/payrollConfigPanel";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -199,6 +201,7 @@ export function DashboardPage() {
   const [showPayslipBroadcast, setShowPayslipBroadcast] = useState(false);
   const [showIncomeTax, setShowIncomeTax] = useState(false);
   const [showSystemUsers, setShowSystemUsers] = useState(false);
+  const [showPayrollConfig, setShowPayrollConfig] = useState(false);
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -275,7 +278,7 @@ export function DashboardPage() {
           <div>
             {/* Input Operations */}
             <section className="mb-10">
-              <SectionHeader title="Input Operations" count={4} />
+              <SectionHeader title="Input Operations" count={5} />
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <OperationTile
@@ -308,10 +311,20 @@ export function DashboardPage() {
                   }
                   accent="green"
                 />
+                <OperationTile
+                  title="Payroll Configuration"
+                  tag="Setup · Types"
+                  icon={Settings2}
+                  onClick={() => setShowPayrollConfig((current) => !current)}
+                  accent="gold"
+                />                
               </div>
             </section>
             {showLeaveWorkspace && (
               <DashboardLeaveWorkspace />
+            )}
+            {showPayrollConfig && (
+              <PayrollConfigPanel onClose={() => setShowPayrollConfig(false)} />
             )}
 
             {/* System Administration */}

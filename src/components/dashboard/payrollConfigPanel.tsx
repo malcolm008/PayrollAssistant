@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useState, type ElementType } from "react";
 
-import { AdvanceTypesModal } from "./advanceTypesModal";
+import { AdvanceTypeModal } from "./advanceTypesModal";
 import {
   AllowanceTypesModal,
   DeductionTypesModal,
@@ -78,7 +78,7 @@ export function PayrollConfigPanel({ onClose }: { onClose?: () => void }) {
         ))}
       </div>
 
-      {open === "advance" && <AdvanceTypesModal onClose={close} />}
+      {open === "advance" && <AdvanceTypeModal onClose={close} />}
       {open === "allowance" && <AllowanceTypesModal onClose={close} />}
       {open === "deduction" && <DeductionTypesModal onClose={close} />}
       {open === "leave" && <LeaveTypesModal onClose={close} />}
