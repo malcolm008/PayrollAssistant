@@ -1,7 +1,23 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { AdvanceContext, type AdvanceConetxtValue, type CreateAdvanceInput, type CreateAdvanceTypeInput } from "./AdvanceContext";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
-import type { AdvanceRecord, AdvanceRepayment, AdvanceStatus } from "../types/advance";
+import {
+  AdvanceContext,
+  type AdvanceContextValue,
+  type CreateAdvanceInput,
+  type CreateAdvanceTypeInput,
+} from "./AdvanceContext";
+
+import type {
+  AdvanceRecord,
+  AdvanceRepayment,
+  AdvanceStatus,
+} from "../types/advance";
+
 import type { AdvanceType } from "../types/advanceTypes";
 
 import { initialAdvances } from "../data/advances";
@@ -10,9 +26,11 @@ import { defaultAdvanceTypes } from "../types/advanceTypes";
 const ADVANCES_STORAGE_KEY = "payroll-advances";
 const ADVANCE_TYPES_STORAGE_KEY = "payroll_advance_types";
 
-
 function generateId(prefix: string) {
-  return `${prefix}-${Date.now()}-${Math.random().toString().slice(2, 7).toUpperCase()}`;
+  return `${prefix}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 7)
+    .toUpperCase()}`;
 }
 
 function getInitialAdvances(): AdvanceRecord[] {
@@ -25,7 +43,9 @@ function getInitialAdvances(): AdvanceRecord[] {
 
     const parsed: unknown = JSON.parse(stored);
 
-    return Array.isArray(parsed) ? (parsed as AdvanceRecord[]) : initialAdvances;
+    return Array.isArray(parsed)
+      ? (parsed as AdvanceRecord[])
+      : initialAdvances;
   } catch {
     return initialAdvances;
   }
@@ -41,28 +61,44 @@ function getInitialAdvanceTypes(): AdvanceType[] {
 
     const parsed: unknown = JSON.parse(stored);
 
-    return Array.isArray(parsed) ? (parsed as AdvanceType[]) : defaultAdvanceTypes;
+    return Array.isArray(parsed)
+      ? (parsed as AdvanceType[])
+      : defaultAdvanceTypes;
   } catch {
     return defaultAdvanceTypes;
   }
-}  
-
+}
 
 export function AdvanceProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [ advances, setAdvances ] = useState<AdvanceRecord[]>(getInitialAdvances);
-  const [ advanceTypes, setAdvanceTypes ] = useState<AdvanceType[]>(getInitialAdvanceTypes);
+  const [advances, setAdvances] =
+    useState<AdvanceRecord[]>(getInitialAdvances);
 
+  const [advanceTypes, setAdvanceTypes] =
+    useState<AdvanceType[]>(getInitialAdvanceTypes);
+
+  // Persist employee advance transactions.
   useEffect(() => {
-    localStorage.setItem(ADVANCES_STORAGE_KEY, JSON.stringify(advances));
+    localStorage.setItem(
+      ADVANCES_STORAGE_KEY,
+      JSON.stringify(advances),
+    );
   }, [advances]);
 
+  // Persist advance type configuration separately.
   useEffect(() => {
-    localStorage.setItem(ADVANCE_TYPES_STORAGE_KEY, JSON.stringify(advanceTypes));
+    localStorage.setItem(
+      ADVANCE_TYPES_STORAGE_KEY,
+      JSON.stringify(advanceTypes),
+    );
   }, [advanceTypes]);
+
+  // ---------------------------------------------
+  // ADVANCE TYPE CONFIGURATION
+  // ---------------------------------------------
 
   const createAdvanceType = (
     data: CreateAdvanceTypeInput,
@@ -72,7 +108,10 @@ export function AdvanceProvider({
       id: generateId("AT"),
     };
 
-    setAdvanceTypes((current) => [...current, newType]);
+    setAdvanceTypes((current) => [
+      ...current,
+      newType,
+    ]);
 
     return newType;
   };
@@ -81,16 +120,34 @@ export function AdvanceProvider({
     id: string,
     updates: Partial<CreateAdvanceTypeInput>,
   ) => {
-    setAdvanceTypes((current) => current.map((item) => item.id === id ? { ...item, ...updates, id: item.id } : item));
+    setAdvanceTypes((current) =>
+      current.map((item) =>
+        item.id === id
+          ? { ...item, ...updates, id: item.id }
+          : item,
+      ),
+    );
   };
 
   const deleteAdvanceType = (id: string) => {
-    setAdvanceTypes((current) => current.filter((item) => item.id !== id));
+    setAdvanceTypes((current) =>
+      current.filter((item) => item.id !== id),
+    );
   };
 
-  const toogleAdvanceTYpe = (id: string) => {
-    setAdvanceTypes((current) => current.map((item) => item.id === id ? {...item, active: !item.active } : item));
+  const toggleAdvanceType = (id: string) => {
+    setAdvanceTypes((current) =>
+      current.map((item) =>
+        item.id === id
+          ? { ...item, active: !item.active }
+          : item,
+      ),
+    );
   };
+
+  // ---------------------------------------------
+  // EMPLOYEE ADVANCE TRANSACTIONS
+  // ---------------------------------------------
 
   const createAdvance = (
     data: CreateAdvanceInput,
@@ -100,15 +157,22 @@ export function AdvanceProvider({
       id: generateId("ADV"),
       ...data,
       recovered: 0,
-      status: submitForApproval ? "Pending Approval" : "Draft",
-      submittedAt: submitForApproval ? new Date().toISOString() : undefined,
+      status: submitForApproval
+        ? "Pending Approval"
+        : "Draft",
+      submittedAt: submitForApproval
+        ? new Date().toISOString()
+        : undefined,
       repayments: [],
     };
 
-    setAdvances((current) => [ advance, ...current]);
+    setAdvances((current) => [
+      advance,
+      ...current,
+    ]);
 
     return advance;
-  }
+  };
 
   const updateAdvanceStatus = (
     id: string,
@@ -118,26 +182,137 @@ export function AdvanceProvider({
       rejectionReason?: string;
     },
   ) => {
-    setAdvances((current) => current.map((advance) => {
-      if (advance.id !== id) {
-        return advance;
-      }
+    setAdvances((current) =>
+      current.map((advance) => {
+        if (advance.id !== id) {
+          return advance;
+        }
 
-      const now  = new Date().toISOString();
-      
-      return (
-        ...advance,
-        status,
+        const now = new Date().toISOString();
 
-        approvedAt: status === "Approved" ? now : advance.approvedAt,
+        return {
+          ...advance,
+          status,
 
-        approvedBy: status === "Approved" ? now : advance.rejectedAt,
+          approvedAt:
+            status === "Approved"
+              ? now
+              : advance.approvedAt,
 
-        rejectionReason: status === "Rejected" ? metadata?.rejectionReason : advance.rejectionReason,
+          approvedBy:
+            status === "Approved"
+              ? metadata?.approvedBy ?? "Current User"
+              : advance.approvedBy,
 
-        paidAt: status === "Paid" ? now : advance.paidAt,
-      );
-    }))
-  }
+          rejectedAt:
+            status === "Rejected"
+              ? now
+              : advance.rejectedAt,
 
+          rejectionReason:
+            status === "Rejected"
+              ? metadata?.rejectionReason
+              : advance.rejectionReason,
+
+          paidAt:
+            status === "Paid"
+              ? now
+              : advance.paidAt,
+        };
+      }),
+    );
+  };
+
+  const recordRepayment = (
+    advanceId: string,
+    repayment: Omit<AdvanceRepayment, "id">,
+  ) => {
+    setAdvances((current) =>
+      current.map((advance) => {
+        if (advance.id !== advanceId) {
+          return advance;
+        }
+
+        // Ignore invalid or non-positive repayments.
+        if (
+          !Number.isFinite(repayment.amount) ||
+          repayment.amount <= 0
+        ) {
+          return advance;
+        }
+
+        const outstanding = Math.max(
+          advance.amount - advance.recovered,
+          0,
+        );
+
+        if (outstanding <= 0) {
+          return advance;
+        }
+
+        const appliedAmount = Math.min(
+          repayment.amount,
+          outstanding,
+        );
+
+        const newRecovered =
+          advance.recovered + appliedAmount;
+
+        const newStatus: AdvanceStatus =
+          newRecovered >= advance.amount
+            ? "Fully Recovered"
+            : "Partially Recovered";
+
+        const newRepayment: AdvanceRepayment = {
+          ...repayment,
+          amount: appliedAmount,
+          id: generateId("REP"),
+        };
+
+        return {
+          ...advance,
+          recovered: newRecovered,
+          status: newStatus,
+          repayments: [
+            ...advance.repayments,
+            newRepayment,
+          ],
+        };
+      }),
+    );
+  };
+
+  const getAdvance = (
+    id: string,
+  ): AdvanceRecord | undefined =>
+    advances.find((advance) => advance.id === id);
+
+  const refreshAdvances = () => {
+    setAdvances(getInitialAdvances());
+    setAdvanceTypes(getInitialAdvanceTypes());
+  };
+
+  const value = useMemo<AdvanceContextValue>(
+    () => ({
+      advanceTypes,
+      createAdvanceType,
+      updateAdvanceType,
+      deleteAdvanceType,
+      toggleAdvanceType,
+
+      advances,
+      createAdvance,
+      updateAdvanceStatus,
+      recordRepayment,
+      getAdvance,
+      refreshAdvances,
+    }),
+    [advanceTypes, advances],
+  );
+
+  return (
+    <AdvanceContext.Provider value={value}>
+      {children}
+    </AdvanceContext.Provider>
+  );
 }

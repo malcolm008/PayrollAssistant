@@ -5,12 +5,6 @@ import { NumberInput, Pill, SelectInput, TypeManagerModal } from "./typeManagerM
 
 type AdvanceDraft = Omit<AdvanceType, "id">;
 
-const REPAYMENT_METHOD: RepaymentMethod[] = [
-    "Payroll Deduction",
-    "Manual",
-    "Both",
-];
-
 const blankAdvance: AdvanceDraft = {
     code: "",
     name: "",
@@ -21,6 +15,12 @@ const blankAdvance: AdvanceDraft = {
     requiresApproval: true,
     active: true,
 };
+
+const REPAYMENT_METHODS: RepaymentMethod[] = [
+  "Payroll Deduction",
+  "Manual",
+  "Both",
+];
 
 export function AdvanceTypeModal({ onClose }: { onClose: () => void }) {
     const { 
