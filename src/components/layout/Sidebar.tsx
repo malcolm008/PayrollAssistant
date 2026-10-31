@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   BarChart3,
   CalendarDays,
@@ -8,10 +9,17 @@ import {
   Users,
   Wallet,
   WalletCards,
-  UserMinus
+  UserMinus,
+  Clock3,
+  History,
+  FileText,
+  ClipboardList,
+  Receipt,
+  UserPlus,
+  ChevronDown,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -38,6 +46,38 @@ const navigation = [
     label: "Payroll",
     path: "/payroll",
     icon: Wallet,
+    children: [
+      {
+        label: "Payroll Period",
+        path: "/payroll/period",
+        icon: Clock3,
+      },
+      {
+        label: "Payroll Registration",
+        path: "/payroll/registration",
+        icon: UserPlus,
+      },
+      {
+        label: "Payroll Input",
+        path: "/payroll/input",
+        icon: ClipboardList,
+      },
+      {
+        label: "Payroll Register",
+        path: "/payroll/register",
+        icon: Receipt,
+      },
+      {
+        label: "Payslips",
+        path: "/payroll/payslips",
+        icon: FileText,
+      },
+      {
+        label: "Payroll History",
+        path: "/payroll/history",
+        icon: History
+      },
+    ],
   },
   {
     label: "Advances",
@@ -57,6 +97,13 @@ const navigation = [
 ];
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+  const location = useLocation();
+
+  const isPayrollRoute = location.pathname.startsWith("/payroll");
+  const [payrollExpanded, setPayrollExpanded] = useState(isPayrollRoute);
+  const isPayrollActive = isPayrollRoute;
+  
+
   return (
     <>
       {/* Desktop / tablet sidebar */}
@@ -95,6 +142,83 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <div className="space-y-1">
             {navigation.map((item) => {
               const Icon = item.icon;
+
+              if ("children" in item && item.children) {
+                return (
+                  <div key ={item.label}>
+                    <div className="relative flex items-center">
+                      <NavLink
+                        to={item.path}
+                        end
+                        title={collapsed ? item.label : undefined}
+                        className={() =>
+                          `group relative flex min-w-0 flex-1 items-center rounded lg px-3 py-3 text-sm transition-all duration-200 ${
+                            isPayrollActive
+                              ? "bg-[var(--color-surface-hover)] text-[var(--color-text)]" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
+                          }`
+                        }
+                      >
+                        {isPayrollActive && (
+                          <span className="absolute left-0 h-6 w-[3px] rounded-r-full bg-[var(--color-brand)]" />
+                        )}
+
+                        <Icon
+                          size={19}
+                          strokeWidth={isPayrollActive ? 2.2 : 1.8}
+                          className={`shrink-0 ${
+                            isPayrollActive
+                              ? "text-[var(--color-brand)]" : "text-[var(--color-text-muted)] group-hover:text-[var(--color-brand)]"
+                          }`}
+                        />
+                        {!collapsed && (
+                          <span className="ml-3 whitespace-nowrap">
+                            {item.label}
+                          </span>
+                        )}
+                      </NavLink>
+
+                      {!collapsed &&(
+                        <button 
+                          type="button"
+                          onClick={() =>
+                            setPayrollExpanded((expanded) => !expanded)
+                          }
+                          aria-label={payrollExpanded ? "Collapse Payroll submenu" : "Expand Payroll submenu"}
+                        >
+                          <ChevronDown
+                            size={15}
+                            className={`transitioin-transform duration-200 ${payrollExpanded ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                      )}
+                    </div>
+
+                    {!collapsed && payrollExpanded && (
+                      <div className="ml-5 mt-1 space-y-1 border-l border-[var(--color-border-strong)] pl-3">
+                        {item.children.map((child) => {
+                          const Children = child.icon;
+
+                          return (
+                            <NavLink
+                              key={child.path}
+                              to={child.path}
+                              className={({ isActive }) => `group flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs transition-all duration-200 ${
+                                isActive ? "bg-[var(--color-brand-soft)] font-semibold text-[var(--color-brand)]" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
+                              }`}
+                            >
+                              <Children
+                                size={15}
+                                className="shrink-0"
+                              />
+                              <span>{child.label}</span>
+                            </NavLink>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
 
               return (
                 <NavLink
@@ -218,7 +342,18 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* Mobile bottom tab bar */}
       <nav className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-[var(--color-border-strong)] bg-[var(--color-surface)] pb-[env(safe-area-inset-bottom)] md:hidden">
-        {[...navigation, { label: "Settings", path: "/settings", icon: Settings }].map(
+        {[...navigation.filter((item) => item.label !== "Payroll"),
+          {
+            label: "Payroll",
+            path: "/payroll",
+            icon: Wallet,
+          },
+          {
+            label: "Settings",
+            path: "/settings",
+            icon: Settings,
+          },
+        ].map(
           (item) => {
             const Icon = item.icon;
 

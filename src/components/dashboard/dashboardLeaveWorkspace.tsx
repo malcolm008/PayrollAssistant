@@ -282,6 +282,7 @@ export function DashboardLeaveWorkspace() {
             onClick={() => setOpenOperation("outstanding")}
           />
         </div>
+        <br></br>
       </section>
 
       {openOperation === "calendar" && (

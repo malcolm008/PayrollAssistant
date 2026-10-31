@@ -18,7 +18,6 @@ import {
 import type { 
     BaseDraft,
     TypeRow,
-    TypeStat,
     TypeToggle,
     TypeManagerModalProps,
     View,

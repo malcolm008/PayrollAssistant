@@ -1,63 +1,76 @@
 import { createContext } from "react";
+
 import type {
-    AdvanceRecord,
-    AdvanceRepayment,
-    AdvanceStatus,
-    RepaymentMethod,
+  AdvanceRecord,
+  AdvanceRepayment,
+  AdvanceStatus,
+  RepaymentMethod as AdvanceRepaymentMethod,
 } from "../types/advance";
+
 import type { AdvanceType } from "../types/advanceTypes";
 
 export interface CreateAdvanceInput {
-    employeeNumber: string;
-    employeeName: string;
-    department: string;
-    position: string;
-    basicSalary: number;
-    type: string;
-    amount: number;
-    repaymentMethod: RepaymentMethod;
-    installments: number;
-    installmentAmount: number;
-    firstDeductionMonth: string;
-    requestDate: string;
-    reason: string;
-    notes?: string;
+  employeeNumber: string;
+  employeeName: string;
+  department: string;
+  position: string;
+  basicSalary: number;
+  type: string;
+  amount: number;
+  repaymentMethod: AdvanceRepaymentMethod;
+  installments: number;
+  installmentAmount: number;
+  firstDeductionMonth: string;
+  requestDate: string;
+  reason: string;
+  notes?: string;
 }
+
+export type CreateAdvanceTypeInput = Omit<AdvanceType, "id">;
 
 export interface AdvanceContextValue {
-    advanceTypes: AdvanceRecord[];
+  // Advance type configuration
+  advanceTypes: AdvanceType[];
 
-    createAdvanceType: (
-        data: CreateAdvanceInput,
-        submitForApproval?: boolean,
-    ) => AdvanceRecord;
+  createAdvanceType: (
+    data: CreateAdvanceTypeInput,
+  ) => AdvanceType;
 
-    updateAdvanceType: (
-        id: string,
-        updates: Partial<AdvanceType>
-    ) => void;
+  updateAdvanceType: (
+    id: string,
+    updates: Partial<CreateAdvanceTypeInput>,
+  ) => void;
 
-    updateAdvanceStatus: (
-        id: string,
-        status: AdvanceStatus,
-        metadata?: {
-            approvedBy?: string;
-            rejectionReason?: string;
-        },
-    ) => void;
+  deleteAdvanceType: (id: string) => void;
 
-    recordRepayment: (
-        advanceId: string,
-        repayment: Omit<AdvanceRepayment, "id">,
-    ) => void;
+  toggleAdvanceType: (id: string) => void;
 
-    getAdvance: (id: string) => AdvanceRecord | undefined;
+  // Employee advance transactions
+  advances: AdvanceRecord[];
 
-    deleteAdvanceType: (id: string) => void;
+  createAdvance: (
+    data: CreateAdvanceInput,
+    submitForApproval?: boolean,
+  ) => AdvanceRecord;
 
-    toggleAdvanceType: (id: string) => void;
+  updateAdvanceStatus: (
+    id: string,
+    status: AdvanceStatus,
+    metadata?: {
+      approvedBy?: string;
+      rejectionReason?: string;
+    },
+  ) => void;
 
-    refreshAdvances: () => void;
+  recordRepayment: (
+    advanceId: string,
+    repayment: Omit<AdvanceRepayment, "id">,
+  ) => void;
+
+  getAdvance: (id: string) => AdvanceRecord | undefined;
+
+  refreshAdvances: () => void;
 }
 
-export const AdvanceContext = createContext<AdvanceContextValue | undefined>(undefined);
+export const AdvanceContext =
+  createContext<AdvanceContextValue | undefined>(undefined);
