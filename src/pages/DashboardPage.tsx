@@ -27,6 +27,7 @@ import { PayslipBroadcastModal } from "../features/modals/PayslipBroadcastModal"
 import { IncomeTaxParametersModal } from "../components/dashboard/incomeTaxParametersModal";
 import { SystemUsersModal } from "../components/dashboard/systemUsersModal";
 import { PayrollConfigPanel } from "../components/dashboard/payrollConfigPanel";
+import { PaymentVariablesModal } from "../components/dashboard/PaymentVariablesModal";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -202,6 +203,7 @@ export function DashboardPage() {
   const [showIncomeTax, setShowIncomeTax] = useState(false);
   const [showSystemUsers, setShowSystemUsers] = useState(false);
   const [showPayrollConfig, setShowPayrollConfig] = useState(false);
+  const [showPaymentVariable, setShowPaymentVariable] = useState(false)
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -326,6 +328,9 @@ export function DashboardPage() {
             {showPayrollConfig && (
               <PayrollConfigPanel onClose={() => setShowPayrollConfig(false)} />
             )}
+            {showPaymentVariable && (
+              <PaymentVariablesModal onClose={() => setShowPaymentVariable(false)} />
+            )}
 
             {/* System Administration */}
             <section>
@@ -344,6 +349,13 @@ export function DashboardPage() {
                     icon={Users}
                     onClick={() => setShowSystemUsers(true)}
                     accent="blue"
+                  />
+                  <OperationTile
+                    title="Payment Variables"
+                    tag="Setup · Variables"
+                    icon={WalletCards}
+                    onClick={() => setShowPaymentVariable(true)}
+                    accent="green"
                   />
                 </div>
             </section>

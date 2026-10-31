@@ -18,6 +18,7 @@ import { AccountAllocationProvider } from "./context/AccountAllocationProvider";
 import { PaymentMethodProvider } from "./context/PaymentMethodProvider";
 import { EmployeeProvider } from "./context/EmployeeProvider";
 import { TerminationProvider } from "./context/TerminationProvider";
+import { PaymentVariablesProvider } from "./context/PaymentVariableProvider";
 
 function App() {
   return (
@@ -41,7 +42,9 @@ function App() {
                                       <BankProvider>
                                         <EmployeeProvider>
                                           <TerminationProvider>
-                                            <AppRouter />
+                                            <PaymentVariablesProvider>
+                                              <AppRouter />
+                                            </PaymentVariablesProvider>
                                           </TerminationProvider>
                                         </EmployeeProvider>
                                       </BankProvider>
