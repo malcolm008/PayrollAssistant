@@ -30,6 +30,7 @@ import { GLAccountsPage } from "../pages/analysis/gl-accounts/GLAccountsPage";
 import { CostCentersPage } from "../pages/analysis/cost-centers/CostCentersPage";
 import { AccountAllocationPage } from "../pages/analysis/account-allocation/AccountAllocationPage";
 import EmployeeTerminationPage from "../pages/employees/EmployeeTerminationPage";
+import PayrollPeriodPage from "../pages/payroll/PayrollPeriodPage";
 
 function ProtectedRoute({
   children,
@@ -146,6 +147,17 @@ export function AppRouter() {
         }
       />
 
+      <Route
+        path="/payroll/period"
+        element={
+          <ProtectedRoute>
+            <AuthenticatedLayout>
+              <PayrollPeriodPage />
+            </AuthenticatedLayout>
+          </ProtectedRoute>
+        }
+      />
+      
       <Route
         path="/attendance"
         element={
