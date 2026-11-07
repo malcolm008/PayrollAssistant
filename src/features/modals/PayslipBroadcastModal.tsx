@@ -90,10 +90,6 @@ export function PayslipBroadcastModal({
                 <h2 className="text-base font-semibold text-[var(--color-text)]">
                     Payslip Broadcast Message
                 </h2>
-
-                <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                    Send a message to employees for a payroll period.
-                </p>
                 </div>
             </div>
 
@@ -130,51 +126,6 @@ export function PayslipBroadcastModal({
                     </select>
                 </label>
 
-                {/* RECIPIENT SUMMARY */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-                    <div className="flex items-center gap-2">
-                        <Users
-                        size={16}
-                        className="text-[var(--color-brand)]"
-                        />
-
-                        <span className="text-xs text-[var(--color-text-secondary)]">
-                        Recipients
-                        </span>
-                    </div>
-
-                    <p className="mt-2 text-xl font-semibold text-[var(--color-text)]">
-                        {activeEmployees.length}
-                    </p>
-
-                    <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
-                        Active employees
-                    </p>
-                    </div>
-
-                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-                    <div className="flex items-center gap-2">
-                        <MessageSquareText
-                        size={16}
-                        className="text-[var(--color-info)]"
-                        />
-
-                        <span className="text-xs text-[var(--color-text-secondary)]">
-                        Period
-                        </span>
-                    </div>
-
-                    <p className="mt-2 text-sm font-semibold text-[var(--color-text)]">
-                        {payrollPeriod}
-                    </p>
-
-                    <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
-                        Payslip period
-                    </p>
-                    </div>
-                </div>
-
                 {/* MESSAGE */}
                 <label className="block space-y-2">
                     <div className="flex items-center justify-between">
@@ -199,6 +150,43 @@ export function PayslipBroadcastModal({
                     className="w-full resize-none rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                     />
                 </label>
+
+                {/* RECIPIENT SUMMARY */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+                    <div className="flex items-center gap-2">
+                        <Users
+                        size={16}
+                        className="text-[var(--color-brand)]"
+                        />
+
+                        <span className="text-xs text-[var(--color-text-secondary)]">
+                        Recipients
+                        </span>
+                    </div>
+
+                    <p className="mt-2 text-xl font-semibold text-[var(--color-text)]">
+                        {activeEmployees.length}
+                    </p>
+                    </div>
+
+                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+                    <div className="flex items-center gap-2">
+                        <MessageSquareText
+                        size={16}
+                        className="text-[var(--color-info)]"
+                        />
+
+                        <span className="text-xs text-[var(--color-text-secondary)]">
+                        Period
+                        </span>
+                    </div>
+
+                    <p className="mt-2 text-sm font-semibold text-[var(--color-text)]">
+                        {payrollPeriod}
+                    </p>
+                    </div>
+                </div>
 
                 {/* PREVIEW */}
                 {message.trim() && (

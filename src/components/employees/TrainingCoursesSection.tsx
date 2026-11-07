@@ -1,1023 +1,863 @@
-import {
-    Clock3,
-    GraduationCap,
-    MoreHorizontal,
-    Plus,
-    Search,
-    Trash2,
-    Users,
-    X,
-} from "lucide-react";
+import { ChevronDown, Plus, Search, Trash2, X } from "lucide-react";
 
 import {
-    useEffect,
-    useMemo,
-    useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
 } from "react";
+
 import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
 import { Input } from "../ui/Input";
 import type { Employee } from "../../types/employees";
 import type { TrainingCourse } from "../../types/trainingCourse";
-import { formatCurrency, TRAINING_TYPES, emptyForm } from "../../types/trainingCourse";
+import {
+  formatCurrency,
+  TRAINING_TYPES,
+  emptyForm,
+} from "../../types/trainingCourse";
 
 interface TrainingCoursesSectionProps {
-    employees: Employee[];
+  employees: Employee[];
 }
 
 const STORAGE_KEY = "payroll_training_courses";
 
+/* =========================================================
+   DATE HELPERS
+   Dates are stored as yyyy-mm-dd strings, so plain string
+   comparison orders them correctly.
+========================================================= */
+
+const toDate = (iso: string) => new Date(`${iso}T00:00:00`);
+
+const todayISO = () => {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  return `${now.getFullYear()}-${month}-${day}`;
+};
+
+const daysBetween = (from: string, to: string) =>
+  Math.round((toDate(to).getTime() - toDate(from).getTime()) / 86_400_000);
+
+const plural = (count: number, word: string) =>
+  `${count} ${word}${count === 1 ? "" : "s"}`;
+
+const formatDate = (iso: string) =>
+  new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(toDate(iso));
+
+const formatShortDate = (iso: string) =>
+  new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+  }).format(toDate(iso));
+
 function calculateDuration(start: string, end: string) {
-    if (!start || !end) return 0;
+  if (!start || !end) return 0;
 
-    const startDate = new Date(`${start}T00:00:00`);
-    const endDate = new Date(`${end}T00:00:00`);
+  const difference = daysBetween(start, end) + 1;
 
-    const difference = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
-    return difference > 0 ? difference : 0;
+  return difference > 0 ? difference : 0;
 }
+
+/* =========================================================
+   COURSE TIMING
+   Courses are grouped by where they are in time, which is
+   what someone scanning this list actually wants to know.
+========================================================= */
+
+const GROUPS = [
+  { kind: "running", title: "In progress" },
+  { kind: "upcoming", title: "Upcoming" },
+  { kind: "done", title: "Completed" },
+] as const;
+
+type Kind = (typeof GROUPS)[number]["kind"];
+
+const kindOf = (course: TrainingCourse, today: string): Kind =>
+  today < course.startingDate
+    ? "upcoming"
+    : today > course.endingDate
+      ? "done"
+      : "running";
+
+function timingLabel(course: TrainingCourse, today: string) {
+  const kind = kindOf(course, today);
+
+  if (kind === "upcoming") {
+    const days = daysBetween(today, course.startingDate);
+
+    return days === 1 ? "Starts tomorrow" : `Starts in ${plural(days, "day")}`;
+  }
+
+  if (kind === "done") {
+    const days = daysBetween(course.endingDate, today);
+
+    return days === 1
+      ? "Finished yesterday"
+      : `Finished ${plural(days, "day")} ago`;
+  }
+
+  return `Day ${daysBetween(course.startingDate, today) + 1} of ${course.duration}`;
+}
+
+const dotClass: Record<Kind, string> = {
+  running: "bg-[var(--color-brand)]",
+  upcoming: "bg-[var(--color-secondary)]",
+  done: "bg-[var(--color-text-disabled)]",
+};
+
+const fullNameOf = (employee: Employee) =>
+  `${employee.name} ${employee.surname}`;
+
+/* =========================================================
+   SECTION
+========================================================= */
 
 export function TrainingCoursesSection({
-    employees,
+  employees,
 }: TrainingCoursesSectionProps) {
-    const [courses, setCourses] = useState<TrainingCourse[]>(() => {
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
+  const [courses, setCourses] = useState<TrainingCourse[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
 
-            return saved ? JSON.parse(saved) : [];
-        } catch {
-            return [];
-        }
-    });
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState<TrainingCourse | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
-    }, [courses]);
+  const detailRef = useRef<HTMLDivElement>(null);
 
-    const totalTrainees = courses.reduce((total, course) => total + course.numberOfTrainees, 0);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+  }, [courses]);
 
-    const totalTrainingCost = courses.reduce((total, course) => total + course.costs, 0);
+  const today = todayISO();
 
-    const handleAddCourse = (course: TrainingCourse) => {
-        setCourses((current) => [course, ...current]);
-        setShowAddModal(false);
+  const groups = useMemo(() => {
+    const byKind: Record<Kind, TrainingCourse[]> = {
+      running: [],
+      upcoming: [],
+      done: [],
     };
 
-    const handleDeleteCourse = (course: TrainingCourse) => {
-        const confirmed = window.confirm(`Are you sure want to remove "${course.courseName}"?`);
+    for (const course of courses) {
+      byKind[kindOf(course, today)].push(course);
+    }
 
-        if (!confirmed) return;
-
-        setCourses((current) => current.filter((item) => item.id !== course.id));
-    };
-
-    return (
-        <div className="space-y-6">
-        {/* HEADER */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-            <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-brand)]">
-                <span className="h-px w-5 bg-[var(--color-brand)]" />
-                HR Development
-            </div>
-
-            <h2 className="text-xl font-semibold text-[var(--color-text)]">
-                Training & Development
-            </h2>
-
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                Manage employee training courses, participants and training
-                costs.
-            </p>
-            </div>
-
-            <Button onClick={() => setShowAddModal(true)}>
-            <Plus size={16} />
-            Add Training Course
-            </Button>
-        </div>
-
-        {/* SUMMARY */}
-        <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="p-5">
-            <div className="flex items-start justify-between">
-                <div>
-                <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                    Training Courses
-                </p>
-
-                <p className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                    {courses.length}
-                </p>
-                </div>
-
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-                <GraduationCap size={17} />
-                </div>
-            </div>
-            </Card>
-
-            <Card className="p-5">
-            <div className="flex items-start justify-between">
-                <div>
-                <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                    Total Trainees
-                </p>
-
-                <p className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                    {totalTrainees}
-                </p>
-                </div>
-
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-                <Users size={17} />
-                </div>
-            </div>
-            </Card>
-
-            <Card className="p-5">
-            <div className="flex items-start justify-between">
-                <div>
-                <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                    Training Costs
-                </p>
-
-                <p className="mt-2 text-xl font-semibold text-[var(--color-text)]">
-                    {formatCurrency(totalTrainingCost)}
-                </p>
-                </div>
-
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-                <GraduationCap size={17} />
-                </div>
-            </div>
-            </Card>
-        </div>
-
-        {/* COURSE TABLE */}
-        <Card className="overflow-hidden">
-            <div className="border-b border-[var(--color-border)] px-5 py-4">
-            <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                {courses.length} training{" "}
-                {courses.length === 1 ? "course" : "courses"} registered
-            </p>
-            </div>
-
-            {courses.length === 0 ? (
-            <div className="p-14 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-muted)]">
-                <GraduationCap size={22} />
-                </div>
-
-                <p className="mt-4 text-sm font-medium text-[var(--color-text)]">
-                No training courses yet
-                </p>
-
-                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                Add a training course and select the employees who will
-                participate.
-                </p>
-
-                <Button
-                className="mt-5"
-                onClick={() => setShowAddModal(true)}
-                >
-                <Plus size={16} />
-                Add Training Course
-                </Button>
-            </div>
-            ) : (
-            <div className="overflow-x-auto">
-                <table className="w-full min-w-[1000px] text-left">
-                <thead>
-                    <tr className="border-b border-[var(--color-border)] text-[10px] uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
-                    <th className="px-5 py-4 font-medium">
-                        Course
-                    </th>
-
-                    <th className="px-5 py-4 font-medium">
-                        Training Type
-                    </th>
-
-                    <th className="px-5 py-4 font-medium">
-                        Period
-                    </th>
-
-                    <th className="px-5 py-4 font-medium">
-                        Duration
-                    </th>
-
-                    <th className="px-5 py-4 font-medium">
-                        Organizer
-                    </th>
-
-                    <th className="px-5 py-4 font-medium">
-                        Trainees
-                    </th>
-
-                    <th className="px-5 py-4 font-medium">
-                        Cost
-                    </th>
-
-                    <th className="w-16 px-5 py-4" />
-                    </tr>
-                </thead>
-
-                <tbody className="divide-y divide-[var(--color-border)]">
-                    {courses.map((course) => (
-                    <tr
-                        key={course.id}
-                        className="group transition-colors hover:bg-[var(--color-surface-hover)]"
-                    >
-                        <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-                            <GraduationCap size={17} />
-                            </div>
-
-                            <div>
-                            <p className="text-sm font-medium text-[var(--color-text)]">
-                                {course.courseName}
-                            </p>
-
-                            <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-                                {course.chiefLecturer || "No lecturer specified"}
-                            </p>
-                            </div>
-                        </div>
-                        </td>
-
-                        <td className="px-5 py-4">
-                        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1 text-[10px] font-medium text-[var(--color-text-secondary)]">
-                            {course.trainingType}
-                        </span>
-                        </td>
-
-                        <td className="px-5 py-4">
-                        <div className="text-xs text-[var(--color-text-secondary)]">
-                            {course.startingDate}
-                        </div>
-
-                        <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-                            to {course.endingDate}
-                        </div>
-                        </td>
-
-                        <td className="px-5 py-4">
-                        <div className="flex items-center gap-1.5 text-sm text-[var(--color-text-secondary)]">
-                            <Clock3 size={14} />
-                            {course.duration}{" "}
-                            {course.duration === 1 ? "day" : "days"}
-                        </div>
-                        </td>
-
-                        <td className="px-5 py-4 text-sm text-[var(--color-text-secondary)]">
-                        {course.organizer || "—"}
-                        </td>
-
-                        <td className="px-5 py-4">
-                        <button
-                            type="button"
-                            onClick={() => setSelectedCourse(course)}
-                            className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-brand)] hover:underline"
-                        >
-                            <Users size={14} />
-                            {course.numberOfTrainees}
-                        </button>
-                        </td>
-
-                        <td className="px-5 py-4 text-sm font-medium text-[var(--color-text)]">
-                        {formatCurrency(course.costs)}
-                        </td>
-
-                        <td className="relative px-5 py-4">
-                        <CourseActions
-                            onView={() => setSelectedCourse(course)}
-                            onDelete={() => handleDeleteCourse(course)}
-                        />
-                        </td>
-                    </tr>
-                    ))}
-                </tbody>
-                </table>
-            </div>
-            )}
-        </Card>
-
-        {/* ADD COURSE MODAL */}
-        {showAddModal && (
-            <AddTrainingCourseModal
-            employees={employees}
-            onClose={() => setShowAddModal(false)}
-            onAdd={handleAddCourse}
-            />
-        )}
-
-        {/* DETAILS MODAL */}
-        {selectedCourse && (
-            <TrainingCourseDetailsModal
-            course={selectedCourse}
-            employees={employees}
-            onClose={() => setSelectedCourse(null)}
-            />
-        )}
-        </div>
+    byKind.running.sort((a, b) => a.endingDate.localeCompare(b.endingDate));
+    byKind.upcoming.sort((a, b) =>
+      a.startingDate.localeCompare(b.startingDate),
     );
-}
+    byKind.done.sort((a, b) => b.endingDate.localeCompare(a.endingDate));
 
-function CourseActions({
-    onView,
-    onDelete,
-}: {
-    onView: () => void;
-    onDelete: () => void;
-}) {
-    const [open, setOpen] = useState(false);
+    return GROUPS.map((group) => ({
+      ...group,
+      courses: byKind[group.kind],
+    })).filter((group) => group.courses.length > 0);
+  }, [courses, today]);
 
-    return (
-        <div className="relative">
-        <button
-            type="button"
-            onClick={() => setOpen((current) => !current)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-        >
-            <MoreHorizontal size={17} />
-        </button>
+  // Look the selection up by id, and fall back to the first course in the
+  // list so the record pane is never empty while courses exist.
+  const selected =
+    courses.find((course) => course.id === selectedId) ??
+    groups[0]?.courses[0] ??
+    null;
 
-        {open && (
-            <div className="absolute right-5 top-10 z-20 w-40 overflow-hidden rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] p-1 shadow-xl">
-            <button
-                type="button"
-                onClick={() => {
-                setOpen(false);
-                onView();
-                }}
-                className="flex w-full items-center rounded-md px-3 py-2 text-left text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-            >
-                View course
-            </button>
+  const totalTrainees = courses.reduce(
+    (total, course) => total + course.numberOfTrainees,
+    0,
+  );
 
-            <button
-                type="button"
-                onClick={() => {
-                setOpen(false);
-                onDelete();
-                }}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10"
-            >
-                <Trash2 size={14} />
-                Delete course
-            </button>
-            </div>
-        )}
-        </div>
-    );
-}
+  const totalTrainingCost = courses.reduce(
+    (total, course) => total + course.costs,
+    0,
+  );
 
-function AddTrainingCourseModal({
-    employees,
-    onClose,
-    onAdd,
-}: {
-    employees: Employee[];
-    onClose: () => void;
-    onAdd: (course: TrainingCourse) => void; 
-}) {
-    const [form, setForm] = useState(emptyForm);
-    const [participantIds, setParticipantIds] = useState<string[]>([]);
-    const [participantSearch, setParticipantSearch] = useState("");
-    const [error, setError] = useState("");
+  const selectCourse = (id: string) => {
+    setSelectedId(id);
 
-    const duration = calculateDuration(
-        form.startingDate,
-        form.endingDate,
+    // On narrow screens the record sits below the list, so bring it into view.
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleAddCourse = (course: TrainingCourse) => {
+    setCourses((current) => [course, ...current]);
+    setSelectedId(course.id);
+    setShowAddModal(false);
+  };
+
+  const handleDeleteCourse = (course: TrainingCourse) => {
+    const confirmed = window.confirm(
+      `Delete "${course.courseName}"? This can't be undone.`,
     );
 
-    const filteredEmployees = useMemo(() => {
-        const query = participantSearch.toLowerCase().trim();
-        
-        if (!query) return employees;
+    if (!confirmed) return;
 
-        return employees.filter(
-            (employee) => employee.name.toLowerCase().includes(query) || employee.employeeNumber.toLowerCase().includes(query) || employee.department.toLowerCase().includes(query),
-        );
-    }, [employees, participantSearch]);
+    setCourses((current) => current.filter((item) => item.id !== course.id));
+  };
 
-    const toggleParticipant = (employeeId: string) => {
-        setParticipantIds((current) => current.includes(employeeId) ? current.filter((id) => id !== employeeId): [...current, employeeId],);
-    };
+  const summary =
+    courses.length === 0
+      ? "No courses recorded yet."
+      : `${plural(courses.length, "course")}, ${plural(totalTrainees, "trainee")} in total, ${formatCurrency(totalTrainingCost)} in costs.`;
 
-    const updateField = (
-        field: keyof typeof emptyForm,
-        value: string,
-    ) => {
-        setForm((current) => ({
-            ...current,
-            [field]: value,
-        }));
-    };
+  return (
+    <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-[var(--color-text-secondary)]">{summary}</p>
 
-    const handleSubmit = () => {
-        setError("");
+        <Button onClick={() => setShowAddModal(true)}>
+          <Plus size={16} />
+          Add course
+        </Button>
+      </div>
 
-        if (!form.courseName || !form.startingDate || !form.endingDate) {
-            setError("Course name, string date and ending date are required.");
+      {courses.length === 0 ? (
+        <div className="py-20 text-center">
+          <p className="text-sm font-medium text-[var(--color-text)]">
+            No training courses yet
+          </p>
 
-            return;
-        }
-
-        if (!duration) {
-            setError(
-                "Ending date must be the same as or later than the starting date.",
-            );
-            return;
-        }
-
-        if (setParticipantIds.length === 0) {
-            setError("Select at least one participant.");
-            return;
-        }
-
-        const course: TrainingCourse = {
-            id: crypto.randomUUID(),
-            courseName: form.courseName.trim(),
-            trainingType: form.trainingType,
-            startingDate: form.startingDate,
-            endingDate: form.endingDate,
-            duration,
-            organizer: form.organizer.trim(),
-            chiefLecturer: form.chiefLecturer.trim(),
-            location: form.location.trim(),
-            expertiseNeeded: form.expertiseNeeded.trim(),
-            costs: Number(form.costs) || 0,
-            numberOfTrainees: participantIds.length,
-            remarks: form.remarks.trim(),
-            participantIds,
-            createdAt: new Date().toISOString(),
-        };
-
-        onAdd(course);
-    };
-
-    return (
-        <ModalShell
-        title="Add Training Course"
-        onClose={onClose}
-        maxWidth="max-w-5xl"
-        >
-        <div className="space-y-6">
-            {/* COURSE INFORMATION */}
-            <div>
-            <SectionHeading
-                icon={<GraduationCap size={16} />}
-                title="Course Information"
-            />
-
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <FormField
-                label="Course Name"
-                value={form.courseName}
-                onChange={(value) =>
-                    updateField("courseName", value)
-                }
-                placeholder=""
-                required
-                />
-
-                <label className="block space-y-2">
-                <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
-                    Type of Training
-                </span>
-
-                <select
-                    value={form.trainingType}
-                    onChange={(event) =>
-                    updateField(
-                        "trainingType",
-                        event.target.value,
-                    )
-                    }
-                    className="h-10 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]"
-                >
-                    {TRAINING_TYPES.map((type) => (
-                    <option key={type}>{type}</option>
-                    ))}
-                </select>
-                </label>
-
-                <FormField
-                label="Starting Date"
-                type="date"
-                value={form.startingDate}
-                onChange={(value) =>
-                    updateField("startingDate", value)
-                }
-                required
-                />
-
-                <FormField
-                label="Ending Date"
-                type="date"
-                value={form.endingDate}
-                onChange={(value) =>
-                    updateField("endingDate", value)
-                }
-                required
-                />
-
-                <div>
-                <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
-                    Duration
-                </span>
-
-                <div className="mt-2 flex h-10 items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3">
-                    <Clock3
-                    size={15}
-                    className="text-[var(--color-brand)]"
-                    />
-
-                    <span className="text-sm text-[var(--color-text)]">
-                    {duration
-                        ? `${duration} ${
-                            duration === 1 ? "day" : "days"
-                        }`
-                        : "Calculated from dates"}
-                    </span>
-                </div>
-                </div>
-
-                <FormField
-                label="Organizer"
-                value={form.organizer}
-                onChange={(value) =>
-                    updateField("organizer", value)
-                }
-                placeholder=""
-                />
-
-                <FormField
-                label="Chief Lecturer"
-                value={form.chiefLecturer}
-                onChange={(value) =>
-                    updateField("chiefLecturer", value)
-                }
-                placeholder=""
-                />
-
-                <FormField
-                label="Location"
-                value={form.location}
-                onChange={(value) =>
-                    updateField("location", value)
-                }
-                placeholder=""
-                />
-
-                <FormField
-                label="Expertise Needed"
-                value={form.expertiseNeeded}
-                onChange={(value) =>
-                    updateField("expertiseNeeded", value)
-                }
-                placeholder=""
-                />
-
-                <FormField
-                label="Costs"
-                type="number"
-                value={form.costs}
-                onChange={(value) =>
-                    updateField("costs", value)
-                }
-                placeholder=""
-                />
-            </div>
-
-            <div className="mt-4">
-                <label className="block space-y-2">
-                <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
-                    Remarks
-                </span>
-
-                <textarea
-                    value={form.remarks}
-                    onChange={(event) =>
-                    updateField("remarks", event.target.value)
-                    }
-                    rows={3}
-                    placeholder="Additional information about this training..."
-                    className="w-full resize-none rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 py-2.5 text-sm text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-brand)]"
-                />
-                </label>
-            </div>
-            </div>
-
-            {/* PARTICIPANTS */}
-            <div className="border-t border-[var(--color-border)] pt-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <SectionHeading
-                icon={<Users size={16} />}
-                title="Training Participants"
-                />
-
-                <div className="rounded-full bg-[var(--color-brand-soft)] px-3 py-1.5 text-xs font-medium text-[var(--color-brand)]">
-                {participantIds.length} trainee
-                {participantIds.length === 1 ? "" : "s"} selected
-                </div>
-            </div>
-
-            <div className="relative mt-4">
-                <Search
-                size={15}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-                />
-
-                <Input
-                value={participantSearch}
-                onChange={(event) =>
-                    setParticipantSearch(event.target.value)
-                }
-                placeholder="Search employees by name, number or department..."
-                className="pl-9"
-                />
-            </div>
-
-            <div className="mt-3 max-h-64 overflow-y-auto rounded-lg border border-[var(--color-border)]">
-                {filteredEmployees.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[var(--color-text-muted)]">
-                    No employees found.
-                </div>
-                ) : (
-                filteredEmployees.map((employee) => {
-                    const selected = participantIds.includes(
-                    employee.id,
-                    );
-
-                    return (
-                    <button
-                        key={employee.id}
-                        type="button"
-                        onClick={() =>
-                        toggleParticipant(employee.id)
-                        }
-                        className={`flex w-full items-center gap-3 border-b border-[var(--color-border)] px-4 py-3 text-left last:border-b-0 ${
-                        selected
-                            ? "bg-[var(--color-brand-soft)]"
-                            : "hover:bg-[var(--color-surface-hover)]"
-                        }`}
-                    >
-                        <div
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                            selected
-                            ? "border-[var(--color-brand)] bg-[var(--color-brand)] text-black"
-                            : "border-[var(--color-border-strong)]"
-                        }`}
-                        >
-                        {selected && (
-                            <span className="text-xs font-bold">
-                            ✓
-                            </span>
-                        )}
-                        </div>
-
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-bg)] text-xs font-bold text-[var(--color-brand)]">
-                        {employee.name
-                            .split(" ")
-                            .map((name) => name[0])
-                            .join("")
-                            .slice(0, 2)}
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-[var(--color-text)]">
-                            {employee.name}
-                        </p>
-
-                        <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-                            {employee.employeeNumber} •{" "}
-                            {employee.department}
-                        </p>
-                        </div>
-
-                        <span className="hidden text-xs text-[var(--color-text-muted)] md:block">
-                        {employee.jobTitle}
-                        </span>
-                    </button>
-                    );
-                })
-                )}
-            </div>
-            </div>
-
-            {/* ERROR */}
-            {error && (
-            <div className="rounded-lg border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 px-4 py-3 text-xs text-[var(--color-danger)]">
-                {error}
-            </div>
-            )}
-
-            {/* ACTIONS */}
-            <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
-            <Button
-                type="button"
-                variant="secondary"
-                onClick={onClose}
-            >
-                Cancel
-            </Button>
-
-            <Button type="button" onClick={handleSubmit}>
-                <Plus size={16} />
-                Save Training Course
-            </Button>
-            </div>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            Add a course and choose the employees attending it.
+          </p>
         </div>
-        </ModalShell>
-    );
-}
-
-function TrainingCourseDetailsModal({
-    course,
-    employees,
-    onClose,
-}: {
-    course: TrainingCourse;
-    employees: Employee[];
-    onClose: () => void;
-}) {
-    const participants = employees.filter((employee) => course.participantIds.includes(employee.id));
-
-    return (
-        <ModalShell
-        title="Training Course Details"
-        onClose={onClose}
-        maxWidth="max-w-4xl"
-        >
-        <div className="space-y-6">
-            <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-                <GraduationCap size={22} />
-            </div>
-
-            <div>
-                <h3 className="text-lg font-semibold text-[var(--color-text)]">
-                {course.courseName}
+      ) : (
+        <div className="mt-8 grid gap-10 lg:grid-cols-[19rem_minmax(0,1fr)]">
+          {/* Course list */}
+          <nav
+            aria-label="Training courses"
+            className="lg:sticky lg:top-6 lg:max-h-[calc(100vh-12rem)] lg:self-start lg:overflow-y-auto"
+          >
+            {groups.map((group) => (
+              <section key={group.kind} className="mb-5 last:mb-0">
+                <h3 className="mb-1 flex items-baseline justify-between px-3 text-xs text-[var(--color-text-muted)]">
+                  <span>{group.title}</span>
+                  <span className="tabular-nums">{group.courses.length}</span>
                 </h3>
 
-                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                {course.trainingType}
-                </p>
-            </div>
-            </div>
+                <ul>
+                  {group.courses.map((course) => {
+                    const isSelected = course.id === selected?.id;
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <DetailItem
-                label="Starting Date"
-                value={course.startingDate}
-            />
+                    return (
+                      <li key={course.id}>
+                        <button
+                          type="button"
+                          onClick={() => selectCourse(course.id)}
+                          aria-current={isSelected ? "true" : undefined}
+                          className={`block w-full border-l-2 py-2 pl-3 pr-2 text-left transition-colors ${
+                            isSelected
+                              ? "border-[var(--color-brand)] bg-[var(--color-surface-raised)]"
+                              : "border-transparent hover:bg-[var(--color-surface-hover)]"
+                          }`}
+                        >
+                          <span
+                            className={`block truncate text-sm text-[var(--color-text)] ${
+                              isSelected ? "font-semibold" : "font-medium"
+                            }`}
+                          >
+                            {course.courseName}
+                          </span>
 
-            <DetailItem
-                label="Ending Date"
-                value={course.endingDate}
-            />
+                          <span className="block text-xs tabular-nums text-[var(--color-text-secondary)]">
+                            {course.startingDate === course.endingDate
+                              ? formatShortDate(course.startingDate)
+                              : `${formatShortDate(course.startingDate)} to ${formatShortDate(course.endingDate)}`}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ))}
+          </nav>
 
-            <DetailItem
-                label="Duration"
-                value={`${course.duration} ${
-                course.duration === 1 ? "day" : "days"
-                }`}
-            />
-
-            <DetailItem
-                label="Organizer"
-                value={course.organizer || "—"}
-            />
-
-            <DetailItem
-                label="Chief Lecturer"
-                value={course.chiefLecturer || "—"}
-            />
-
-            <DetailItem
-                label="Location"
-                value={course.location || "—"}
-            />
-
-            <DetailItem
-                label="Expertise Needed"
-                value={course.expertiseNeeded || "—"}
-            />
-
-            <DetailItem
-                label="Costs"
-                value={formatCurrency(course.costs)}
-            />
-
-            <DetailItem
-                label="No. of Trainees"
-                value={String(course.numberOfTrainees)}
-            />
-            </div>
-
-            {course.remarks && (
-            <div className="border-t border-[var(--color-border)] pt-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
-                Remarks
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-                {course.remarks}
-                </p>
-            </div>
+          {/* Course record */}
+          <div
+            ref={detailRef}
+            className="min-w-0 scroll-mt-6 lg:border-l lg:border-[var(--color-border)] lg:pl-10"
+          >
+            {selected && (
+              <CourseRecord
+                course={selected}
+                employees={employees}
+                today={today}
+                onDelete={() => handleDeleteCourse(selected)}
+              />
             )}
-
-            {/* PARTICIPANT LIST */}
-            <div className="border-t border-[var(--color-border)] pt-5">
-            <div className="flex items-center justify-between">
-                <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
-                    Participants
-                </p>
-
-                <p className="mt-1 text-sm font-medium text-[var(--color-text)]">
-                    {participants.length} employee
-                    {participants.length === 1 ? "" : "s"}
-                </p>
-                </div>
-
-                <Users
-                size={18}
-                className="text-[var(--color-brand)]"
-                />
-            </div>
-
-            <div className="mt-4 overflow-hidden rounded-lg border border-[var(--color-border)]">
-                {participants.map((employee, index) => (
-                <div
-                    key={employee.id}
-                    className={`flex items-center gap-3 px-4 py-3 ${
-                    index !== participants.length - 1
-                        ? "border-b border-[var(--color-border)]"
-                        : ""
-                    }`}
-                >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[10px] font-bold text-[var(--color-brand)]">
-                    {employee.name
-                        .split(" ")
-                        .map((name) => name[0])
-                        .join("")
-                        .slice(0, 2)}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-[var(--color-text)]">
-                        {employee.name}
-                    </p>
-
-                    <p className="text-xs text-[var(--color-text-muted)]">
-                        {employee.employeeNumber} •{" "}
-                        {employee.department}
-                    </p>
-                    </div>
-
-                    <span className="hidden text-xs text-[var(--color-text-secondary)] sm:block">
-                    {employee.jobTitle}
-                    </span>
-                </div>
-                ))}
-            </div>
-            </div>
-
-            <div className="flex justify-end border-t border-[var(--color-border)] pt-5">
-            <Button variant="secondary" onClick={onClose}>
-                Close
-            </Button>
-            </div>
+          </div>
         </div>
-        </ModalShell> 
+      )}
+
+      {showAddModal && (
+        <AddTrainingCourseModal
+          employees={employees}
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddCourse}
+        />
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   COURSE RECORD
+========================================================= */
+
+function CourseRecord({
+  course,
+  employees,
+  today,
+  onDelete,
+}: {
+  course: TrainingCourse;
+  employees: Employee[];
+  today: string;
+  onDelete: () => void;
+}) {
+  const kind = kindOf(course, today);
+
+  const participants = employees.filter((employee) =>
+    course.participantIds.includes(employee.id),
+  );
+
+  // Employees removed from the roster after the course was saved.
+  const formerParticipants = course.participantIds.length - participants.length;
+
+  return (
+    <article>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
+            {course.courseName}
+          </h2>
+
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            {course.trainingType}
+          </p>
+
+          <p className="mt-1 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+            <span className={`h-1.5 w-1.5 rounded-full ${dotClass[kind]}`} />
+            <span>
+              {timingLabel(course, today)}, {formatDate(course.startingDate)}
+              {course.startingDate !== course.endingDate &&
+                ` to ${formatDate(course.endingDate)}`}
+            </span>
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onDelete}
+          className="flex h-9 items-center gap-2 rounded-[4px] px-3 text-sm text-[var(--color-danger)] transition-colors hover:bg-[var(--color-danger)]/10"
+        >
+          <Trash2 size={15} />
+          Delete
+        </button>
+      </header>
+
+      <Section title="Details">
+        <ul className="space-y-2 text-sm">
+          <Line label="Duration" value={plural(course.duration, "day")} />
+          <Line label="Organizer" value={course.organizer || "—"} />
+          <Line label="Chief lecturer" value={course.chiefLecturer || "—"} />
+          <Line label="Location" value={course.location || "—"} />
+          <Line
+            label="Expertise needed"
+            value={course.expertiseNeeded || "—"}
+          />
+          <Line label="Cost" value={formatCurrency(course.costs)} />
+        </ul>
+      </Section>
+
+      {course.remarks && (
+        <Section title="Remarks">
+          <p className="max-w-prose whitespace-pre-line text-sm leading-6 text-[var(--color-text-secondary)]">
+            {course.remarks}
+          </p>
+        </Section>
+      )}
+
+      <Section title={`Participants (${participants.length})`}>
+        {participants.length === 0 ? (
+          <p className="text-sm text-[var(--color-text-muted)]">
+            None of the original participants are on the roster any more.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {participants.map((employee) => (
+              <li
+                key={employee.id}
+                className="flex items-baseline justify-between gap-4"
+              >
+                <span className="min-w-0 truncate text-sm text-[var(--color-text)]">
+                  {fullNameOf(employee)}
+                  <span className="ml-2 text-xs tabular-nums text-[var(--color-text-muted)]">
+                    {employee.employeeNumber}
+                  </span>
+                </span>
+
+                <span className="hidden shrink-0 text-xs text-[var(--color-text-secondary)] sm:block">
+                  {employee.jobTitle}, {employee.department}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {formerParticipants > 0 && participants.length > 0 && (
+          <p className="mt-3 text-xs text-[var(--color-text-muted)]">
+            {plural(formerParticipants, "other participant")} no longer on the
+            roster.
+          </p>
+        )}
+      </Section>
+    </article>
+  );
+}
+
+/* =========================================================
+   ADD COURSE MODAL
+========================================================= */
+
+function AddTrainingCourseModal({
+  employees,
+  onClose,
+  onAdd,
+}: {
+  employees: Employee[];
+  onClose: () => void;
+  onAdd: (course: TrainingCourse) => void;
+}) {
+  const [form, setForm] = useState(emptyForm);
+  const [participantIds, setParticipantIds] = useState<string[]>([]);
+  const [participantSearch, setParticipantSearch] = useState("");
+  const [error, setError] = useState("");
+
+  const duration = calculateDuration(form.startingDate, form.endingDate);
+
+  const filteredEmployees = useMemo(() => {
+    const query = participantSearch.toLowerCase().trim();
+
+    if (!query) return employees;
+
+    return employees.filter(
+      (employee) =>
+        fullNameOf(employee).toLowerCase().includes(query) ||
+        employee.employeeNumber.toLowerCase().includes(query) ||
+        employee.department.toLowerCase().includes(query),
     );
+  }, [employees, participantSearch]);
+
+  const toggleParticipant = (employeeId: string) => {
+    setParticipantIds((current) =>
+      current.includes(employeeId)
+        ? current.filter((id) => id !== employeeId)
+        : [...current, employeeId],
+    );
+  };
+
+  const updateField = (field: keyof typeof emptyForm, value: string) => {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmit = () => {
+    setError("");
+
+    if (!form.courseName.trim() || !form.startingDate || !form.endingDate) {
+      setError("Enter a course name, a starting date and an ending date.");
+      return;
+    }
+
+    if (!duration) {
+      setError("The ending date can't be before the starting date.");
+      return;
+    }
+
+    if (participantIds.length === 0) {
+      setError("Select at least one participant.");
+      return;
+    }
+
+    const course: TrainingCourse = {
+      id: crypto.randomUUID(),
+      courseName: form.courseName.trim(),
+      trainingType: form.trainingType,
+      startingDate: form.startingDate,
+      endingDate: form.endingDate,
+      duration,
+      organizer: form.organizer.trim(),
+      chiefLecturer: form.chiefLecturer.trim(),
+      location: form.location.trim(),
+      expertiseNeeded: form.expertiseNeeded.trim(),
+      costs: Number(form.costs) || 0,
+      numberOfTrainees: participantIds.length,
+      remarks: form.remarks.trim(),
+      participantIds,
+      createdAt: new Date().toISOString(),
+    };
+
+    onAdd(course);
+  };
+
+  return (
+    <ModalShell title="Add training course" onClose={onClose} maxWidth="max-w-4xl">
+      <div className="space-y-8">
+        {/* Course */}
+        <div>
+          <h3 className="text-sm font-semibold text-[var(--color-text)]">
+            Course
+          </h3>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <FormField
+              label="Course name"
+              value={form.courseName}
+              onChange={(value) => updateField("courseName", value)}
+              required
+            />
+
+            <label className="block space-y-2">
+              <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
+                Type of training
+              </span>
+
+              <div className="relative">
+                <select
+                  value={form.trainingType}
+                  onChange={(event) =>
+                    updateField("trainingType", event.target.value)
+                  }
+                  className="h-10 w-full appearance-none rounded-[4px] border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] pl-3 pr-9 text-sm text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-brand)]"
+                >
+                  {TRAINING_TYPES.map((type) => (
+                    <option key={type}>{type}</option>
+                  ))}
+                </select>
+
+                <ChevronDown
+                  size={14}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+                />
+              </div>
+            </label>
+
+            <FormField
+              label="Starting date"
+              type="date"
+              value={form.startingDate}
+              onChange={(value) => updateField("startingDate", value)}
+              required
+            />
+
+            <FormField
+              label="Ending date"
+              type="date"
+              value={form.endingDate}
+              onChange={(value) => updateField("endingDate", value)}
+              required
+            />
+
+            <div className="space-y-2">
+              <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
+                Duration
+              </span>
+
+              <div className="flex h-10 items-center rounded-[4px] border border-[var(--color-border)] bg-[var(--color-bg)] px-3 text-sm text-[var(--color-text)]">
+                {duration ? (
+                  plural(duration, "day")
+                ) : (
+                  <span className="text-[var(--color-text-muted)]">
+                    Worked out from the dates
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <FormField
+              label="Organizer"
+              value={form.organizer}
+              onChange={(value) => updateField("organizer", value)}
+            />
+
+            <FormField
+              label="Chief lecturer"
+              value={form.chiefLecturer}
+              onChange={(value) => updateField("chiefLecturer", value)}
+            />
+
+            <FormField
+              label="Location"
+              value={form.location}
+              onChange={(value) => updateField("location", value)}
+            />
+
+            <FormField
+              label="Expertise needed"
+              value={form.expertiseNeeded}
+              onChange={(value) => updateField("expertiseNeeded", value)}
+            />
+
+            <FormField
+              label="Cost"
+              type="number"
+              value={form.costs}
+              onChange={(value) => updateField("costs", value)}
+            />
+          </div>
+
+          <label className="mt-4 block space-y-2">
+            <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
+              Remarks
+            </span>
+
+            <textarea
+              value={form.remarks}
+              onChange={(event) => updateField("remarks", event.target.value)}
+              rows={3}
+              className="w-full resize-none rounded-[4px] border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 py-2.5 text-sm text-[var(--color-text)] outline-none transition-colors placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-brand)]"
+            />
+          </label>
+        </div>
+
+        {/* Participants */}
+        <div className="border-t border-[var(--color-border)] pt-6">
+          <div className="flex items-baseline justify-between gap-4">
+            <h3 className="text-sm font-semibold text-[var(--color-text)]">
+              Participants
+            </h3>
+
+            <p className="text-xs text-[var(--color-text-secondary)]">
+              {participantIds.length} selected
+            </p>
+          </div>
+
+          <div className="relative mt-4">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+            />
+
+            <Input
+              value={participantSearch}
+              onChange={(event) => setParticipantSearch(event.target.value)}
+              placeholder="Search by name, number or department"
+              className="pl-9"
+            />
+          </div>
+
+          <ul className="mt-3 max-h-64 overflow-y-auto">
+            {filteredEmployees.length === 0 ? (
+              <li className="py-6 text-sm text-[var(--color-text-muted)]">
+                No employees match that search.
+              </li>
+            ) : (
+              filteredEmployees.map((employee) => {
+                const checked = participantIds.includes(employee.id);
+
+                return (
+                  <li key={employee.id}>
+                    <label
+                      className={`flex cursor-pointer items-center gap-3 px-3 py-2 transition-colors ${
+                        checked
+                          ? "bg-[var(--color-brand-soft)]"
+                          : "hover:bg-[var(--color-surface-hover)]"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleParticipant(employee.id)}
+                        className="h-4 w-4 shrink-0 accent-[var(--color-brand)]"
+                      />
+
+                      <span className="min-w-0 flex-1 truncate text-sm text-[var(--color-text)]">
+                        {fullNameOf(employee)}
+                        <span className="ml-2 text-xs tabular-nums text-[var(--color-text-muted)]">
+                          {employee.employeeNumber}
+                        </span>
+                      </span>
+
+                      <span className="hidden shrink-0 text-xs text-[var(--color-text-secondary)] sm:block">
+                        {employee.jobTitle}, {employee.department}
+                      </span>
+                    </label>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+        </div>
+
+        {error && (
+          <p
+            role="alert"
+            className="border-l-2 border-[var(--color-danger)] pl-3 text-sm text-[var(--color-danger)]"
+          >
+            {error}
+          </p>
+        )}
+
+        <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+
+          <Button type="button" onClick={handleSubmit}>
+            Save course
+          </Button>
+        </div>
+      </div>
+    </ModalShell>
+  );
+}
+
+/* =========================================================
+   SMALL PIECES
+========================================================= */
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="mt-8 border-t border-[var(--color-border)] pt-6">
+      <h3 className="mb-4 text-sm font-semibold text-[var(--color-text)]">
+        {title}
+      </h3>
+
+      {children}
+    </section>
+  );
+}
+
+// Label, dotted leader, value.
+function Line({ label, value }: { label: string; value: string }) {
+  return (
+    <li className="flex items-end gap-3">
+      <span className="shrink-0 text-[var(--color-text-secondary)]">
+        {label}
+      </span>
+
+      <span
+        aria-hidden="true"
+        className="mb-1.5 min-w-4 flex-1 border-b border-dotted border-[var(--color-border-strong)]"
+      />
+
+      <span className="min-w-0 break-words text-right tabular-nums text-[var(--color-text)]">
+        {value}
+      </span>
+    </li>
+  );
 }
 
 function ModalShell({
-    title,
-    children,
-    onClose,
-    maxWidth = "max-w-2xl",
+  title,
+  children,
+  onClose,
+  maxWidth = "max-w-2xl",
 }: {
-    title: string;
-    children: React.ReactNode;
-    onClose: () => void;
-    maxWidth?: string;
+  title: string;
+  children: ReactNode;
+  onClose: () => void;
+  maxWidth?: string;
 }) {
-    return (
-        <div
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-        onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-            onClose();
-            }
-        }}
-        >
-        <div
-            className={`max-h-[90vh] w-full ${maxWidth} overflow-y-auto rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] shadow-2xl`}
-        >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-raised)] px-6 py-4">
-            <h2 className="text-sm font-semibold text-[var(--color-text)]">
-                {title}
-            </h2>
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
 
-            <button
-                type="button"
-                onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-                aria-label="Close"
-            >
-                <X size={17} />
-            </button>
-            </div>
+    window.addEventListener("keydown", onKeyDown);
 
-            <div className="p-6">{children}</div>
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className={`max-h-[90vh] w-full ${maxWidth} overflow-y-auto rounded-[6px] border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] shadow-2xl`}
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface-raised)] px-6 py-4">
+          <h2 className="text-sm font-semibold text-[var(--color-text)]">
+            {title}
+          </h2>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-[4px] text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
+            aria-label="Close"
+          >
+            <X size={17} />
+          </button>
         </div>
-        </div>
-    );
-}
 
-function DetailItem({
-    label,
-    value,
-}: {
-    label: string;
-    value: string;
-}) {
-    return (
-        <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
-            {label}
-        </p>
-
-        <p className="mt-1 text-sm text-[var(--color-text)]">
-            {value}
-        </p>
-        </div>
-    );
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  );
 }
 
 function FormField({
-    label,
-    value,
-    onChange,
-    placeholder,
-    type = "text",
-    required = false,
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  required = false,
 }: {
-    label: string;
-    value: string;
-    onChange: (value: string) => void;
-    placeholder?: string;
-    type?: string;
-    required?: boolean;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: string;
+  required?: boolean;
 }) {
-    return (
-        <label className="block space-y-2">
-        <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
-            {label}
+  return (
+    <label className="block space-y-2">
+      <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
+        {label}
 
-            {required && (
-            <span className="ml-1 text-[var(--color-brand)]">
-                *
-            </span>
-            )}
-        </span>
+        {required && (
+          <span className="ml-1.5 font-normal text-[var(--color-text-muted)]">
+            (required)
+          </span>
+        )}
+      </span>
 
-        <Input
-            type={type}
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            placeholder={placeholder}
-            required={required}
-        />
-        </label>
-    );
-}
-
-function SectionHeading({
-    icon,
-    title,
-}: {
-    icon: React.ReactNode;
-    title: string;
-}) {
-    return (
-        <div className="flex items-center gap-2">
-        <div className="text-[var(--color-brand)]">{icon}</div>
-
-        <h3 className="text-sm font-semibold text-[var(--color-text)]">
-            {title}
-        </h3>
-        </div>
-    );
+      <Input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        required={required}
+      />
+    </label>
+  );
 }

@@ -2,9 +2,9 @@ import {
   ArrowLeft,
   Eye,
   EyeOff,
-  LockKeyhole,
   LogIn,
   ShieldAlert,
+  ShieldLock,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../components/ui/Button";
@@ -77,22 +77,26 @@ export function LoginPage({
 
       <Card className="overflow-hidden">
         <div className="border-b border-[var(--color-border)] px-6 py-7">
-          <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-            <LockKeyhole size={21} />
+          {/* Flex row container to align the icon and the text block side-by-side */}
+          <div className="flex items-center gap-4">
+            
+            {/* Icon Container (Stays exactly as it was) */}
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
+              <ShieldLock size={21} />
+            </div>
+
+            {/* Text Container (Keeps the original layout and styling for company and title) */}
+            <div className="flex flex-col justify-center">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--color-brand)]">
+                {company?.name}
+              </p>
+
+              <h1 className="mt-0.5 text-xl font-semibold text-[var(--color-text)]">
+                Payroll Assistant
+              </h1>
+            </div>
+
           </div>
-
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--color-brand)]">
-            {company?.name}
-          </p>
-
-          <h1 className="mt-2 text-xl font-semibold text-[var(--color-text)]">
-            Sign in to Payroll Core
-          </h1>
-
-          <p className="mt-2 text-xs leading-5 text-[var(--color-text-muted)]">
-            Enter your credentials to access your payroll
-            workspace.
-          </p>
         </div>
 
         <form
@@ -114,8 +118,8 @@ export function LoginPage({
 
           <Input
             id="username"
-            label="Username or employee ID"
-            placeholder="Enter your username"
+            label="Username / Employee ID"
+            placeholder=""
             value={username}
             onChange={(event) =>
               setUsername(event.target.value)
@@ -128,7 +132,7 @@ export function LoginPage({
               id="password"
               label="Password"
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder=""
               value={password}
               onChange={(event) =>
                 setPassword(event.target.value)

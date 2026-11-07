@@ -66,7 +66,7 @@ const StatusBadge = ({ status }: { status: SystemUser["status"] }) => (
 
 const RoleBadge = ({ role }: { role: RoleId }) => (
   <span
-    className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-medium ${ROLES[role].badge}`}
+    className={`inline-flex px-2.5 py-1 text-[10px] font-medium ${ROLES[role].badge}`}
   >
     {ROLES[role].label}
   </span>
@@ -530,7 +530,7 @@ function UserList({
             <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search name, username or email..."
+                placeholder="Search..."
                 className={`${fieldInputClass} pl-10`}
             />
             </div>
@@ -602,7 +602,7 @@ function UserList({
                         </p>
     
                         <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)]">
-                            {user.username} · {user.email}
+                             {user.email}
                         </p>
                         </div>
                     </div>

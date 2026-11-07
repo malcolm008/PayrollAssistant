@@ -123,31 +123,6 @@ export function PaymentVariablesModal({
                 {/* Content */}
                 <div className="flex-1 space-y-5 overflow-y-auto p-6">
 
-                {/* Summary */}
-                <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
-                    <p className="text-xs text-[var(--color-text-muted)]">
-                        Permanent Payments
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                        {paymentVariables.filter(
-                        (item) => item.category === "Permanent"
-                        ).length}
-                    </p>
-                    </div>
-
-                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
-                    <p className="text-xs text-[var(--color-text-muted)]">
-                        Temporary Payments
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                        {paymentVariables.filter(
-                        (item) => item.category === "Temporary"
-                        ).length}
-                    </p>
-                    </div>
-                </div>
-
                 {/* Toolbar */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="relative flex-1">
@@ -340,6 +315,31 @@ export function PaymentVariablesModal({
                         )}
                         </tbody>
                     </table>
+                    </div>
+                </div>
+
+                {/* Summary */}
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                        Permanent Payments
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
+                        {paymentVariables.filter(
+                        (item) => item.category === "Permanent"
+                        ).length}
+                    </p>
+                    </div>
+
+                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                        Temporary Payments
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
+                        {paymentVariables.filter(
+                        (item) => item.category === "Temporary"
+                        ).length}
+                    </p>
                     </div>
                 </div>
 

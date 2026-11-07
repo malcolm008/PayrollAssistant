@@ -1,7 +1,7 @@
 import {
   ArrowRight,
-  Building2,
   Search,
+  Landmark,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../components/ui/Button";
@@ -39,20 +39,11 @@ export function CompanySelectPage({
     <div className="w-full max-w-2xl">
       <div className="mb-8 text-center">
         <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--color-brand)]/20 bg-[var(--color-brand)]/[0.06] text-[var(--color-brand)]">
-          <Building2 size={25} />
+          <Landmark size={25} />
         </div>
-
-        <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[var(--color-brand)]">
-          Welcome
-        </p>
-
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--color-text)] sm:text-3xl">
           Select your company
         </h1>
-
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--color-text-muted)]">
-          Select the organization you are authorized to access.
-        </p>
       </div>
 
       <Card className="overflow-hidden">
@@ -142,8 +133,7 @@ export function CompanySelectPage({
       </Card>
 
       <p className="mt-5 text-center text-[11px] text-[var(--color-text-disabled)]">
-        Only organizations associated with your account are
-        displayed.
+        Authorized access to subscribed organizations only.        
       </p>
     </div>
   );

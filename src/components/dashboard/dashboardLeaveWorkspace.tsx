@@ -4,8 +4,8 @@ import {
   Check,
   ChevronRight,
   Clock3,
+  ClockFading,
   FileText,
-  Settings2,
   Users,
   X,
 } from "lucide-react";
@@ -256,29 +256,29 @@ export function DashboardLeaveWorkspace() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <LeaveOperationButton
             title="Edit Calendar"
-            description="Working days, resting days and holidays"
+            description=""
             icon={CalendarDays}
             onClick={() => setOpenOperation("calendar")}
           />
 
           <LeaveOperationButton
             title="Approving Managers"
-            description="Configure who approves leave"
+            description=""
             icon={Users}
             onClick={() => setOpenOperation("approvers")}
           />
 
           <LeaveOperationButton
             title="Apply for Leave"
-            description="Submit new leave application"
+            description=""
             icon={FileText}
             onClick={() => setOpenOperation("application")}
           />
 
           <LeaveOperationButton
             title="Outstanding Leave"
-            description="View balances and pending leave"
-            icon={Clock3}
+            description=""
+            icon={ClockFading}
             onClick={() => setOpenOperation("outstanding")}
           />
         </div>
@@ -394,7 +394,6 @@ function LeaveOperationButton({
 
 interface LeaveModalProps {
   title: string;
-  description: string;
   icon: React.ElementType;
   children: React.ReactNode;
   onClose: () => void;
@@ -403,7 +402,6 @@ interface LeaveModalProps {
 
 function LeaveModal({
   title,
-  description,
   icon: Icon,
   children,
   onClose,
@@ -417,7 +415,7 @@ function LeaveModal({
         }`}
       >
         <div className="flex items-start justify-between border-b border-[var(--color-border)] p-5">
-          <div className="flex items-start gap-3">
+          <div className="flex items-center gap-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-soft)]">
               <Icon
                 size={18}
@@ -425,15 +423,9 @@ function LeaveModal({
               />
             </div>
 
-            <div>
               <h2 className="text-sm font-semibold text-[var(--color-text)]">
                 {title}
               </h2>
-
-              <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                {description}
-              </p>
-            </div>
           </div>
 
           <button
@@ -488,13 +480,6 @@ function LeaveCalendarModal({
     );
   };
 
-  const monthLabel = new Date(
-    `${month}-01T00:00:00`,
-  ).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-
   const workingDays = days.filter(
     (day) => day.status === "working",
   ).length;
@@ -531,7 +516,6 @@ function LeaveCalendarModal({
   return (
     <LeaveModal
       title="Edit Leave Calendar"
-      description="Configure working days, resting days and custom holidays."
       icon={CalendarDays}
       onClose={onClose}
       wide
@@ -566,24 +550,6 @@ function LeaveCalendarModal({
             value={holidays}
           />
         </div>
-      </div>
-
-      <div className="mb-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
-        <div className="flex items-center gap-2">
-          <Settings2
-            size={15}
-            className="text-[var(--color-brand)]"
-          />
-
-          <span className="text-xs font-semibold text-[var(--color-text)]">
-            {monthLabel}
-          </span>
-        </div>
-
-        <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
-          Monday to Friday are working by default. Saturday and
-          Sunday are resting days.
-        </p>
       </div>
 
       <div className="grid grid-cols-7 gap-2">
@@ -786,7 +752,6 @@ function LeaveApproversModal({
   return (
     <LeaveModal
       title="Leave Approving Managers"
-      description="Select the employees who can approve leave applications."
       icon={Users}
       onClose={onClose}
     >
@@ -957,7 +922,6 @@ function LeaveApplicationModal({
   return (
     <LeaveModal
       title="Apply for Leave"
-      description="Create a new employee leave application."
       icon={FileText}
       onClose={() => null}
     >
@@ -1130,7 +1094,6 @@ function OutstandingLeaveModal({
   return (
     <LeaveModal
       title="Outstanding Leave"
-      description="Review employee leave balances and pending applications."
       icon={Clock3}
       onClose={onClose}
       wide

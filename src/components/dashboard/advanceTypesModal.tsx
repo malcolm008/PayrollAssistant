@@ -39,9 +39,6 @@ export function AdvanceTypeModal({ onClose }: { onClose: () => void }) {
         nameHint="e.g. Salary Advance"
         items={advanceTypes}
         blank={blankAdvance}
-        stats={[
-            { label: "Needs approval", test: (item) => item.requiresApproval },
-        ]}
         columns={[
             { header: "Repayment", render: (item) => item.repaymentMethod },
             {
@@ -96,6 +93,9 @@ export function AdvanceTypeModal({ onClose }: { onClose: () => void }) {
         onDelete={deleteAdvanceType}
         onToggle={toggleAdvanceType}
         onClose={onClose}
+                stats={[
+            { label: "Needs approval", test: (item) => item.requiresApproval },
+        ]}
         />  
     )
 }

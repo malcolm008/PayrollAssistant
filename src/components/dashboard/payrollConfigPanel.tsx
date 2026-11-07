@@ -1,10 +1,10 @@
 import {
-  Banknote,
-  CalendarDays,
+  BanknoteArrowUp,
   ChevronRight,
-  CircleDollarSign,
-  ShieldCheck,
-  WalletCards,
+  BadgePercent,
+  CreditCard,
+  BanknoteArrowDown,
+  ClockFading,
 } from "lucide-react";
 import { useState, type ElementType } from "react";
 
@@ -19,11 +19,11 @@ import {
 type ConfigKey = "advance" | "allowance" | "deduction" | "leave" | "loan";
 
 const items: { key: ConfigKey; title: string; icon: ElementType }[] = [
-  { key: "advance", title: "Advance Types", icon: WalletCards },
-  { key: "allowance", title: "Allowance Types", icon: CircleDollarSign },
-  { key: "deduction", title: "Deduction Types", icon: ShieldCheck },
-  { key: "leave", title: "Leave Types", icon: CalendarDays },
-  { key: "loan", title: "Loan Types", icon: Banknote },
+  { key: "advance", title: "Advance Types", icon: CreditCard },
+  { key: "allowance", title: "Allowance Types", icon: BadgePercent},
+  { key: "deduction", title: "Deduction Types", icon: BanknoteArrowDown },
+  { key: "leave", title: "Leave Types", icon: ClockFading },
+  { key: "loan", title: "Loan Types", icon: BanknoteArrowUp },
 ];
 
 export function PayrollConfigPanel({ onClose }: { onClose?: () => void }) {

@@ -1,21 +1,20 @@
 import {
-  Building2,
   CalendarDays,
   ChevronRight,
   Clock3,
-  CreditCard,
-  GitBranch,
-  Landmark,
   LayoutDashboard,
   Percent,
   Plus,
-  TrendingUp,
   Users,
   WalletCards,
   FileText,
   MessageSquareText,
   Calculator,
   Settings2,
+  HatGlasses,
+  HousePlus,
+  ChartNetwork,
+  RotateCwFadingClock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -41,7 +40,7 @@ interface OperationTileProps {
   tag: string;
   icon: React.ElementType;
   onClick?: () => void;
-  accent?: "gold" | "blue" | "green" | "purple";
+  accent?: "blueGreen";
 }
 
 function OperationTile({
@@ -49,28 +48,13 @@ function OperationTile({
   tag,
   icon: Icon,
   onClick,
-  accent = "gold",
+  accent = "blueGreen",
 }: OperationTileProps) {
   const accentClasses = {
-    gold: {
-      icon: "text-[var(--color-brand)]",
-      iconBg: "bg-[var(--color-brand-soft)]",
-      hover: "group-hover:border-[var(--color-brand)]/40",
-    },
-    blue: {
-      icon: "text-[var(--color-info)]",
-      iconBg: "bg-[var(--color-info)]/10",
-      hover: "group-hover:border-[var(--color-info)]/40",
-    },
-    green: {
-      icon: "text-[var(--color-success)]",
-      iconBg: "bg-[var(--color-success)]/10",
-      hover: "group-hover:border-[var(--color-success)]/40",
-    },
-    purple: {
-      icon: "text-purple-400",
-      iconBg: "bg-purple-400/10",
-      hover: "group-hover:border-purple-400/40",
+    blueGreen: {
+      icon: "text-[color-mix(in_srgb,var(--color-success)_60%,var(--color-info))]",
+      iconBg: "bg-[color-mix(in_srgb,var(--color-success)_60%,var(--color-info))]/10",
+      hover: "group-hover:border-[color-mix(in_srgb,var(--color-success)_60%,var(--color-info))]/40",
     },
   };
 
@@ -105,57 +89,6 @@ function OperationTile({
         </p>
       </div>
     </button>
-  );
-}
-
-interface StatCardProps {
-  title: string;
-  value: string;
-  icon: React.ElementType;
-  trend?: string;
-  trendPositive?: boolean;
-}
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  trend,
-  trendPositive = true,
-}: StatCardProps) {
-  return (
-    <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-      <div className="flex items-start justify-between">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-brand-soft)]">
-          <Icon
-            size={17}
-            className="text-[var(--color-brand)]"
-            strokeWidth={1.8}
-          />
-        </div>
-
-        {trend && (
-          <span
-            className={`flex items-center gap-1 text-xs font-medium ${
-              trendPositive
-                ? "text-[var(--color-success)]"
-                : "text-[var(--color-danger)]"
-            }`}
-          >
-            <TrendingUp size={13} />
-            {trend}
-          </span>
-        )}
-      </div>
-
-      <p className="mt-4 text-2xl font-semibold tracking-tight text-[var(--color-text)]">
-        {value}
-      </p>
-
-      <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-        {title}
-      </p>
-    </div>
   );
 }
 
@@ -221,10 +154,6 @@ export function DashboardPage() {
                 Operations
               </span>
             </div>
-
-            <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)] sm:text-3xl">
-              Operational Dashboard
-            </h1>
           </div>
 
           <div className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
@@ -239,41 +168,6 @@ export function DashboardPage() {
         </div>
 
         {/* =========================================================
-            OVERVIEW
-        ========================================================= */}
-        <section className="mb-10">
-          <SectionHeader title="Overview" />
-
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <StatCard
-              title="Active employees"
-              value="248"
-              icon={Users}
-              trend="+6.2%"
-            />
-            <StatCard
-              title="Gross payroll"
-              value="TZS 184.6M"
-              icon={WalletCards}
-              trend="+3.8%"
-            />
-            <StatCard
-              title="Attendance"
-              value="94.8%"
-              icon={Clock3}
-              trend="+1.4%"
-            />
-            <StatCard
-              title="Outstanding advances"
-              value="TZS 12.8M"
-              icon={CreditCard}
-              trend="-2.1%"
-              trendPositive={false}
-            />
-          </div>
-        </section>
-
-        {/* =========================================================
             MAIN GRID: Operations (left) + Increments (right rail)
         ========================================================= */}
         <div className="grid grid-cols-1 gap-10 xl:grid-cols-[1fr_320px]">
@@ -286,39 +180,39 @@ export function DashboardPage() {
                 <OperationTile
                   title="Cost Centers"
                   tag="Setup"
-                  icon={Building2}
+                  icon={HatGlasses}
                   onClick={() => navigate("/cost-centers")}
-                  accent="gold"
+                  accent="blueGreen"
                 />
                 <OperationTile
                   title="GL Accounts"
                   tag="Setup"
-                  icon={Landmark}
+                  icon={HousePlus}
                   onClick={() => navigate("/gl-accounts")}
-                  accent="blue"
+                  accent="blueGreen"
                 />
                 <OperationTile
                   title="Account Allocation"
                   tag="Accounting"
-                  icon={GitBranch}
+                  icon={ChartNetwork}
                   onClick={() => navigate("/account-allocation")}
-                  accent="purple"
+                  accent="blueGreen"
                 />
                 <OperationTile
                   title="Leave"
                   tag="HR · Operations"
-                  icon={CalendarDays}
+                  icon={RotateCwFadingClock}
                   onClick={() =>
                     setShowLeaveWorkspace((current) => !current)
                   }
-                  accent="green"
+                  accent="blueGreen"
                 />
                 <OperationTile
                   title="Payroll Configuration"
                   tag="Setup · Types"
                   icon={Settings2}
                   onClick={() => setShowPayrollConfig((current) => !current)}
-                  accent="gold"
+                  accent="blueGreen"
                 />                
               </div>
             </section>
@@ -341,21 +235,21 @@ export function DashboardPage() {
                     tag="Setup · Statutory"
                     icon={Calculator}
                     onClick={() => setShowIncomeTax(true)}
-                    accent="gold"
+                    accent="blueGreen"
                   />
                   <OperationTile
                     title="System Users"
                     tag="Access · Roles"
                     icon={Users}
                     onClick={() => setShowSystemUsers(true)}
-                    accent="blue"
+                    accent="blueGreen"
                   />
                   <OperationTile
                     title="Payment Variables"
                     tag="Setup · Variables"
                     icon={WalletCards}
                     onClick={() => setShowPaymentVariable(true)}
-                    accent="green"
+                    accent="blueGreen"
                   />
                 </div>
             </section>
@@ -371,7 +265,7 @@ export function DashboardPage() {
               tag="Payroll · Bulk"
               icon={Percent}
               onClick={() => setShowGlobalIncrement(true)}
-              accent="gold"
+              accent="blueGreen"
             />
 
             <OperationTile
@@ -379,7 +273,7 @@ export function DashboardPage() {
               tag="Payroll · Single"
               icon={Plus}
               onClick={() => setShowIndividualIncrement(true)}
-              accent="green"
+              accent="blueGreen"
             />
 
             <OperationTile
@@ -387,7 +281,7 @@ export function DashboardPage() {
               tag="Payroll · Statutory"
               icon={FileText}
               onClick={() => setShowPensionReceipts(true)}
-              accent="blue"
+              accent="blueGreen"
             />
 
             <OperationTile
@@ -395,7 +289,7 @@ export function DashboardPage() {
               tag="Payroll · Employee Communication"
               icon={MessageSquareText}
               onClick={() => setShowPayslipBroadcast(true)}
-              accent="purple"
+              accent="blueGreen"
             />
             </div>
 

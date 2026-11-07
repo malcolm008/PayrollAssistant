@@ -229,14 +229,14 @@ function StatusToggle({
         type="button"
         onClick={onClick}
         title={active ? "Deactivate" : "Activate"}
-        className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+        className={`inline-flex items-center gap-2 px-2.5 py-1 text-[5px] font-medium transition-colors ${
             active
             ? "bg-[var(--color-success)]/10 text-[var(--color-success)]"
             : "bg-[var(--color-surface-hover)] text-[var(--color-text-muted)]"
         }`}
         >
         <span
-            className={`h-1.5 w-1.5 rounded-full ${
+            className={`rounded-full ${
             active
                 ? "bg-[var(--color-success)]"
                 : "bg-[var(--color-text-muted)]"
@@ -363,22 +363,7 @@ export function TypeManagerModal<D extends BaseDraft>({
         );
     } else {
         body = (
-            <div className="space-y-5">
-                <div className="flex flex-wrap gap-2">
-                <StatPill label="Total" value={items.length} />
-                <StatPill
-                    label="Active"
-                    value={items.filter((item) => item.active).length}
-                />
-                {stats.map((stat) => (
-                    <StatPill
-                    key={stat.label}
-                    label={stat.label}
-                    value={items.filter((item) => stat.test(item)).length}
-                    />
-                ))}
-                </div>
-        
+            <div className="space-y-5">      
                 <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <div className="relative flex-1">
                     <Search
@@ -414,6 +399,7 @@ export function TypeManagerModal<D extends BaseDraft>({
                     className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
                     />
                 </div>
+                
         
                 <button
                     type="button"
@@ -468,12 +454,6 @@ export function TypeManagerModal<D extends BaseDraft>({
                             <p className="text-sm font-medium text-[var(--color-text)]">
                                 {item.name}
                             </p>
-        
-                            {item.description && (
-                                <p className="mt-0.5 max-w-[240px] truncate text-xs text-[var(--color-text-muted)]">
-                                {item.description}
-                                </p>
-                            )}
                             </td>
         
                             {columns.map((column) => (
@@ -485,7 +465,7 @@ export function TypeManagerModal<D extends BaseDraft>({
                             </td>
                             ))}
         
-                            <td className="px-4 py-3">
+                            <td className="px-2 py-2">
                             <StatusToggle
                                 active={item.active}
                                 onClick={() => onToggle(item.id)}
@@ -522,6 +502,21 @@ export function TypeManagerModal<D extends BaseDraft>({
                     </tbody>
                     </table>
                 )}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                <StatPill label="Total" value={items.length} />
+                <StatPill
+                    label="Active"
+                    value={items.filter((item) => item.active).length}
+                />
+                {stats.map((stat) => (
+                    <StatPill
+                    key={stat.label}
+                    label={stat.label}
+                    value={items.filter((item) => stat.test(item)).length}
+                    />
+                ))}
                 </div>
             </div>
         );

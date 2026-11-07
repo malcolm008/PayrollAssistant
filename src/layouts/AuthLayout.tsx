@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ShieldCheck, Wallet } from "lucide-react";
+import { ShieldCheck, HandCoins } from "lucide-react";
 
 interface AuthLayoutProps {
     children: ReactNode;
@@ -28,16 +28,16 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <header className="flex h-20 items-center justify-between border-b border-[var(--color-border)] px-6 lg:px-10">
             <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand)] text-[var(--color-bg)]">
-                <Wallet size={18} strokeWidth={2.5} />
+                <HandCoins size={18} strokeWidth={2.5} />
                 </div>
 
                 <div>
                 <div className="text-sm font-bold tracking-[0.18em] text-[var(--color-text)]">
-                    PAYROLL
+                    PAYROLL ASSISTANT
                 </div>
 
                 <div className="text-[9px] font-medium tracking-[0.3em] text-[var(--color-brand)]">
-                    CORE
+                    ME-COMPUTER SOFTWARE LTD
                 </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
             {/* Footer */}
             <footer className="border-t border-[var(--color-border)] px-6 py-5 text-center text-[10px] tracking-wide text-[var(--color-text-disabled)]">
-            Payroll Core · Secure Workforce Management
+            Payroll Assistant · ME-Computer Software LTD · All rights reserved · 2024
             </footer>
         </div>
         </div>

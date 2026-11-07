@@ -1,22 +1,23 @@
 import { useState } from "react";
 import {
   BarChart3,
-  CalendarDays,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
   Settings,
-  Users,
-  Wallet,
-  WalletCards,
+  UsersRound,
   UserMinus,
   Clock3,
   History,
-  FileText,
   ClipboardList,
   Receipt,
   UserPlus,
   ChevronDown,
+  HandCoins,
+  CreditCardIcon,
+  CircleDollarSign,
+  ReceiptText,
 } from "lucide-react";
 
 import { NavLink, useLocation } from "react-router-dom";
@@ -35,17 +36,17 @@ const navigation = [
   {
     label: "Employees",
     path: "/employees",
-    icon: Users,
+    icon: UsersRound,
   },
   {
     label: "Attendance",
     path: "/attendance",
-    icon: CalendarDays,
+    icon: CalendarClock,
   },
   {
     label: "Payroll",
     path: "/payroll",
-    icon: Wallet,
+    icon: CircleDollarSign,
     children: [
       {
         label: "Payroll Period",
@@ -70,7 +71,7 @@ const navigation = [
       {
         label: "Payslips",
         path: "/payroll/payslips",
-        icon: FileText,
+        icon: ReceiptText,
       },
       {
         label: "Payroll History",
@@ -82,7 +83,7 @@ const navigation = [
   {
     label: "Advances",
     path: "/advances",
-    icon: WalletCards,
+    icon: CreditCardIcon,
   },
   {
     label: "Reports",
@@ -116,7 +117,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <div className="flex h-[76px] items-center border-b border-[var(--color-border)] px-5">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand)] text-[var(--color-bg)] shadow-[0_0_20px_rgba(212,175,55,0.15)]">
-              <Wallet size={19} strokeWidth={2.5} />
+              <HandCoins size={19} strokeWidth={2.5} />
             </div>
 
             {!collapsed && (
@@ -126,7 +127,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 </div>
 
                 <div className="whitespace-nowrap text-[10px] font-medium tracking-[0.3em] text-[var(--color-brand)]">
-                  CORE
+                  ASSISTANT
                 </div>
               </div>
             )}
@@ -136,7 +137,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         {/* Navigation */}
         <nav className="flex-1 px-3 py-6">
           <div className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
-            {!collapsed && "Workspace"}
+            {!collapsed &&"Workspace"}
           </div>
 
           <div className="space-y-1">
@@ -346,7 +347,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           {
             label: "Payroll",
             path: "/payroll",
-            icon: Wallet,
+            icon: CircleDollarSign,
           },
           {
             label: "Settings",

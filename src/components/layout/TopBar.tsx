@@ -21,7 +21,7 @@ export function TopBar({ sidebarCollapsed }: TopBarProps) {
 
           <input
             type="text"
-            placeholder="Search employees, payroll, reports..."
+            placeholder="Search..."
             className="h-10 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] pl-10 pr-4 text-sm text-[var(--color-text)] outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-brand)]/60 focus:ring-1 focus:ring-[var(--color-brand)]/20"
           />
         </div>

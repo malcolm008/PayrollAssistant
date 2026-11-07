@@ -115,10 +115,6 @@ export function PensionReceiptsModal({
                 <h2 className="text-base font-semibold text-[var(--color-text)]">
                     Pension Receipts
                 </h2>
-
-                <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                    Record pension and company provident fund receipts.
-                </p>
                 </div>
             </div>
 
@@ -175,7 +171,7 @@ export function PensionReceiptsModal({
                             event.target.value,
                         )
                         }
-                        placeholder="Enter receipt number"
+                        placeholder=""
                         className={inputClass}
                     />
                     </label>
@@ -224,7 +220,7 @@ export function PensionReceiptsModal({
                             event.target.value,
                         )
                         }
-                        placeholder="Enter receipt number"
+                        placeholder=""
                         className={inputClass}
                     />
                     </label>
@@ -273,7 +269,7 @@ export function PensionReceiptsModal({
                             event.target.value,
                         )
                         }
-                        placeholder="Enter receipt number"
+                        placeholder=""
                         className={inputClass}
                     />
                     </label>
