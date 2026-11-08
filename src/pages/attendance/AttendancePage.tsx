@@ -1,36 +1,22 @@
-import {
-    CalendarDays,
-    Check,
-    CheckCircle2,
-    ChevronDown,
-    Clock3,
-    Edit3,
-    MoreHorizontal,
-    Search,
-    UserCheck,
-    UserX,
-    Users,
-    X,
-} from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
-import { Card } from "../../components/ui/Card";
 
 type AttendanceStatus = "Present" | "Absent" | "Late" | "Leave" | "Half Day";
 
 interface AttendanceRecord {
-    id: string;
-    employeeNumber: string;
-    name: string;
-    department: string;
-    position: string;
-    checkIn: string;
-    checkOut: string;
-    hoursWorked: number;
-    overtime: number;
-    status: AttendanceStatus;
-    note?: string;
+  id: string;
+  employeeNumber: string;
+  name: string;
+  department: string;
+  position: string;
+  checkIn: string;
+  checkOut: string;
+  hoursWorked: number;
+  overtime: number;
+  status: AttendanceStatus;
+  note?: string;
 }
 
 const initialAttendance: AttendanceRecord[] = [
@@ -111,567 +97,766 @@ const initialAttendance: AttendanceRecord[] = [
   },
 ];
 
-const departments = [
-    "All",
-    "Finance",
-    "Human Resources",
-    "Information Technology",
-    "Administration",
-    "Operations",
+/* =========================================================
+   WORKING DAY SETTINGS
+   Change these if the company's hours differ.
+========================================================= */
+
+const WORK_START = "08:00";
+const WORK_END = "17:00";
+const STANDARD_HOURS = 8;
+const LUNCH_BREAK_HOURS = 1;
+
+// The timeline runs 06:00 to 20:00.
+const AXIS_START = 6 * 60;
+const AXIS_END = 20 * 60;
+const TICKS = [6, 8, 10, 12, 14, 16, 18, 20];
+
+const STATUS_LABEL: Record<AttendanceStatus, string> = {
+  Present: "Present",
+  Late: "Late",
+  Absent: "Absent",
+  Leave: "On leave",
+  "Half Day": "Half day",
+};
+
+const STATUS_COLOR: Record<AttendanceStatus, string> = {
+  Present: "var(--color-brand)",
+  Late: "var(--color-warning)",
+  "Half Day": "var(--color-info)",
+  Absent: "var(--color-danger)",
+  Leave: "var(--color-secondary)",
+};
+
+// What each bar color on the timeline means. Shown as the key above the bars.
+const BAR_KEY: { label: string; color: string; faded?: boolean }[] = [
+  { label: "Present", color: STATUS_COLOR.Present },
+  { label: "Late", color: STATUS_COLOR.Late },
+  { label: "Half day", color: STATUS_COLOR["Half Day"] },
+  { label: "Overtime", color: "var(--color-secondary)" },
+  { label: "No check-out yet", color: STATUS_COLOR.Present, faded: true },
 ];
 
-const statuses = [
-    "All",
-    "Present",
-    "Late",
-    "Absent",
-    "Leave",
-    "Half Day",
-];
+const isAway = (status: AttendanceStatus) =>
+  status === "Absent" || status === "Leave";
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const toMinutes = (time: string) => {
+  if (!/^\d{2}:\d{2}$/.test(time)) return null;
+
+  const [hours, minutes] = time.split(":").map(Number);
+
+  return hours * 60 + minutes;
+};
+
+const toPercent = (minutes: number) =>
+  Math.min(
+    100,
+    Math.max(0, ((minutes - AXIS_START) / (AXIS_END - AXIS_START)) * 100),
+  );
 
 const formatHours = (hours: number) => `${hours.toFixed(1)}h`;
 
-const getInitials = (name: string) => name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+const parseDate = (iso: string) => new Date(`${iso}T00:00:00`);
 
-function StatusBadge({ status }: { status: AttendanceStatus }) {
-    const styles: Record<AttendanceStatus, string> = {
-        Present:
-        "bg-[var(--color-success)]/10 text-[var(--color-success)]",
-        Late: "bg-[var(--color-warning)]/10 text-[var(--color-warning)]",
-        Absent: "bg-[var(--color-danger)]/10 text-[var(--color-danger)]",
-        Leave: "bg-[var(--color-brand-soft)] text-[var(--color-brand)]",
-        "Half Day":
-        "bg-[var(--color-info)]/10 text-[var(--color-info)]",
-    };
+const toISO = (date: Date) => {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
-    return (
-        <span
-        className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold ${styles[status]}`}
-        >
-        {status}
-        </span>
-    );
+  return `${date.getFullYear()}-${month}-${day}`;
+};
+
+const shiftDate = (iso: string, days: number) => {
+  const date = parseDate(iso);
+  date.setDate(date.getDate() + days);
+
+  return toISO(date);
+};
+
+const formatDateTitle = (iso: string) =>
+  new Intl.DateTimeFormat("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(parseDate(iso));
+
+// Hours are worked out from the times so the timeline and the numbers always
+// agree. Lunch is not deducted on half days.
+function calculateHours(
+  checkIn: string,
+  checkOut: string,
+  status: AttendanceStatus,
+) {
+  const start = toMinutes(checkIn);
+  const end = toMinutes(checkOut);
+
+  if (isAway(status) || start === null || end === null || end <= start) {
+    return { hoursWorked: 0, overtime: 0 };
+  }
+
+  const span = (end - start) / 60;
+  const lunch = span > 5 && status !== "Half Day" ? LUNCH_BREAK_HOURS : 0;
+  const hoursWorked = Math.max(0, span - lunch);
+  const overtime = Math.max(0, hoursWorked - STANDARD_HOURS);
+
+  return {
+    hoursWorked: Math.round(hoursWorked * 10) / 10,
+    overtime: Math.round(overtime * 10) / 10,
+  };
 }
 
-function FilterSelect({ label, value, options, onChange }: {
-    label: string;
-    value: string;
-    options: string[];
-    onChange: (value: string) => void;
-}) {
-    return (
-        <label className="space-y-2">
-        <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
-            {label}
-        </span>
-
-        <div className="relative">
-            <select
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            className="h-10 w-full appearance-none rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 pr-9 text-xs text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-brand)]"
-            >
-            {options.map((option) => (
-                <option key={option}>{option}</option>
-            ))}
-            </select>
-
-            <ChevronDown
-            size={14}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-            />
-        </div>
-        </label>
-    );
-}
-
-function StatCard({ label, value, icon, description }: {
-    label: string;
-    value: number | string;
-    icon: React.ReactNode;
-    description: string;
-}) {
-    return (
-        <Card className="p-5">
-        <div className="flex items-start justify-between">
-            <div>
-            <p className="text-xs font-medium text-[var(--color-text-muted)]">
-                {label}
-            </p>
-
-            <p className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                {value}
-            </p>
-
-            <p className="mt-1 text-[10px] text-[var(--color-text-muted)]">
-                {description}
-            </p>
-            </div>
-
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-            {icon}
-            </div>
-        </div>
-        </Card>
-    );
-}
-
-function AttendanceModal({ record, onClose, onSave }: {
-    record: AttendanceRecord;
-    onClose: () => void;
-    onSave: (updated: AttendanceRecord) => void;
-}) {
-    const [status, setStatus] = useState<AttendanceStatus>(record.status);
-    const [checkIn, setCheckIn] = useState(record.checkIn === "-" ? "" : record.checkIn);
-    const [checkOut, setCheckOut] = useState(record.checkIn === "-" ? "" : record.checkOut);
-
-    const [note, setNote] = useState(record.note ?? "");
-    const save = () => {
-        onSave({
-            ...record,
-            status,
-            checkIn: checkIn || "-",
-            checkOut: checkOut || "-",
-            note,
-        });
-
-        onClose();
-    };
-
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-        <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[var(--color-border)] px-6 py-4">
-            <div>
-                <h2 className="text-sm font-semibold text-[var(--color-text)]">
-                Edit Attendance
-                </h2>
-                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                {record.name} · {record.employeeNumber}
-                </p>
-            </div>
-
-            <button
-                onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-            >
-                <X size={17} />
-            </button>
-            </div>
-
-            <div className="space-y-5 p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-                <label className="space-y-2">
-                <span className="text-xs font-medium text-[var(--color-text-secondary)]">
-                    Check In
-                </span>
-                <Input
-                    type="time"
-                    value={checkIn}
-                    onChange={(event) => setCheckIn(event.target.value)}
-                />
-                </label>
-
-                <label className="space-y-2">
-                <span className="text-xs font-medium text-[var(--color-text-secondary)]">
-                    Check Out
-                </span>
-                <Input
-                    type="time"
-                    value={checkOut}
-                    onChange={(event) => setCheckOut(event.target.value)}
-                />
-                </label>
-            </div>
-
-            <FilterSelect
-                label="Attendance Status"
-                value={status}
-                options={statuses.filter((item) => item !== "All")}
-                onChange={(value) => setStatus(value as AttendanceStatus)}
-            />
-
-            <label className="block space-y-2">
-                <span className="text-xs font-medium text-[var(--color-text-secondary)]">
-                Note
-                </span>
-
-                <textarea
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Optional attendance note..."
-                rows={4}
-                className="w-full resize-none rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] p-3 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)]"
-                />
-            </label>
-
-            <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
-                <Button variant="secondary" onClick={onClose}>
-                Cancel
-                </Button>
-
-                <Button onClick={save}>
-                <Check size={15} />
-                Save Attendance
-                </Button>
-            </div>
-            </div>
-        </div>
-        </div>
-    );
-}
+/* =========================================================
+   PAGE
+========================================================= */
 
 export function AttendancePage() {
-    const [attendance, setAttendance] = useState<AttendanceRecord[]>(initialAttendance);
+  const [attendance, setAttendance] =
+    useState<AttendanceRecord[]>(initialAttendance);
 
-    const [date, setDate] = useState("2026-09-08");
-    const [search, setSearch] = useState("");
-    const [department, setDepartment] = useState("All");
-    const [status, setStatus] = useState("All");
-    const [showFilters, setShowFilters] = useState(false);
-    const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
-    const [openActions, setOpenActions] = useState<string | null>(null);
+  const [date, setDate] = useState(() => toISO(new Date()));
+  const [search, setSearch] = useState("");
+  const [department, setDepartment] = useState("All");
+  const [status, setStatus] = useState("All");
+  const [openId, setOpenId] = useState<string | null>(null);
 
-    const filteredAttendance = useMemo(() => {
-        const query = search.trim().toLowerCase();
+  const departments = useMemo(
+    () => ["All", ...new Set(attendance.map((record) => record.department))],
+    [attendance],
+  );
 
-        return attendance.filter((record) => {
-            const matchesSearch = !query || record.name.toLowerCase().includes(query) || record.employeeNumber.toLowerCase().includes(query) || record.department.toLowerCase().includes(query);
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
 
-            const matchesDepartment = department === "All" || record.department === department;
+    return attendance.filter((record) => {
+      const matchesSearch =
+        !query ||
+        record.name.toLowerCase().includes(query) ||
+        record.employeeNumber.toLowerCase().includes(query) ||
+        record.department.toLowerCase().includes(query);
 
-            const matchesStatus = status === "All" || record.status === status;
+      const matchesDepartment =
+        department === "All" || record.department === department;
 
-            return matchesSearch && matchesDepartment && matchesStatus;
-        });
-    }, [attendance, search, department, status]);
+      const matchesStatus = status === "All" || record.status === status;
 
-    const present = attendance.filter((item) => item.status === "Present").length;
-    const late = attendance.filter((item) => item.status === "Late").length;
-    const absent = attendance.filter((item) => item.status === "Absent").length;
-    const leave = attendance.filter((item) => item.status === "Leave").length;
+      return matchesSearch && matchesDepartment && matchesStatus;
+    });
+  }, [attendance, search, department, status]);
 
-    const totalHours = attendance.reduce((total, item) => total + item.hoursWorked, 0);
-    const totalOvertime = attendance.reduce((total, item) => total + item.overtime, 0);
+  // People who came in, in the order they arrived.
+  const checkedIn = useMemo(
+    () =>
+      filtered
+        .filter((record) => !isAway(record.status))
+        .sort(
+          (a, b) =>
+            (toMinutes(a.checkIn) ?? Infinity) -
+            (toMinutes(b.checkIn) ?? Infinity),
+        ),
+    [filtered],
+  );
 
-    const markAllPresent = () => {
-        setAttendance((current) => current.map((item) => ({
-            ...item,
-            status: "Present",
-            checkIn: item.checkIn === "-" ? "08:00" : item.checkIn,
-        })));
-    };
+  const notIn = useMemo(
+    () =>
+      filtered
+        .filter((record) => isAway(record.status))
+        .sort((a, b) => a.status.localeCompare(b.status)),
+    [filtered],
+  );
 
-    const saveRecord = (updated: AttendanceRecord) => {
-        setAttendance((current) => current.map((item) => item.id === updated.id ? updated : item));
-    };
+  const hasFilters =
+    search.trim() !== "" || department !== "All" || status !== "All";
 
-    return (
-        <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--color-brand)]">
-                Time & Attendance
+  const clearFilters = () => {
+    setSearch("");
+    setDepartment("All");
+    setStatus("All");
+  };
+
+  const counts = {
+    late: attendance.filter((r) => r.status === "Late").length,
+    absent: attendance.filter((r) => r.status === "Absent").length,
+    leave: attendance.filter((r) => r.status === "Leave").length,
+    isIn: attendance.filter((r) => !isAway(r.status)).length,
+  };
+
+  // Only people who are absent are changed. Anyone on leave stays on leave.
+  const markAbsentPresent = () => {
+    setAttendance((current) =>
+      current.map((record) =>
+        record.status === "Absent"
+          ? { ...record, status: "Present", checkIn: WORK_START }
+          : record,
+      ),
+    );
+  };
+
+  const saveRecord = (updated: AttendanceRecord) => {
+    setAttendance((current) =>
+      current.map((record) => (record.id === updated.id ? updated : record)),
+    );
+    setOpenId(null);
+  };
+
+  const toggle = (id: string) =>
+    setOpenId((current) => (current === id ? null : id));
+
+  return (
+    <div>
+      {/* Header */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
+            Attendance
+          </h1>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setDate((current) => shiftDate(current, -1))}
+              aria-label="Previous day"
+              className="flex h-8 w-8 items-center justify-center rounded-[4px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
+            >
+              <ChevronLeft size={17} />
+            </button>
+
+            <p className="min-w-[15rem] text-center text-sm font-medium text-[var(--color-text)]">
+              {formatDateTitle(date)}
             </p>
 
-            <h1 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                Attendance
-            </h1>
-
-            <p className="mt-1 max-w-2xl text-sm text-[var(--color-text-secondary)]">
-                Record and monitor employee attendance, working hours and overtime.
-            </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={markAllPresent}>
-                <CheckCircle2 size={16} />
-                Mark All Present
-            </Button>
-
-            <Button>
-                <Check size={16} />
-                Save Attendance
-            </Button>
-            </div>
-        </div>
-
-        {/* Date */}
-        <Card className="p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-                <CalendarDays size={18} />
-                </div>
-
-                <div>
-                <p className="text-xs font-semibold text-[var(--color-text)]">
-                    Attendance Date
-                </p>
-                <p className="text-[10px] text-[var(--color-text-muted)]">
-                    Select the working day to manage
-                </p>
-                </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => setDate((current) => shiftDate(current, 1))}
+              aria-label="Next day"
+              className="flex h-8 w-8 items-center justify-center rounded-[4px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
+            >
+              <ChevronRight size={17} />
+            </button>
 
             <Input
-                type="date"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                className="sm:max-w-[180px]"
+              type="date"
+              aria-label="Go to date"
+              value={date}
+              onChange={(event) => {
+                if (event.target.value) setDate(event.target.value);
+              }}
+              className="w-40"
             />
-            </div>
-        </Card>
-
-        {/* Stats */}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <StatCard
-            label="Present"
-            value={present}
-            description="Employees present"
-            icon={<UserCheck size={18} />}
-            />
-
-            <StatCard
-            label="Late"
-            value={late}
-            description="Arrived after start time"
-            icon={<Clock3 size={18} />}
-            />
-
-            <StatCard
-            label="Absent"
-            value={absent}
-            description="No attendance recorded"
-            icon={<UserX size={18} />}
-            />
-
-            <StatCard
-            label="On Leave"
-            value={leave}
-            description="Approved leave"
-            icon={<CalendarDays size={18} />}
-            />
-
-            <StatCard
-            label="Hours Worked"
-            value={formatHours(totalHours)}
-            description={`${totalOvertime.toFixed(1)}h overtime`}
-            icon={<Clock3 size={18} />}
-            />
+          </div>
         </div>
 
-        {/* Register */}
-        <Card className="overflow-hidden">
-            <div className="border-b border-[var(--color-border)] p-5">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div>
-                <h2 className="text-sm font-semibold text-[var(--color-text)]">
-                    Daily Attendance Register
-                </h2>
+        <Button
+          variant="secondary"
+          onClick={markAbsentPresent}
+          disabled={counts.absent === 0}
+        >
+          Mark absentees present
+        </Button>
+      </header>
 
-                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                    {filteredAttendance.length} of {attendance.length} employees
-                </p>
-                </div>
+      {/* Toolbar */}
+      <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative sm:w-72">
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+          />
 
-                <div className="flex flex-col gap-2 sm:flex-row">
-                <div className="relative sm:w-64">
-                    <Search
-                    size={15}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-                    />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search by name, number or department"
+            className="pl-9"
+          />
+        </div>
 
-                    <Input
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search employee..."
-                    className="pl-9"
-                    />
-                </div>
+        <FilterSelect
+          label="Department"
+          allLabel="All departments"
+          value={department}
+          options={departments.map((value) => ({ value, label: value }))}
+          onChange={setDepartment}
+          className="sm:w-48"
+        />
 
-                <Button
-                    variant="secondary"
-                    onClick={() => setShowFilters((current) => !current)}
-                >
-                    <CalendarDays size={15} />
-                    Filters
-                </Button>
-                </div>
-            </div>
-            </div>
+        <FilterSelect
+          label="Status"
+          allLabel="Any status"
+          value={status}
+          options={(Object.keys(STATUS_LABEL) as AttendanceStatus[]).map(
+            (value) => ({ value, label: STATUS_LABEL[value] }),
+          )}
+          onChange={setStatus}
+          className="sm:w-40"
+        />
 
-            {showFilters && (
-            <div className="grid gap-4 border-b border-[var(--color-border)] bg-[var(--color-surface-hover)] p-5 md:grid-cols-2">
-                <FilterSelect
-                label="Department"
-                value={department}
-                options={departments}
-                onChange={setDepartment}
-                />
-
-                <FilterSelect
-                label="Status"
-                value={status}
-                options={statuses}
-                onChange={setStatus}
-                />
-            </div>
-            )}
-
-            <div className="overflow-x-auto">
-            <table className="w-full min-w-[1100px] text-left">
-                <thead>
-                <tr className="border-b border-[var(--color-border)] text-[10px] uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
-                    <th className="px-5 py-3 font-semibold">Employee</th>
-                    <th className="px-4 py-3 font-semibold">Department</th>
-                    <th className="px-4 py-3 font-semibold">Check In</th>
-                    <th className="px-4 py-3 font-semibold">Check Out</th>
-                    <th className="px-4 py-3 font-semibold">Hours</th>
-                    <th className="px-4 py-3 font-semibold">Overtime</th>
-                    <th className="px-4 py-3 font-semibold">Status</th>
-                    <th className="px-4 py-3 text-right font-semibold">Actions</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                {filteredAttendance.map((record) => (
-                    <tr
-                    key={record.id}
-                    className="border-b border-[var(--color-border)] transition-colors hover:bg-[var(--color-surface-hover)]"
-                    >
-                    <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-xs font-bold text-[var(--color-brand)]">
-                            {getInitials(record.name)}
-                        </div>
-
-                        <div>
-                            <p className="text-xs font-semibold text-[var(--color-text)]">
-                            {record.name}
-                            </p>
-                            <p className="mt-0.5 text-[10px] text-[var(--color-text-muted)]">
-                            {record.employeeNumber} · {record.position}
-                            </p>
-                        </div>
-                        </div>
-                    </td>
-
-                    <td className="px-4 py-4 text-xs text-[var(--color-text-secondary)]">
-                        {record.department}
-                    </td>
-
-                    <td className="px-4 py-4 text-xs font-medium text-[var(--color-text)]">
-                        {record.checkIn}
-                    </td>
-
-                    <td className="px-4 py-4 text-xs font-medium text-[var(--color-text)]">
-                        {record.checkOut}
-                    </td>
-
-                    <td className="px-4 py-4 text-xs text-[var(--color-text-secondary)]">
-                        {formatHours(record.hoursWorked)}
-                    </td>
-
-                    <td className="px-4 py-4 text-xs font-medium text-[var(--color-brand)]">
-                        {formatHours(record.overtime)}
-                    </td>
-
-                    <td className="px-4 py-4">
-                        <StatusBadge status={record.status} />
-                    </td>
-
-                    <td className="relative px-4 py-4 text-right">
-                        <button
-                        onClick={() =>
-                            setOpenActions(
-                            openActions === record.id ? null : record.id,
-                            )
-                        }
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-                        >
-                        <MoreHorizontal size={16} />
-                        </button>
-
-                        {openActions === record.id && (
-                        <div className="absolute right-4 top-12 z-20 w-44 rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] p-1 text-left shadow-xl">
-                            <button
-                            onClick={() => {
-                                setSelectedRecord(record);
-                                setOpenActions(null);
-                            }}
-                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-                            >
-                            <Edit3 size={14} />
-                            Edit attendance
-                            </button>
-
-                            <button
-                            onClick={() => {
-                                setSelectedRecord(record);
-                                setOpenActions(null);
-                            }}
-                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
-                            >
-                            <Users size={14} />
-                            View employee
-                            </button>
-                        </div>
-                        )}
-                    </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-            </div>
-
-            {filteredAttendance.length === 0 && (
-            <div className="p-14 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-surface-hover)] text-[var(--color-text-muted)]">
-                <UserX size={22} />
-                </div>
-
-                <p className="mt-4 text-sm font-medium text-[var(--color-text)]">
-                No attendance records found
-                </p>
-
-                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                Try changing your search or filter criteria.
-                </p>
-            </div>
-            )}
-
-            <div className="flex items-center justify-between border-t border-[var(--color-border)] px-5 py-4">
-            <p className="text-xs text-[var(--color-text-muted)]">
-                Page 1 of 1
-            </p>
-
-            <div className="flex gap-2">
-                <button
-                disabled
-                className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-muted)] disabled:opacity-50"
-                >
-                Previous
-                </button>
-
-                <button
-                disabled
-                className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-muted)] disabled:opacity-50"
-                >
-                Next
-                </button>
-            </div>
-            </div>
-        </Card>
-
-        {selectedRecord && (
-            <AttendanceModal
-            record={selectedRecord}
-            onClose={() => setSelectedRecord(null)}
-            onSave={saveRecord}
-            />
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="text-sm font-medium text-[var(--color-brand)] hover:underline"
+          >
+            Clear filters
+          </button>
         )}
+      </div>
+
+      {/* Checked in: the day as a timeline */}
+      {checkedIn.length > 0 && (
+        <section className="mt-8">
+          <h2 className="flex items-baseline justify-between px-3 text-sm font-semibold text-[var(--color-brand)]">
+            <span>Checked in</span>
+            <span className="text-xs font-normal tabular-nums text-[var(--color-text-muted)]">
+              {checkedIn.length}
+            </span>
+          </h2>
+
+          {/* Hour scale */}
+          <div className="mt-4 hidden gap-x-4 px-3 sm:grid sm:grid-cols-[11rem_minmax(0,1fr)_8.5rem]">
+            <span />
+
+            <div className="relative mx-3 h-5" aria-hidden="true">
+              {TICKS.map((hour) => (
+                <span
+                  key={hour}
+                  className="absolute top-0 -translate-x-1/2 text-xs tabular-nums text-[var(--color-text-muted)]"
+                  style={{ left: `${toPercent(hour * 60)}%` }}
+                >
+                  {String(hour).padStart(2, "0")}
+                </span>
+              ))}
+            </div>
+
+            <span />
+          </div>
+
+          <ul>
+            {checkedIn.map((record) => (
+              <li key={record.id}>
+                <button
+                  type="button"
+                  onClick={() => toggle(record.id)}
+                  aria-expanded={openId === record.id}
+                  className="grid w-full gap-x-4 gap-y-2 px-3 py-2.5 text-left transition-colors hover:bg-[var(--color-surface-hover)] sm:grid-cols-[11rem_minmax(0,1fr)_8.5rem] sm:items-center"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-[var(--color-text)]">
+                      {record.name}
+                    </span>
+
+                    <span className="block truncate text-xs text-[var(--color-text-secondary)]">
+                      {record.position}
+                      {record.status !== "Present" && (
+                        <span
+                          className="ml-2 font-medium"
+                          style={{ color: STATUS_COLOR[record.status] }}
+                        >
+                          {STATUS_LABEL[record.status]}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+
+                  <Track record={record} />
+
+                  <span className="text-xs tabular-nums sm:text-right">
+                    {toMinutes(record.checkIn) === null ? (
+                      <span className="text-[var(--color-text-muted)]">
+                        No times recorded
+                      </span>
+                    ) : (
+                      <>
+                        <span className="block text-[var(--color-text)]">
+                          {record.checkIn} to{" "}
+                          {toMinutes(record.checkOut) === null
+                            ? "…"
+                            : record.checkOut}
+                        </span>
+
+                        <span className="block text-[var(--color-text-muted)]">
+                          {formatHours(record.hoursWorked)}
+                          {record.overtime > 0 && (
+                            <span className="ml-1.5 text-[var(--color-secondary)]">
+                              +{formatHours(record.overtime)} overtime
+                            </span>
+                          )}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                </button>
+
+                {openId === record.id && (
+                  <RecordEditor
+                    record={record}
+                    onSave={saveRecord}
+                    onCancel={() => setOpenId(null)}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+
+            <div className="mt-8">
+            <ul
+                aria-label="Key to the timeline colors"
+                className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 px-3 text-xs text-[var(--color-text-secondary)]"
+            >
+                {BAR_KEY.map((item) => (
+                <li key={item.label} className="flex items-center gap-2">
+                    <span
+                    aria-hidden="true"
+                    className="h-2.5 w-5 rounded-[2px]"
+                    style={{
+                        background: item.color,
+                        opacity: item.faded ? 0.45 : 1,
+                    }}
+                    />
+                    {item.label}
+                </li>
+                ))}
+
+                <li className="flex items-center gap-2">
+                <span
+                    aria-hidden="true"
+                    className="h-4 w-5 border-x border-[var(--color-border-strong)] bg-[var(--color-brand-soft)]"
+                />
+                Working day, {WORK_START} to {WORK_END}
+                </li>
+            </ul>
+            </div>
+        </section>
+      )}
+
+      {/* Not in */}
+      {notIn.length > 0 && (
+        <section className="mt-10">
+          <h2 className="flex items-baseline justify-between px-3 text-sm font-semibold text-[var(--color-danger)]/75">
+            <span>Not in</span>
+            <span className="text-xs font-normal tabular-nums text-[var(--color-text-muted)]">
+              {notIn.length}
+            </span>
+          </h2>
+
+          <ul className="mt-2">
+            {notIn.map((record) => (
+              <li key={record.id}>
+                <button
+                  type="button"
+                  onClick={() => toggle(record.id)}
+                  aria-expanded={openId === record.id}
+                  className="grid w-full gap-x-4 gap-y-1 px-3 py-2.5 text-left transition-colors hover:bg-[var(--color-surface-hover)] sm:grid-cols-[11rem_minmax(0,1fr)]"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-[var(--color-text)]">
+                      {record.name}
+                    </span>
+
+                    <span className="block truncate text-xs text-[var(--color-text-secondary)]">
+                      {record.position}
+                    </span>
+                  </span>
+
+                  <span className="text-sm">
+                    <span
+                      className="font-medium"
+                      style={{ color: STATUS_COLOR[record.status] }}
+                    >
+                      {STATUS_LABEL[record.status]}
+                    </span>
+
+                    {record.note && (
+                      <span className="block text-xs text-[var(--color-text-secondary)]">
+                        {record.note}
+                      </span>
+                    )}
+                  </span>
+                </button>
+
+                {openId === record.id && (
+                  <RecordEditor
+                    record={record}
+                    onSave={saveRecord}
+                    onCancel={() => setOpenId(null)}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Nothing to show */}
+      {checkedIn.length === 0 && notIn.length === 0 && (
+        <div className="py-20 text-center">
+          <p className="text-sm font-medium text-[var(--color-text)]">
+            No one matches these filters
+          </p>
+
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="mt-2 text-sm font-medium text-[var(--color-brand)] hover:underline"
+          >
+            Clear filters
+          </button>
         </div>
-    );
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   TIMELINE TRACK
+   One person's day: arrival to departure on the hour scale.
+========================================================= */
+
+function Track({ record }: { record: AttendanceRecord }) {
+  const start = toMinutes(record.checkIn);
+  const end = toMinutes(record.checkOut);
+  const workStart = toMinutes(WORK_START) ?? 0;
+  const workEnd = toMinutes(WORK_END) ?? 0;
+
+  const color = STATUS_COLOR[record.status];
+
+  let main: { left: number; width: number } | null = null;
+  let overtime: { left: number; width: number } | null = null;
+
+  if (start !== null) {
+    const mainEnd = Math.max(start, end === null ? workEnd : Math.min(end, workEnd));
+
+    main = {
+      left: toPercent(start),
+      width: Math.max(0.8, toPercent(mainEnd) - toPercent(start)),
+    };
+
+    if (end !== null && end > workEnd) {
+      const overtimeStart = Math.max(start, workEnd);
+
+      overtime = {
+        left: toPercent(overtimeStart),
+        width: Math.max(0.8, toPercent(end) - toPercent(overtimeStart)),
+      };
+    }
+  }
+
+  return (
+    <span className="relative mx-3 block h-6" aria-hidden="true">
+      <span
+        className="absolute inset-y-0 bg-[var(--color-brand-soft)]"
+        style={{
+          left: `${toPercent(workStart)}%`,
+          width: `${toPercent(workEnd) - toPercent(workStart)}%`,
+        }}
+      />
+
+      {TICKS.map((hour) => (
+        <span
+          key={hour}
+          className="absolute inset-y-0 w-px bg-[var(--color-border)]"
+          style={{ left: `${toPercent(hour * 60)}%` }}
+        />
+      ))}
+
+      {main && (
+        <span
+          className="absolute top-1/2 h-2.5 -translate-y-1/2 rounded-[2px]"
+          style={{
+            left: `${main.left}%`,
+            width: `${main.width}%`,
+            background: color,
+            opacity: end === null ? 0.45 : 1,
+          }}
+        />
+      )}
+
+      {overtime && (
+        <span
+          className="absolute top-1/2 h-2.5 -translate-y-1/2 rounded-[2px] bg-[var(--color-secondary)]"
+          style={{
+            left: `${overtime.left}%`,
+            width: `${overtime.width}%`,
+          }}
+        />
+      )}
+    </span>
+  );
+}
+
+/* =========================================================
+   INLINE EDITOR
+   Opens under the person's row instead of in a popup.
+========================================================= */
+
+function RecordEditor({
+  record,
+  onSave,
+  onCancel,
+}: {
+  record: AttendanceRecord;
+  onSave: (updated: AttendanceRecord) => void;
+  onCancel: () => void;
+}) {
+  const [status, setStatus] = useState<AttendanceStatus>(record.status);
+  const [checkIn, setCheckIn] = useState(
+    record.checkIn === "-" ? "" : record.checkIn,
+  );
+  const [checkOut, setCheckOut] = useState(
+    record.checkOut === "-" ? "" : record.checkOut,
+  );
+  const [note, setNote] = useState(record.note ?? "");
+  const [error, setError] = useState("");
+
+  const away = isAway(status);
+
+  const save = () => {
+    const start = toMinutes(checkIn);
+    const end = toMinutes(checkOut);
+
+    if (!away && start !== null && end !== null && end < start) {
+      setError("Check out can't be before check in.");
+      return;
+    }
+
+    const { hoursWorked, overtime } = calculateHours(checkIn, checkOut, status);
+
+    onSave({
+      ...record,
+      status,
+      checkIn: away ? "-" : checkIn || "-",
+      checkOut: away ? "-" : checkOut || "-",
+      hoursWorked,
+      overtime,
+      note: note.trim() || undefined,
+    });
+  };
+
+  return (
+    <div className="mx-3 mb-4 mt-1 border-l-2 border-[var(--color-brand)] bg-[var(--color-surface-raised)] p-4">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <label className="space-y-2">
+          <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
+            Status
+          </span>
+
+          <FilterSelect
+            label="Status"
+            value={status}
+            options={(Object.keys(STATUS_LABEL) as AttendanceStatus[]).map(
+              (value) => ({ value, label: STATUS_LABEL[value] }),
+            )}
+            onChange={(value) => setStatus(value as AttendanceStatus)}
+          />
+        </label>
+
+        <label className="space-y-2">
+          <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
+            Check in
+          </span>
+
+          <Input
+            type="time"
+            value={checkIn}
+            disabled={away}
+            onChange={(event) => setCheckIn(event.target.value)}
+          />
+        </label>
+
+        <label className="space-y-2">
+          <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
+            Check out
+          </span>
+
+          <Input
+            type="time"
+            value={checkOut}
+            disabled={away}
+            onChange={(event) => setCheckOut(event.target.value)}
+          />
+        </label>
+      </div>
+
+      <label className="mt-4 block space-y-2">
+        <span className="block text-xs font-medium text-[var(--color-text-secondary)]">
+          Note
+        </span>
+
+        <textarea
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          rows={2}
+          className="w-full resize-none rounded-[4px] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 py-2.5 text-sm text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-brand)]"
+        />
+      </label>
+
+      {error && (
+        <p
+          role="alert"
+          className="mt-4 border-l-2 border-[var(--color-danger)] pl-3 text-sm text-[var(--color-danger)]"
+        >
+          {error}
+        </p>
+      )}
+
+      <div className="mt-4 flex justify-end gap-2">
+        <Button type="button" variant="ghost" onClick={onCancel}>
+          Cancel
+        </Button>
+
+        <Button type="button" onClick={save}>
+          Save
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   FILTER SELECT
+========================================================= */
+
+function FilterSelect({
+  label,
+  allLabel,
+  value,
+  options,
+  onChange,
+  className = "",
+}: {
+  label: string;
+  allLabel?: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+  className?: string;
+}) {
+  return (
+    <div className={`relative min-w-0 ${className}`}>
+      <select
+        aria-label={label}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-10 w-full appearance-none truncate rounded-[4px] border border-[var(--color-border-strong)] bg-[var(--color-surface)] pl-3 pr-8 text-sm text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-brand)]"
+      >
+        {allLabel && <option value="All">{allLabel}</option>}
+
+        {options
+          .filter((option) => option.value !== "All")
+          .map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+      </select>
+
+      <ChevronDown
+        size={14}
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+      />
+    </div>
+  );
 }

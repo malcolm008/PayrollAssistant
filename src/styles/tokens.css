@@ -28,7 +28,7 @@
   --color-text: #f2f7f6;
   --color-text-secondary: #94a3a3;
   --color-text-muted: #64706f;
-  --color-text-disabled: #424c4c;
+  --color-text-disabled: #000000;
 
   /* ---------- Status ---------- */
   --color-success: #4ade80;
@@ -67,7 +67,7 @@
   --color-text: #121717;
   --color-text-secondary: #4f5b5a;
   --color-text-muted: #6f7b7a;
-  --color-text-disabled: #a9b3b2;
+  --color-text-disabled: #ffffff;
 
   /* ---------- Status ---------- */
   --color-success: #16803c;

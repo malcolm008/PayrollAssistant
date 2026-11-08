@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 // automatically and a future rebrand only touches tokens.css.
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)]",
+    "bg-[var(--color-brand)] text-[var(--color-text-disabled)] hover:bg-[var(--color-brand-hover)]",
 
   secondary:
     "border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] text-[var(--color-text)] hover:bg-[var(--color-surface-hover)]",

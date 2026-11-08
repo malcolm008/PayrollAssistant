@@ -1,13 +1,14 @@
 import {
     BriefcaseBusiness,
-    CalendarDays,
     Check,
     CircleDollarSign,
     Home,
     IdCard,
-    Mail,
     User,
     X,
+    Phone,
+    ClockFading,
+    UserPen,
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
@@ -395,9 +396,8 @@ export default function EmployeeFormModal({
 
                 {/* PERSONAL INFORMATION */}
                 <FormSection
-                icon={<User size={16} />}
+                icon={<UserPen size={16} />}
                 title="Personal Information"
-                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field
@@ -470,7 +470,6 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<BriefcaseBusiness size={16} />}
                 title="Employment"
-                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Field label="Employment Type" required>
@@ -530,7 +529,6 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<CircleDollarSign size={16} />}
                 title="Payroll"
-                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field label="Currency" required>
@@ -587,10 +585,6 @@ export default function EmployeeFormModal({
                     <p className="text-xs font-semibold text-[var(--color-text)]">
                         Allowances
                     </p>
-
-                    <p className="mt-1 text-xs text-[var(--color-text-muted)]">
-                        Enter the employee's amount for each configured allowance.
-                    </p>
                     </div>
 
                     {allowanceTypes.length === 0 ? (
@@ -630,9 +624,8 @@ export default function EmployeeFormModal({
 
                 {/* CONTACT */}
                 <FormSection
-                icon={<Mail size={16} />}
+                icon={<Phone size={16} />}
                 title="Contact Information"
-                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-2">
                     <Field label="Email Address">
@@ -664,7 +657,6 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<IdCard size={16} />}
                 title="Statutory Information"
-                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Field label="WCF Number">
@@ -726,7 +718,6 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<Home size={16} />}
                 title="Residence & Housing"
-                description=""
                 >
                 <div className="grid gap-4 md:grid-cols-3">
                     <Field label="Residence">
@@ -782,9 +773,8 @@ export default function EmployeeFormModal({
 
                 {/* LEAVE */}
                 <FormSection
-                icon={<CalendarDays size={16} />}
+                icon={<ClockFading size={16} />}
                 title="Leave"
-                description=""
                 >
                 <div className="max-w-xs">
                     <Field label="Leave Days Entitled">
@@ -808,7 +798,6 @@ export default function EmployeeFormModal({
                 <FormSection
                 icon={<Check size={16} />}
                 title="Employee Status"
-                description=""
                 >
                 <div className="max-w-xs">
                     <Field label="Status">
@@ -874,17 +863,15 @@ const inputClass = "h-10 w-full rounded-lg border border-[var(--color-border-str
 function FormSection({
     icon,
     title,
-    description,
     children,
 }: {
     icon: React.ReactNode;
     title: string;
-    description: string;
     children: React.ReactNode;
 }) {
     return (
-        <section>
-        <div className="mb-4 flex items-start gap-3">
+        <section className="bg-[var(--color-surface-hover)] rounded-xl border border-[var(--color-brand)] p-5">
+        <div className="mb-4 flex items-center gap-3">
             <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
             {icon}
             </div>
@@ -893,10 +880,6 @@ function FormSection({
             <h3 className="text-sm font-semibold text-[var(--color-text)]">
                 {title}
             </h3>
-
-            <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-                {description}
-            </p>
             </div>
         </div>
 

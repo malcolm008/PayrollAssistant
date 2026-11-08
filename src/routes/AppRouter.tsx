@@ -26,9 +26,6 @@ import { LeaveTypesPage } from "../pages/settings/leave-types/LeaveTypesPage";
 import { LoanTypesPage } from "../pages/settings/loan-types/LoanTypesPage";
 import { DepartmentsPage } from "../pages/settings/departments/DepartmentsPage";
 import { BanksPage } from "../pages/settings/banking/BanksPage";
-import { GLAccountsPage } from "../pages/analysis/gl-accounts/GLAccountsPage";
-import { CostCentersPage } from "../pages/analysis/cost-centers/CostCentersPage";
-import { AccountAllocationPage } from "../pages/analysis/account-allocation/AccountAllocationPage";
 import EmployeeTerminationPage from "../pages/employees/EmployeeTerminationPage";
 import PayrollPeriodPage from "../pages/payroll/PayrollPeriodPage";
 
@@ -179,40 +176,6 @@ export function AppRouter() {
           </ProtectedRoute>
         }
       />
-
-      <Route
-        path="/gl-accounts"
-        element={
-          <ProtectedRoute>
-            <AuthenticatedLayout>
-              <GLAccountsPage />
-            </AuthenticatedLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/cost-centers"
-        element={
-          <ProtectedRoute>
-            <AuthenticatedLayout>
-              <CostCentersPage />
-            </AuthenticatedLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/account-allocation"
-        element={
-          <ProtectedRoute>
-            <AuthenticatedLayout>
-              <AccountAllocationPage />
-            </AuthenticatedLayout>
-          </ProtectedRoute>
-        }
-      />
-
       <Route
         path="/settings/payroll/allowance-types"
         element={

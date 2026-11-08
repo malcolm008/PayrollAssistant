@@ -1,5 +1,4 @@
 import {
-  CalendarDays,
   ChevronRight,
   Clock3,
   LayoutDashboard,
@@ -16,7 +15,6 @@ import {
   ChartNetwork,
   RotateCwFadingClock,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { GlobalIncrementModal, type IncrementEmployee } from "../features/modals/GlobalincrementModal";
 import { IndividualIncrementModal } from "../features/modals/IndividualincrementModal";
@@ -27,6 +25,9 @@ import { IncomeTaxParametersModal } from "../components/dashboard/incomeTaxParam
 import { SystemUsersModal } from "../components/dashboard/systemUsersModal";
 import { PayrollConfigPanel } from "../components/dashboard/payrollConfigPanel";
 import { PaymentVariablesModal } from "../components/dashboard/PaymentVariablesModal";
+import { CostCentersModal } from "../components/dashboard/costCenterModal";
+import { AccountAllocationModal } from "../components/dashboard/accountAllocationModal";
+import { GLAccountsModal } from "../components/dashboard/glAccountsModal";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -127,7 +128,6 @@ function SectionHeader({ title, count, action }: SectionHeaderProps) {
 }
 
 export function DashboardPage() {
-  const navigate = useNavigate();
   const [showGlobalIncrement, setShowGlobalIncrement] = useState(false);
   const [showIndividualIncrement, setShowIndividualIncrement] = useState(false);
   const [showLeaveWorkspace, setShowLeaveWorkspace] = useState(false);
@@ -137,6 +137,9 @@ export function DashboardPage() {
   const [showSystemUsers, setShowSystemUsers] = useState(false);
   const [showPayrollConfig, setShowPayrollConfig] = useState(false);
   const [showPaymentVariable, setShowPaymentVariable] = useState(false)
+  const [showCostCenters, setShowCostCenters] = useState(false);
+  const [showGLAccounts, setShowGLAccounts] = useState(false);
+  const [showAccountAllocation, setShowAccountAllocation] = useState(false);
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -181,21 +184,21 @@ export function DashboardPage() {
                   title="Cost Centers"
                   tag="Setup"
                   icon={HatGlasses}
-                  onClick={() => navigate("/cost-centers")}
+                  onClick={() => setShowCostCenters(true)}
                   accent="blueGreen"
                 />
                 <OperationTile
                   title="GL Accounts"
                   tag="Setup"
                   icon={HousePlus}
-                  onClick={() => navigate("/gl-accounts")}
+                  onClick={() => setShowGLAccounts(true)}
                   accent="blueGreen"
                 />
                 <OperationTile
                   title="Account Allocation"
                   tag="Accounting"
                   icon={ChartNetwork}
-                  onClick={() => navigate("/account-allocation")}
+                  onClick={() => setShowAccountAllocation(true)}
                   accent="blueGreen"
                 />
                 <OperationTile
@@ -225,7 +228,17 @@ export function DashboardPage() {
             {showPaymentVariable && (
               <PaymentVariablesModal onClose={() => setShowPaymentVariable(false)} />
             )}
+            {showCostCenters && (
+              <CostCentersModal onClose={() => setShowCostCenters(false)} />
+            )}
 
+            {showGLAccounts && (
+              <GLAccountsModal onClose={() => setShowGLAccounts(false)} />
+            )}
+
+            {showAccountAllocation && (
+              <AccountAllocationModal onClose={() => setShowAccountAllocation(false)} />
+            )}
             {/* System Administration */}
             <section>
               <SectionHeader title="System Administration" />

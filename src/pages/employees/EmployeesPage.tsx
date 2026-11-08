@@ -1,6 +1,5 @@
 import {
   ChevronDown,
-  Download,
   Edit3,
   Plus,
   Search,
