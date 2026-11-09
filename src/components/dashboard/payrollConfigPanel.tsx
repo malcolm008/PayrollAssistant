@@ -1,6 +1,5 @@
 import {
   BanknoteArrowUp,
-  ChevronRight,
   BadgePercent,
   CreditCard,
   BanknoteArrowDown,
@@ -69,11 +68,6 @@ export function PayrollConfigPanel({ onClose }: { onClose?: () => void }) {
             <span className="flex-1 text-xs font-semibold text-[var(--color-text)]">
               {title}
             </span>
-
-            <ChevronRight
-              size={15}
-              className="text-[var(--color-text-muted)] transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-brand)]"
-            />
           </button>
         ))}
       </div>

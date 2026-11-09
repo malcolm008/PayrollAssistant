@@ -138,8 +138,6 @@ export function AccountAllocationModal({
     });
   }, [allocations, costCenters, accounts, search, status, typeFilter]);
 
-  const activeCount = allocations.filter((item) => item.active).length;
-
   const activeCostCenters = costCenters.filter((item) => item.active);
   const activeAccounts = accounts.filter((item) => item.active);
 
@@ -366,11 +364,6 @@ export function AccountAllocationModal({
               })}
             </ul>
           )}
-
-          <p className="mt-5 text-xs text-[var(--color-text-muted)]">
-            {filtered.length} of {allocations.length} shown, {activeCount}{" "}
-            active.
-          </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">

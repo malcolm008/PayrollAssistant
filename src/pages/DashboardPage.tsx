@@ -73,11 +73,6 @@ function OperationTile({
         >
           <Icon size={19} className={styles.icon} strokeWidth={1.8} />
         </div>
-
-        <ChevronRight
-          size={16}
-          className="text-[var(--color-text-muted)] transition-transform duration-200 group-hover:translate-x-1 group-hover:text-[var(--color-brand)]"
-        />
       </div>
 
       <div className="mt-4">
