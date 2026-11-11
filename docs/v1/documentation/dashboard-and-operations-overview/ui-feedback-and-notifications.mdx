@@ -1,0 +1,59 @@
+Understanding what is happening in your workspace is essential for keeping your daily operations running smoothly. This guide walks you through the different UI feedback types, status indicators, and notifications designed to keep you informed.
+
+## Understanding Feedback States
+
+The interface uses four distinct feedback levels to help you understand the status of your actions, system events, and operational items. Every notification or alert uses one of these standardized kinds:
+
+| Kind | Purpose | Visual Indicator | Typical Duration / Behavior |
+| :--- | :--- | :--- | :--- |
+| **Success** | Confirms that an action was completed successfully. | Green accent, checkmark icon | Auto-dismisses after 5 seconds |
+| **Info** | Provides helpful context or neutral system updates. | Blue accent, info icon | Auto-dismisses after 5 seconds |
+| **Warning** | Alerts you to potential issues or items requiring attention. | Yellow/Orange accent, warning icon | Stays on screen longer (7 seconds) until dismissed |
+| **Danger** | Highlights critical errors, overdue items, or failed actions. | Red accent, alert/error icon | Persists until explicitly acknowledged or resolved |
+
+---
+
+## Types of Notifications
+
+Depending on what you are doing in the app, feedback will appear in one of two ways: inline **Alerts** or floating **Toasts**.
+
+### 1. Static Alerts
+Alerts appear directly within page layouts to highlight important messages about a specific section or item. For example, a payroll warning banner will stay visible right where you need to take action.
+
+> [!TIP]
+> Pay close attention to elements marked with **Danger** or **Warning** states, as they often highlight impending deadlines or items that need your immediate correction.
+
+### 2. Floating Toasts
+Toasts slide in from the top-right corner of your screen when you perform actions like saving changes, submitting reports, or triggering background operations. 
+
+* Each toast features a progress bar at the bottom showing you exactly how much time remains before it automatically disappears.
+* You can manually dismiss any toast immediately by clicking the **X** button on the right side of the notification card.
+
+---
+
+## Status Badges
+
+Status badges help you quickly scan lists, tables, and detail views to see the current state of items (such as active periods, locked operations, or completed items). 
+
+Here is what the standard status badges mean:
+
+* **Active** (`🟢`): The item is currently running or in progress.
+* **Open** (`🔵`): The item is available, initialized, and ready for input.
+* **Locked** (`🔴`): The item has been frozen or restricted to prevent further changes.
+* **Closed** (`⚪`): The item has finished or concluded and is now archived.
+
+---
+
+## Frequently Asked Questions
+
+<Accordion>
+<AccordionTab title="Why did my notification disappear too quickly?">
+Success and information messages automatically dismiss after 5 seconds to keep your workspace clean. If you missed a message, you can usually check your activity history or review the affected item directly on the page.
+</AccordionTab>
+<AccordionTab title="How do I dismiss a warning or danger toast?">
+Warning and danger notifications stay visible longer (7 seconds) to ensure you have time to read them. You can also dismiss them immediately at any time by clicking the small **X** icon on the notification card.
+</AccordionTab>
+<AccordionTab title="What should I do if I see a Locked status badge?">
+A **Locked** status indicates that changes are temporarily or permanently restricted—often because a review period has ended or security rules prevent edits. Reach out to your workspace administrator if you need an item unlocked.
+</AccordionTab>
+</Accordion>

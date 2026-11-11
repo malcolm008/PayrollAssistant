@@ -1,0 +1,30 @@
+[
+  {
+    "id": "63bfe444-59e6-4e1f-ba0a-77e1b802e5f0",
+    "name": "Hero image for Documentation",
+    "original_name": "hero-documentation.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 778707,
+    "alt": "Documentation",
+    "filename": "63bfe444-59e6-4e1f-ba0a-77e1b802e5f0.png"
+  },
+  {
+    "id": "80a5e6cd-60b8-4de0-94eb-75cb56ccc373",
+    "name": "Screenshot 2026-11-11 173733.png",
+    "original_name": "Screenshot 2026-11-11 173733.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 73087,
+    "filename": "80a5e6cd-60b8-4de0-94eb-75cb56ccc373.png"
+  },
+  {
+    "id": "ff261f37-804d-4a1f-a8ab-39c9e7ae14f3",
+    "name": "Screenshot 2026-11-11 173733.png",
+    "original_name": "Screenshot 2026-11-11 173733.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 73087,
+    "filename": "ff261f37-804d-4a1f-a8ab-39c9e7ae14f3.png"
+  }
+]
