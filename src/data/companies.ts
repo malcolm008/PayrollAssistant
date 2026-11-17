@@ -8,13 +8,13 @@ export interface Company {
 export const companies: Company[] = [
   {
     id: "acme",
-    name: "Acme Corporation",
+    name: "Sound and Vision Limited",
     code: "ACME",
     employees: 248,
   },
   {
     id: "global",
-    name: "Global Industries Ltd",
+    name: "Benson Group Ltd",
     code: "GIL",
     employees: 521,
   },

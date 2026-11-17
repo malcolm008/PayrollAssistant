@@ -96,10 +96,6 @@ export function CompanySelectPage({
                   <div className="truncate text-sm font-semibold text-[var(--color-text)]">
                     {company.name}
                   </div>
-
-                  <div className="mt-1 text-xs text-[var(--color-text-muted)]">
-                    {company.code} · {company.employees} employees
-                  </div>
                 </div>
 
                 <ArrowRight

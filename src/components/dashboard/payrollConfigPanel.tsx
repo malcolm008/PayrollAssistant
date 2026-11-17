@@ -54,16 +54,13 @@ export function PayrollConfigPanel({ onClose }: { onClose?: () => void }) {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {items.map(({ key, title, icon: Icon }) => (
+        {items.map(({ key, title }) => (
           <button
             key={key}
             type="button"
             onClick={() => setOpen(key)}
             className="group flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-3 text-left transition-colors hover:border-[var(--color-brand)]/40 hover:bg-[var(--color-surface-hover)]"
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-brand-soft)] text-[var(--color-brand)]">
-              <Icon size={17} strokeWidth={1.8} />
-            </div>
 
             <span className="flex-1 text-xs font-semibold text-[var(--color-text)]">
               {title}

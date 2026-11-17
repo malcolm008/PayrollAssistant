@@ -1,7 +1,5 @@
 import {
-  ChevronRight,
   Clock3,
-  LayoutDashboard,
   Percent,
   Plus,
   Users,
@@ -38,7 +36,6 @@ const incrementEmployees: IncrementEmployee[] = [
 
 interface OperationTileProps {
   title: string;
-  tag: string;
   icon: React.ElementType;
   onClick?: () => void;
   accent?: "blueGreen";
@@ -46,7 +43,6 @@ interface OperationTileProps {
 
 function OperationTile({
   title,
-  tag,
   icon: Icon,
   onClick,
   accent = "blueGreen",
@@ -75,14 +71,10 @@ function OperationTile({
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-3">
         <h3 className="text-sm font-semibold text-[var(--color-text)]">
           {title}
         </h3>
-
-        <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
-          {tag}
-        </p>
       </div>
     </button>
   );
@@ -143,17 +135,6 @@ export function DashboardPage() {
             PAGE HEADER
         ========================================================= */}
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-3 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
-              <LayoutDashboard size={14} />
-              <span>Dashboard</span>
-              <ChevronRight size={13} />
-              <span className="text-[var(--color-text-secondary)]">
-                Operations
-              </span>
-            </div>
-          </div>
-
           <div className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
             <Clock3 size={15} className="text-[var(--color-brand)]" />
             <span className="text-xs text-[var(--color-text-secondary)]">
@@ -177,28 +158,24 @@ export function DashboardPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <OperationTile
                   title="Cost Centers"
-                  tag="Setup"
                   icon={HatGlasses}
                   onClick={() => setShowCostCenters(true)}
                   accent="blueGreen"
                 />
                 <OperationTile
                   title="GL Accounts"
-                  tag="Setup"
                   icon={HousePlus}
                   onClick={() => setShowGLAccounts(true)}
                   accent="blueGreen"
                 />
                 <OperationTile
                   title="Account Allocation"
-                  tag="Accounting"
                   icon={ChartNetwork}
                   onClick={() => setShowAccountAllocation(true)}
                   accent="blueGreen"
                 />
                 <OperationTile
                   title="Leave"
-                  tag="HR · Operations"
                   icon={RotateCwFadingClock}
                   onClick={() =>
                     setShowLeaveWorkspace((current) => !current)
@@ -207,7 +184,6 @@ export function DashboardPage() {
                 />
                 <OperationTile
                   title="Payroll Configuration"
-                  tag="Setup · Types"
                   icon={Settings2}
                   onClick={() => setShowPayrollConfig((current) => !current)}
                   accent="blueGreen"
@@ -236,25 +212,22 @@ export function DashboardPage() {
             )}
             {/* System Administration */}
             <section>
-              <SectionHeader title="System Administration" />
+              <SectionHeader title="System Administration" count={3}/>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <OperationTile
                     title="Income Tax Parameters"
-                    tag="Setup · Statutory"
                     icon={Calculator}
                     onClick={() => setShowIncomeTax(true)}
                     accent="blueGreen"
                   />
                   <OperationTile
                     title="System Users"
-                    tag="Access · Roles"
                     icon={Users}
                     onClick={() => setShowSystemUsers(true)}
                     accent="blueGreen"
                   />
                   <OperationTile
                     title="Payment Variables"
-                    tag="Setup · Variables"
                     icon={WalletCards}
                     onClick={() => setShowPaymentVariable(true)}
                     accent="blueGreen"
@@ -265,12 +238,11 @@ export function DashboardPage() {
 
           {/* Right rail: Global Operations */}
           <aside>
-            <SectionHeader title="Payroll Operations" count={2} />
+            <SectionHeader title="Payroll Operations" count={4} />
 
-            <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-1 flex flex-col gap-3">
             <OperationTile
               title="Global Increment"
-              tag="Payroll · Bulk"
               icon={Percent}
               onClick={() => setShowGlobalIncrement(true)}
               accent="blueGreen"
@@ -278,7 +250,6 @@ export function DashboardPage() {
 
             <OperationTile
               title="Individual Increment"
-              tag="Payroll · Single"
               icon={Plus}
               onClick={() => setShowIndividualIncrement(true)}
               accent="blueGreen"
@@ -286,7 +257,6 @@ export function DashboardPage() {
 
             <OperationTile
               title="Pension Receipts"
-              tag="Payroll · Statutory"
               icon={FileText}
               onClick={() => setShowPensionReceipts(true)}
               accent="blueGreen"
@@ -294,7 +264,6 @@ export function DashboardPage() {
 
             <OperationTile
               title="Payslip Broadcast"
-              tag="Payroll · Employee Communication"
               icon={MessageSquareText}
               onClick={() => setShowPayslipBroadcast(true)}
               accent="blueGreen"

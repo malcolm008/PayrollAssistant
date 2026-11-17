@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
   Check,
-  ChevronRight,
   Clock3,
   ClockFading,
   FileText,
@@ -253,7 +252,7 @@ export function DashboardLeaveWorkspace() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <LeaveOperationButton
             title="Edit Calendar"
             description=""
@@ -351,7 +350,7 @@ interface LeaveOperationButtonProps {
 function LeaveOperationButton({
   title,
   description,
-  icon: Icon,
+
   onClick,
 }: LeaveOperationButtonProps) {
   return (
@@ -360,22 +359,7 @@ function LeaveOperationButton({
       onClick={onClick}
       className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--color-brand)]/40 hover:bg-[var(--color-surface-hover)] hover:shadow-lg"
     >
-      <div className="flex items-start justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand-soft)]">
-          <Icon
-            size={19}
-            className="text-[var(--color-brand)]"
-            strokeWidth={1.8}
-          />
-        </div>
-
-        <ChevronRight
-          size={16}
-          className="text-[var(--color-text-muted)] transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-brand)]"
-        />
-      </div>
-
-      <div className="mt-5">
+      <div className="mt-2">
         <h3 className="text-sm font-semibold text-[var(--color-text)]">
           {title}
         </h3>

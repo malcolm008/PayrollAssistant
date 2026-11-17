@@ -323,7 +323,7 @@ export function EmployeesPage() {
               ) : (
                 groups.map(([department, list]) => (
                   <section key={department} className="mb-5 last:mb-0">
-                    <h3 className="mb-1 flex items-baseline justify-between px-3 text-xs text-[var(--color-text-muted)]">
+                    <h3 className="mb-1 flex items-baseline justify-between px-3 text-xs text-[var(--color-brand)]">
                       <span>{department}</span>
                       <span className="tabular-nums">{list.length}</span>
                     </h3>
@@ -356,10 +356,6 @@ export function EmployeesPage() {
                                   }`}
                                 >
                                   {fullNameOf(employee)}
-                                </span>
-
-                                <span className="block truncate text-xs text-[var(--color-text-secondary)]">
-                                  {employee.jobTitle}
                                 </span>
                               </span>
 
@@ -455,10 +451,6 @@ function EmployeeDetail({ employee, onEdit, onRemove }: EmployeeDetailProps) {
             {fullNameOf(employee)}
           </h2>
 
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            {employee.jobTitle} in {employee.department}
-          </p>
-
           <p className="mt-1 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
             <span
               className={`h-1.5 w-1.5 rounded-full ${
@@ -468,7 +460,6 @@ function EmployeeDetail({ employee, onEdit, onRemove }: EmployeeDetailProps) {
               }`}
             />
             <span>
-              {employee.status}, {employee.employmentType.toLowerCase()},{" "}
               <span className="tabular-nums">{employee.employeeNumber}</span>
             </span>
           </p>
