@@ -12,6 +12,7 @@ import {
   HousePlus,
   ChartNetwork,
   RotateCwFadingClock,
+  Landmark,
 } from "lucide-react";
 import { useState } from "react";
 import { GlobalIncrementModal, type IncrementEmployee } from "../features/modals/GlobalincrementModal";
@@ -27,6 +28,7 @@ import { CostCentersModal } from "../components/dashboard/costCenterModal";
 import { AccountAllocationModal } from "../components/dashboard/accountAllocationModal";
 import { GLAccountsModal } from "../components/dashboard/glAccountsModal";
 import { DeductionsBillsAdvancesModal } from "../components/dashboard/deductionsBillsAdvancesModal";
+import { CompanyBankAccountsModal } from "../components/dashboard/companyBankAccountModal";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -129,6 +131,7 @@ export function DashboardPage() {
   const [showGLAccounts, setShowGLAccounts] = useState(false);
   const [showAccountAllocation, setShowAccountAllocation] = useState(false);
   const [showVariables, setShowVariables] = useState(false);
+  const [showCompanyBankAccounts, setShowCompanyBankAccounts] = useState(false);
   
 
   return (
@@ -244,6 +247,12 @@ export function DashboardPage() {
                     onClick={() => setShowVariables(true)}
                     accent="blueGreen"
                   />
+                  <OperationTile
+                    title="Company Bank Accounts"
+                    icon={Landmark}
+                    onClick={() => setShowCompanyBankAccounts(true)}
+                    accent="blueGreen"
+                  />
                 </div>
             </section>
           </div>
@@ -310,7 +319,9 @@ export function DashboardPage() {
                 onClose={() => setShowPensionReceipts(false)}
               />
             )}
-
+            {showCompanyBankAccounts && (
+              <CompanyBankAccountsModal onClose={() => setShowCompanyBankAccounts(false)} />
+            )}
             {showPayslipBroadcast && (
               <PayslipBroadcastModal
                 employees={incrementEmployees}
