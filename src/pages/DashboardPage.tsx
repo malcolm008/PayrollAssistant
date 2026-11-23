@@ -26,6 +26,7 @@ import { PaymentVariablesModal } from "../components/dashboard/PaymentVariablesM
 import { CostCentersModal } from "../components/dashboard/costCenterModal";
 import { AccountAllocationModal } from "../components/dashboard/accountAllocationModal";
 import { GLAccountsModal } from "../components/dashboard/glAccountsModal";
+import { DeductionsBillsAdvancesModal } from "../components/dashboard/deductionsBillsAdvancesModal";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -127,6 +128,8 @@ export function DashboardPage() {
   const [showCostCenters, setShowCostCenters] = useState(false);
   const [showGLAccounts, setShowGLAccounts] = useState(false);
   const [showAccountAllocation, setShowAccountAllocation] = useState(false);
+  const [showVariables, setShowVariables] = useState(false);
+  
 
   return (
     <div className="min-h-full bg-[var(--color-bg)]">
@@ -210,9 +213,12 @@ export function DashboardPage() {
             {showAccountAllocation && (
               <AccountAllocationModal onClose={() => setShowAccountAllocation(false)} />
             )}
+            {showVariables && (
+              <DeductionsBillsAdvancesModal onClose={() => setShowVariables(false)} />
+            )}
             {/* System Administration */}
             <section>
-              <SectionHeader title="System Administration" count={3}/>
+              <SectionHeader title="System Administration" count={4}/>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <OperationTile
                     title="Income Tax Parameters"
@@ -230,6 +236,12 @@ export function DashboardPage() {
                     title="Payment Variables"
                     icon={WalletCards}
                     onClick={() => setShowPaymentVariable(true)}
+                    accent="blueGreen"
+                  />
+                  <OperationTile
+                    title="Deductions Variables"
+                    icon={WalletCards}
+                    onClick={() => setShowVariables(true)}
                     accent="blueGreen"
                   />
                 </div>

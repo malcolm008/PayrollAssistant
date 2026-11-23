@@ -1,0 +1,718 @@
+{
+  "schema_version": "2",
+  "id": "1fda7618-4b4f-4da9-823b-28c896c51e20",
+  "organization_id": "374bc66c-7389-446f-a6b5-9fb921f77029",
+  "name": "Malcolm Docs",
+  "audience": "public",
+  "status": "generated",
+  "config": {
+    "theme": {
+      "preset": "pearl",
+      "dark": {
+        "bg_color": "#0a0a0a",
+        "text_color": "#ededed",
+        "accent_color": "#3b82f6"
+      },
+      "light": {
+        "bg_color": "#fafafa",
+        "text_color": "#171717",
+        "accent_color": "#2563eb"
+      },
+      "modes": [
+        "dark",
+        "light"
+      ],
+      "default": "dark",
+      "font_family": "Inter"
+    },
+    "assistant": {
+      "enabled": true,
+      "floating": true
+    },
+    "seo": {
+      "title_template": "%s | Documentation"
+    },
+    "footer": {
+      "enabled": true,
+      "powered_by_gitdocai": true
+    },
+    "kb": {
+      "enabled": true,
+      "name": "Help Center",
+      "hero_title": "How can we help?",
+      "hero_description": "Ask our AI anything about these docs.",
+      "hero_placeholder": "Ask anything…",
+      "show_categories": false,
+      "show_popular_articles": false,
+      "popular_title": "Popular Articles"
+    }
+  },
+  "version_selector_enabled": false,
+  "version_selector_position": "navbar_right",
+  "versions": [
+    {
+      "id": "02600e6c-cd10-4636-b398-e73c63c451f4",
+      "name": "v1",
+      "slug": "v1",
+      "is_latest": true,
+      "is_default": true,
+      "is_deprecated": false,
+      "sections": [
+        {
+          "id": "7392ab29-6e2d-462e-922b-348f7875d231",
+          "version_id": "02600e6c-cd10-4636-b398-e73c63c451f4",
+          "name": "Documentation",
+          "slug": "documentation",
+          "type": "product_documentation",
+          "order": 0,
+          "visible": true,
+          "pages": [
+            {
+              "id": "6b0f3c34-4c49-4ff1-9409-f562b7d83b50",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "title": "Getting Started",
+              "slug": "getting-started",
+              "type": "folder",
+              "icon": "pi pi-bolt",
+              "order": 0,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/getting-started/index.mdx"
+            },
+            {
+              "id": "d3b962d3-10a7-4ca2-a55b-d877465c8b90",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "6b0f3c34-4c49-4ff1-9409-f562b7d83b50",
+              "title": "Application Layout and Navigation",
+              "slug": "application-layout-and-navigation",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/layouts/AppLayout.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "c368ae85862543873640ae28341c9ad75a46c505a8d31c74b7adcc46a5ac5458",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:f70ac4543baa7ba7442ff4ad64e62b05e2a96c98"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:02.725285+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/getting-started/application-layout-and-navigation.mdx"
+            },
+            {
+              "id": "86624ea8-ead0-48bc-b052-b90f1157dc49",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "6b0f3c34-4c49-4ff1-9409-f562b7d83b50",
+              "title": "System Settings and Customization",
+              "slug": "system-settings-and-customization",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/settings/SettingsPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "d1657ede18524995e2758a3eaa7002da5a95361e70ac197217c600ab43283481",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:8413a6b2ee32614a4a1850afae442a6f6dfdecc5"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:01.290580+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/getting-started/system-settings-and-customization.mdx"
+            },
+            {
+              "id": "29081c40-97d2-49d1-9df0-297b600e189b",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "6b0f3c34-4c49-4ff1-9409-f562b7d83b50",
+              "title": "Company Information and Identity",
+              "slug": "company-information-and-identity",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/settings/company/CompanyInformation.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "871e3e63771281022f901f96f99a75b1f664f8ceb43276c29bf71f106f659977",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:9c9b378aa37a3aa55f8844b21702a239e3c2fd7f"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:01.629203+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/getting-started/company-information-and-identity.mdx"
+            },
+            {
+              "id": "4cd017c3-0203-4532-b63b-90ad3eaa8470",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "title": "Dashboard and Operations Overview",
+              "slug": "dashboard-and-operations-overview",
+              "type": "folder",
+              "icon": "pi pi-chart-line",
+              "order": 1,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/dashboard-and-operations-overview/index.mdx"
+            },
+            {
+              "id": "40352c66-890c-4c4e-a727-92cbdb3b0581",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "4cd017c3-0203-4532-b63b-90ad3eaa8470",
+              "title": "Using the Main Dashboard",
+              "slug": "using-the-main-dashboard",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/DashboardPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "48ee05898e1f908bc467331db9394e98df75591c9b4858fef0cff4ddba62363c",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:bb698ef4c78d0cce8a139779710725d0b12bb18c"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:02.519239+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/dashboard-and-operations-overview/using-the-main-dashboard.mdx"
+            },
+            {
+              "id": "ad79335b-7213-4526-8cee-eb47254d977e",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "4cd017c3-0203-4532-b63b-90ad3eaa8470",
+              "title": "UI Feedback and Notifications",
+              "slug": "ui-feedback-and-notifications",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/payroll/PayrollPeriodPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "d5eb2cd2c030d047b4bc64067ec703dc8b17185c3b8833742a82b936f6249d82",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:36ab561b88074e55aa600fd4c9953fbf13f1ab25"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:02.337244+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/dashboard-and-operations-overview/ui-feedback-and-notifications.mdx"
+            },
+            {
+              "id": "7d163825-49cc-4ac4-8320-e947c4215309",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "title": "Employee Management",
+              "slug": "employee-management",
+              "type": "folder",
+              "icon": "fa fa-users",
+              "order": 2,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/employee-management/index.mdx"
+            },
+            {
+              "id": "bb99b1c8-f2a2-4582-8db7-5fbe2a9aeac2",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "7d163825-49cc-4ac4-8320-e947c4215309",
+              "title": "Managing Employee Roster",
+              "slug": "managing-employee-roster",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/employees/EmployeesPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "4bf8412c63532758d3e431b524a0e9a7f5be55bdb261b4c60148d02c8bc90973",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:dfee2ae9b02335cc09741d57781804ddb184aa1c"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:01.976772+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/employee-management/managing-employee-roster.mdx"
+            },
+            {
+              "id": "51f345a1-26f0-447d-a4d7-3181a2497121",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "7d163825-49cc-4ac4-8320-e947c4215309",
+              "title": "Registering New Employees",
+              "slug": "registering-new-employees",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/payroll/PayrollPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "172776c24ab192894e632802d221383b67c64de6f4b53990825e54396a793ce7",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:d6f1c5a6722b2d6f26246eb28e71dcb0084a82eb"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:01.901971+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/employee-management/registering-new-employees.mdx"
+            },
+            {
+              "id": "9b77e024-30bf-459f-910b-2ed7a0876da5",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "7d163825-49cc-4ac4-8320-e947c4215309",
+              "title": "Tracking Employee Attendance",
+              "slug": "tracking-employee-attendance",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/attendance/AttendancePage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "db4b0b1f88c0b39e0f15a4406faae743a49dee807f37057765a524269dc51860",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:4049ed88afc6ad658d40824a3b7d7dccaf0a1d0c"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:02.633319+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/employee-management/tracking-employee-attendance.mdx"
+            },
+            {
+              "id": "061f4bb4-2fb5-44c5-90fc-f5ed26d511f7",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "title": "Payroll Operations",
+              "slug": "payroll-operations",
+              "type": "folder",
+              "icon": "pi pi-dollar",
+              "order": 3,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/payroll-operations/index.mdx"
+            },
+            {
+              "id": "3f11f9fe-9b37-444d-a38a-dda2b8526ce4",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "061f4bb4-2fb5-44c5-90fc-f5ed26d511f7",
+              "title": "Payroll Period Management",
+              "slug": "payroll-period-management",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/payroll/PayrollPeriodPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "d5eb2cd2c030d047b4bc64067ec703dc8b17185c3b8833742a82b936f6249d82",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:36ab561b88074e55aa600fd4c9953fbf13f1ab25"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:02.458738+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/payroll-operations/payroll-period-management.mdx"
+            },
+            {
+              "id": "adb6d79a-a881-4a26-a7d0-98bf2bd845ac",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "061f4bb4-2fb5-44c5-90fc-f5ed26d511f7",
+              "title": "Processing Salaries and Payroll",
+              "slug": "processing-salaries-and-payroll",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/payroll/PayrollPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "172776c24ab192894e632802d221383b67c64de6f4b53990825e54396a793ce7",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:d6f1c5a6722b2d6f26246eb28e71dcb0084a82eb"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:02.574918+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/payroll-operations/processing-salaries-and-payroll.mdx"
+            },
+            {
+              "id": "8d9207bb-be8f-4a8c-92d2-b79b0b2504e8",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "061f4bb4-2fb5-44c5-90fc-f5ed26d511f7",
+              "title": "Viewing Payslips and Workspaces",
+              "slug": "viewing-payslips-and-workspaces",
+              "type": "page",
+              "order": 2,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/payroll/PayrollPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "172776c24ab192894e632802d221383b67c64de6f4b53990825e54396a793ce7",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:d6f1c5a6722b2d6f26246eb28e71dcb0084a82eb"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:04.760030+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/payroll-operations/viewing-payslips-and-workspaces.mdx"
+            },
+            {
+              "id": "16a4cec1-99ff-4743-b3aa-8bdeef6831b4",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "title": "Financial Advances and Loans",
+              "slug": "financial-advances-and-loans",
+              "type": "folder",
+              "icon": "pi pi-briefcase",
+              "order": 4,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/financial-advances-and-loans/index.mdx"
+            },
+            {
+              "id": "b41ef37e-833a-4aa6-b480-8743868dd122",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "16a4cec1-99ff-4743-b3aa-8bdeef6831b4",
+              "title": "Managing Employee Advances",
+              "slug": "managing-employee-advances",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/advances/AdvancesPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "83bc0c6f9b994ccaf1dc344102fbc5468e1e1ef1ea907d75536a1dff611d7915",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:d49e5a15b18e600a0819a7a0abb42db006e36804"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:04.400140+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/financial-advances-and-loans/managing-employee-advances.mdx"
+            },
+            {
+              "id": "ceb0261a-8661-40f1-87ac-29996be066c0",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "16a4cec1-99ff-4743-b3aa-8bdeef6831b4",
+              "title": "Configuring Payroll Elements",
+              "slug": "configuring-payroll-elements",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/settings/SettingsPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "d1657ede18524995e2758a3eaa7002da5a95361e70ac197217c600ab43283481",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:8413a6b2ee32614a4a1850afae442a6f6dfdecc5"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:04.808191+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/financial-advances-and-loans/configuring-payroll-elements.mdx"
+            },
+            {
+              "id": "e143ce9a-1b5a-4da7-b528-70002ff4e47d",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "title": "Accounting and Cost Centers",
+              "slug": "accounting-and-cost-centers",
+              "type": "folder",
+              "icon": "pi pi-database",
+              "order": 5,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/accounting-and-cost-centers/index.mdx"
+            },
+            {
+              "id": "eeb14863-0778-43ba-b86d-20531972ff1f",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "e143ce9a-1b5a-4da7-b528-70002ff4e47d",
+              "title": "Managing General Ledger Accounts",
+              "slug": "managing-general-ledger-accounts",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/analysis/gl-accounts/GLAccountsPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "29b95445a9432cd631356d7955ed4dd9550d27dcb5c4c0c870fab5a912c2b714",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:549587ef57d83aa63175c7fb5a3d85d2ab065ceb"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:05.291455+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/accounting-and-cost-centers/managing-general-ledger-accounts.mdx"
+            },
+            {
+              "id": "da204351-bef1-4423-a87a-997194a2aa66",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "e143ce9a-1b5a-4da7-b528-70002ff4e47d",
+              "title": "Tracking Cost Centers",
+              "slug": "tracking-cost-centers",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/analysis/cost-centers/CostCentersPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "1d974a1bebcda8ce1244ae00f201a7773b6961ec07417a790cda44d9a0507b1f",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:8b4598cecf51f82002d7cccb021c56b065289548"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:04.750250+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/accounting-and-cost-centers/tracking-cost-centers.mdx"
+            },
+            {
+              "id": "1eaea96c-095d-40c5-a3ab-3efd89d61b39",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "title": "Reports and Analytics",
+              "slug": "reports-and-analytics",
+              "type": "folder",
+              "icon": "pi pi-chart-line",
+              "order": 6,
+              "source_metadata": {},
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/reports-and-analytics/index.mdx"
+            },
+            {
+              "id": "f5983eec-b73c-46d2-b1d4-d6ca54a50cfc",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "1eaea96c-095d-40c5-a3ab-3efd89d61b39",
+              "title": "Generating Payroll Reports",
+              "slug": "generating-payroll-reports",
+              "type": "page",
+              "order": 0,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/reports/ReportsPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "a5be1d57df55c8130546a18963dab2409cf04a7d5992571ce6e5f2f31cc79cb2",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:f12b8e141e6dfb846178e491a5fb20c816a6f1f5"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:05.500253+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/reports-and-analytics/generating-payroll-reports.mdx"
+            },
+            {
+              "id": "45696339-0f6c-4c65-a45d-1a5c6c650212",
+              "section_id": "7392ab29-6e2d-462e-922b-348f7875d231",
+              "parent_id": "1eaea96c-095d-40c5-a3ab-3efd89d61b39",
+              "title": "Viewing Overview Metrics and Analytics",
+              "slug": "viewing-overview-metrics-and-analytics",
+              "type": "page",
+              "order": 1,
+              "source_metadata": {
+                "resources": [
+                  {
+                    "resource_id": "46d1772c-f611-4e66-be68-8ca1ecdb76be",
+                    "resource_name": "src/pages/reports/ReportsPage.tsx",
+                    "resource_type": "repository",
+                    "content_hash": "a5be1d57df55c8130546a18963dab2409cf04a7d5992571ce6e5f2f31cc79cb2",
+                    "source_version": "cf38a62034c8c3b740ee83e3033a5231ae8b1ca0:f12b8e141e6dfb846178e491a5fb20c816a6f1f5"
+                  }
+                ],
+                "generated_at": "2026-11-11T15:33:04.913008+00:00"
+              },
+              "metadata": {},
+              "metadata_visibility": {
+                "show_author": true,
+                "show_reading_time": true,
+                "show_publish_date": true,
+                "show_update_date": true,
+                "show_tags": true
+              },
+              "content_path": "v1/documentation/reports-and-analytics/viewing-overview-metrics-and-analytics.mdx"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

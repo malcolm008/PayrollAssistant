@@ -1,0 +1,67 @@
+Keep your financial records organized and accurate by implementing, validating, and managing your General Ledger (GL) accounts. This guide walks you through creating, updating, and reviewing your financial accounts using the GL Accounts dashboard.
+
+## Overview of the GL Accounts Dashboard
+
+The General Ledger dashboard provides a centralized view of all your financial accounts, tracking debit and credit totals, net balances, and account statuses in real time. 
+
+
+  <Card title="Account Management" icon="pi pi-file-edit">
+    Quickly create, edit, or archive general ledger accounts with built-in validation checks.
+  </Card>
+  <Card title="Real-time Balances" icon="pi pi-chart-line">
+    Automatically calculate debit and credit balances with immediate debit (DR) or credit (CR) indicators.
+  </Card>
+
+
+## Creating a New General Ledger Account
+
+Before recording transactions, you need to set up your general ledger accounts with unique identification numbers and descriptions.
+
+<Steps>
+<Step title="Open the New Account form">
+Navigate to the **GL Accounts** page under **Input Operations**, then click the **New GL Account** button in the top right corner.
+</Step>
+<Step title="Enter account details">
+Fill in the required information:
+- **GL Account Number**: A unique identifier for the account (e.g., `5100`).
+- **Description**: A clear label describing the account's purpose (e.g., `Basic Salaries`).
+</Step>
+<Step title="Set initial balances">
+Optionally enter starting **Debit** or **Credit** amounts. The system automatically calculates the net balance in real time.
+</Step>
+<Step title="Save your account">
+Click **Create Account** to add the new ledger to your system.
+</Step>
+</Steps>
+
+> [!TIP]
+> Account numbers must be unique. If you attempt to create an account with a number that already exists, the system will alert you before saving.
+
+## Managing Existing Accounts
+
+You can search, filter, and modify your ledger accounts at any time from the main dashboard table.
+
+### Filtering and Searching
+- Use the **Search** bar to instantly locate accounts by their number or description.
+- Use the status filter buttons (**All**, **Active**, **Inactive**) to narrow down your view based on account availability.
+
+### Editing and Status Toggling
+- **Edit**: Click the **Edit** icon next to any account to modify its description, number, or balances.
+- **Status**: Click the status badge on any row to toggle an account between **Active** and **Inactive**. 
+
+> [!WARNING]
+> Inactive accounts cannot be selected for new transactions, preserving historical integrity while preventing accidental new entries.
+
+## Frequently Asked Questions
+
+<Accordion>
+<AccordionTab title="What happens when I delete a GL account?">
+Deleting a GL account permanently removes it and its associated balances from the system. If you want to stop using an account without losing historical context, we recommend toggling its status to **Inactive** instead.
+</AccordionTab>
+<AccordionTab title="How is the net balance calculated?">
+The system calculates balances by subtracting total credits from total debits ($\text{Debit} - \text{Credit}$). Positive values display as Debit (DR) in green, while negative values display as Credit (CR) in red.
+</AccordionTab>
+<AccordionTab title="Can I have duplicate account numbers?">
+No. The system enforces uniqueness on all GL account numbers to prevent accounting discrepancies.
+</AccordionTab>
+</Accordion>
