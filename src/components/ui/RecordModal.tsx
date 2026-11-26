@@ -157,8 +157,41 @@ export function ActiveT({
   );
 }
 
-// Edit and Delete as plain text. Delete asks for confirmation in place, so
-// there is no second popup on top of the modal.
+export function ActiveCheckbox({
+  checked,
+  onChange,
+  hint,
+  label = "Active",
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  hint?: string;
+  label?: string;
+}) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="mt-0.5 h-4 w-4 accent-[var(--color-brand)]"
+      />
+
+      <span>
+        <span className="block text-sm font-medium text-[var(--color-text)]">
+          {label}
+        </span>
+
+        {hint && (
+          <span className="block text-xs text-[var(--color-text-muted)]">
+            {hint}
+          </span>
+        )}
+      </span>
+    </label>
+  );
+}
+
 export function RowActions({
   name,
   onEdit,

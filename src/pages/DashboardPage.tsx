@@ -29,6 +29,7 @@ import { AccountAllocationModal } from "../components/dashboard/accountAllocatio
 import { GLAccountsModal } from "../components/dashboard/glAccountsModal";
 import { DeductionsBillsAdvancesModal } from "../components/dashboard/deductionsBillsAdvancesModal";
 import { CompanyBankAccountsModal } from "../components/dashboard/companyBankAccountModal";
+import { PaymentMethodsModal } from "../components/dashboard/paymentMethodModal";
 
 const incrementEmployees: IncrementEmployee[] = [
   { id: "EMP-0001", name: "John Mwangi", department: "Finance", status: "Active", basicSalary: 1500000 },
@@ -132,6 +133,7 @@ export function DashboardPage() {
   const [showAccountAllocation, setShowAccountAllocation] = useState(false);
   const [showVariables, setShowVariables] = useState(false);
   const [showCompanyBankAccounts, setShowCompanyBankAccounts] = useState(false);
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
   
 
   return (
@@ -221,7 +223,7 @@ export function DashboardPage() {
             )}
             {/* System Administration */}
             <section>
-              <SectionHeader title="System Administration" count={4}/>
+              <SectionHeader title="System Administration" count={6}/>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <OperationTile
                     title="Income Tax Parameters"
@@ -251,6 +253,12 @@ export function DashboardPage() {
                     title="Company Bank Accounts"
                     icon={Landmark}
                     onClick={() => setShowCompanyBankAccounts(true)}
+                    accent="blueGreen"
+                  />
+                  <OperationTile
+                    title="Payment Methods"
+                    icon={Landmark}
+                    onClick={() => setShowPaymentMethods(true)}
                     accent="blueGreen"
                   />
                 </div>
@@ -301,7 +309,9 @@ export function DashboardPage() {
                 }}
               />
             )}
-
+            {showPaymentMethods && (
+              <PaymentMethodsModal onClose={() => setShowPaymentMethods(false)} />
+            )}
             {showIndividualIncrement && (
               <IndividualIncrementModal
                 employees={incrementEmployees}
